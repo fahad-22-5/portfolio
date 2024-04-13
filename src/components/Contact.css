@@ -1,0 +1,26 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  margin: 2rem;
+}
+.smallInput {
+  padding: 1rem;
+  margin-top: 1rem;
+  outline: none;
+  background: #ffcd28;
+  font-family: "Kode Mono", monospace;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.msgInput {
+  height: 10rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  outline: none;
+  text-align: center;
+  background: #ffcd28;
+  font-family: "Kode Mono", monospace;
+  font-weight: bold;
+  font-size: 24px;
+}

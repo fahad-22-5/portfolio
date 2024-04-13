@@ -1,5 +1,12 @@
 .App {
+  margin-top: 10rem;
   text-align: center;
+}
+
+.Panel {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
 }
 
 .App-logo {
@@ -35,4 +42,121 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+body {
+  min-height: 100vh;
+  width: 100%;
+  /* include the same texture used for the .bubble containers, but with notably less opacity */
+  background: url('data:image/svg+xml;utf8,<svg width="100" height="100" transform="rotate(0)" opacity="0.2" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g  fill="%23250E17"><circle cx="25" cy="25" r="12.5"/><circle cx="75" cy="75" r="12.5"/><circle cx="75" cy="25" r="12.5"/><circle cx="25" cy="75" r="12.5"/></g></svg>'),
+    #ff204e;
+  background-size: 14px, 100%;
+}
+
+.NameCard {
+  background: #ec3131;
+  border-radius: 40px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100%;
+  margin: 50px auto;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  color: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  transform: rotate(-20deg) scale(0.85);
+  animation: drop 0.5s;
+}
+
+@keyframes drop {
+  0% {
+    transform: rotate(-15deg) scale(1);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  }
+  80% {
+    transform: rotate(-15deg) scale(0.85);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  }
+  90% {
+    transform: rotate(-20deg) scale(0.87) skew(-4deg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 1);
+  }
+  100% {
+    transform: scale(-10deg) scale(0.85);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.hello {
+  font-size: 70px;
+  margin: 0;
+}
+
+.nameIs {
+  font-size: 20px;
+  margin: 0;
+}
+
+.tag {
+  height: 60%;
+  width: 96%;
+  margin: 10px;
+  background-color: #fff;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  font-family: "Indie Flower", cursive;
+  color: black;
+  font-size: 65px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hoverCard {
+  background: url('data:image/svg+xml;utf8,<svg width="100" height="100" transform="rotate(25)" opacity="0.8" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g  fill="%23d68810"><circle cx="25" cy="25" r="12.5"/><circle cx="75" cy="75" r="12.5"/><circle cx="75" cy="25" r="12.5"/><circle cx="25" cy="75" r="12.5"/></g></svg>'),
+    #026bc7;
+  border-radius: 40px;
+  width: 500px;
+  height: 400px;
+  background-size: 13px, 100%;
+  transition: 0.2s;
+  transform: rotate(10deg);
+}
+
+.About {
+  margin: 0 25%;
+  margin: 0 auto;
+  margin-top: 20rem;
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+  background: #0096ff;
+  background-size: 10px, 100%;
+  border: 0.3rem solid #000;
+  box-shadow: -4px 4px;
+  /* font-family: "Indie Flower", cursive; */
+  font-family: "Kode Mono", monospace;
+  cursor: default;
+  z-index: -5;
+}
+
+.AboutMe {
+  background: #ffc700;
+  border: 0.3rem solid #000;
+  box-shadow: -5px 5px;
+  /* font-family: 'Indie Flower', cursive; */
+  font-family: "Kode Mono", monospace;
+  cursor: default;
+  padding: 1rem;
+  margin-left: 1rem;
+  width: 50%;
+  transform: rotate(-12deg) translateX(-2.5rem) translateY(-1.5rem);
+}
+
+.AboutText {
+  padding: 0 4rem 2rem;
 }

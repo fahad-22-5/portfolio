@@ -1,0 +1,68 @@
+.Skills {
+  background: #0096ff;
+}
+
+.SkillsHead {
+  font-weight: bold;
+}
+
+.Box {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 1rem;
+  row-gap: 1rem;
+  background: #ff204e;
+  background-size: 10px, 100%;
+  border: 0.3rem solid #000;
+  width: 95%;
+  padding: 1rem;
+  margin: 0.5rem auto;
+  margin-top: 0;
+}
+
+.skillBox {
+  display: flex;
+  flex-direction: column;
+  font-weight: 900;
+  font-size: 18px;
+  margin-top: 2rem;
+}
+
+.SkillBtn {
+  border: none;
+  font-size: 1rem;
+  padding: 1rem;
+  font-family: "Kode Mono", monospace;
+  cursor: pointer;
+  background: #cfff97;
+  color: #004225;
+  font-weight: 700;
+  cursor: default;
+}
+
+.Title {
+  background-color: #ffcd28;
+  border: 0.15rem solid #000;
+}
+
+.Two {
+  animation: right-out ease-out;
+  animation-timeline: view();
+}
+
+.Three {
+  animation: left-out ease-in;
+  animation-timeline: view();
+}
+
+@keyframes right-out {
+  to {
+    transform: translateX(-10rem);
+  }
+}
+
+@keyframes left-out {
+  to {
+    transform: translateX(10rem);
+  }
+}

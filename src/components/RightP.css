@@ -1,0 +1,50 @@
+.bubble {
+  background: #cfff97;
+  border: 0.3rem solid #000;
+  z-index: -5;
+  box-shadow: -5px 5px;
+  /* font-family: 'Indie Flower', cursive; */
+  font-family: "Kode Mono", monospace;
+  cursor: default;
+}
+
+/* .bubble:hover{
+    box-shadow: -10px 10px;
+    translate: 1px -1px;
+} */
+
+.RPanel {
+  margin-top: 5rem;
+  width: 40%;
+}
+
+.skills {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  font-size: 1.2rem;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 3rem;
+  margin-left: 18rem;
+}
+
+.navButton {
+  border: none;
+  font-size: 1rem;
+  padding: 1rem;
+  font-family: "Kode Mono", monospace;
+  cursor: pointer;
+  background: #000;
+  color: #ffcd28;
+  box-shadow: -5px 5px #ffcd28;
+  transition: 0.04s;
+}
+
+.navButton:hover {
+  box-shadow: -1px 1px #ffcd28;
+  translate: -4px 4px;
+}
