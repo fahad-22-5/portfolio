@@ -5,7 +5,7 @@ const skillCategories = [
   {
     title: 'Backend & Core',
     color: 'red',
-    skills: ['.NET', 'C#', 'SQL', 'MySQL', 'RabbitMQ', 'Firebase'],
+    skills: ['.NET', 'C#', 'SQL', 'MySQL', 'RabbitMQ', 'Firebase', 'PostgreSQL'],
   },
   {
     title: 'Languages',

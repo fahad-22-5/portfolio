@@ -16,16 +16,16 @@ function App() {
       <Navbar />
       <Hero />
       <div className="section-divider"></div>
-      
-      <PersonaHeader id="spider-man-section" title="Spider-Man" subtitle="My Work & Stuff" color="red" />
+
+      <PersonaHeader id="spider-man-section" title="Spider-Man" subtitle="Swinging past bugs straight into production" color="red" />
       <Experience />
       <div className="section-divider"></div>
       <Skills />
       <div className="section-divider"></div>
       <Publications />
-      
+
       <div className="section-divider" style={{ margin: '4rem 0' }}></div>
-      
+
       <PersonaHeader id="peter-parker-section" title="Peter Parker" subtitle="The Guy Behind the Mask" color="blue" />
       <About />
       <FunFacts />
