@@ -9,7 +9,7 @@ const experiences = [
     location: 'Noida, India',
     color: 'red',
     bullets: [
-      'Architected a high-throughput core sortation service capable of handling extreme loads, successfully processing over 100,000 parcels a day and built to reliably sustain peak loads of 10,000 parcels per hour.',
+      'Architected a high-throughput core sortation service capable of handling extreme loads, successfully processing over 100,000 parcels a day and built to reliably sustain peak loads of 10,000+ parcels per hour.',
       'Delivered an end-to-end automation project for one of India\'s largest retail companies, integrating PTL (Put-to-Light) systems, conveyors, a .NET web backend, and client-facing RabbitMQ integration APIs.',
       'Managed a 2.5-month on-site deployment in Madrid, Spain to integrate critical sorting and warehouse automation software for a major European last-mile e-commerce logistics provider.',
       'Developing PLC communication layers to interface software systems with physical sortation hardware on the warehouse floor.',
