@@ -1,20 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './Contact.css';
-import { initializeApp } from 'firebase/app';
-import { getDatabase, push, ref } from 'firebase/database';
-
-const firebaseConfig = {
-  apiKey: 'AIzaSyBtv_10zH0T1leJSyYlm4B7G3OPTeJTBG4',
-  authDomain: 'fahad-portfolio9lag.firebaseapp.com',
-  projectId: 'fahad-portfolio9lag',
-  storageBucket: 'fahad-portfolio9lag.appspot.com',
-  messagingSenderId: '343666410904',
-  appId: '1:343666410904:web:4bc826873a7babfcbfd7ed',
-  databaseURL: 'https://fahad-portfolio9lag-default-rtdb.asia-southeast1.firebasedatabase.app/',
-};
-
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+// Web3Forms API Key goes here
+const WEB3FORMS_ACCESS_KEY = "7362192a-fc0a-4a07-b6ee-0d3c3feefc64";
 
 function Contact() {
   const sectionRef = useRef(null);
@@ -42,32 +29,49 @@ function Contact() {
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !email || !msg) return;
 
+    if (WEB3FORMS_ACCESS_KEY === "YOUR_ACCESS_KEY_HERE") {
+      alert("Please configure your Web3Forms access key first!");
+      return;
+    }
+
     setSending(true);
 
-    const toPush = {
-      name: name,
-      email: email,
-      msg: msg,
-      timestamp: new Date().toISOString(),
-    };
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          name: name,
+          email: email,
+          message: msg,
+          subject: `New Portfolio Message from ${name}`,
+        }),
+      });
 
-    push(ref(database, 'contacts/' + name), toPush)
-      .then(() => {
+      const result = await response.json();
+
+      if (result.success) {
         setSent(true);
         setName('');
         setEmail('');
         setMsg('');
-        setSending(false);
         setTimeout(() => setSent(false), 4000);
-      })
-      .catch(() => {
-        setSending(false);
-        alert('Something went wrong. Please try again.');
-      });
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
