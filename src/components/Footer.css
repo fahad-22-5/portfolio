@@ -1,0 +1,72 @@
+/* ============================================
+   FOOTER — COMIC CREDITS PANEL
+   ============================================ */
+
+.footer {
+  background: #000;
+  padding: 2rem;
+  border-top: 5px solid var(--sv-red);
+  position: relative;
+}
+
+.footer__container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.footer__credit {
+  font-family: var(--font-comic);
+  font-size: 1rem;
+  letter-spacing: 2px;
+  color: var(--sv-gray);
+}
+
+.footer__credit-name {
+  color: var(--sv-red);
+}
+
+.footer__socials {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.footer__social-link {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sv-dark-surface);
+  border: 2px solid #333;
+  color: var(--sv-gray);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  box-shadow: -2px 2px 0 #333;
+}
+
+.footer__social-link:hover {
+  background: var(--sv-red);
+  border-color: #000;
+  color: white;
+  transform: translate(1px, 1px);
+  box-shadow: -1px 1px 0 #000;
+}
+
+.footer__tagline {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--sv-gray);
+  opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+  .footer__container {
+    flex-direction: column;
+    text-align: center;
+  }
+}

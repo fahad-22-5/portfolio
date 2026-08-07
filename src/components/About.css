@@ -1,0 +1,260 @@
+/* ============================================
+   ABOUT SECTION — COMIC BOOK PANELS
+   ============================================ */
+
+.about {
+  position: relative;
+  background: var(--sv-dark);
+}
+
+.about__container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.about__header {
+  margin-bottom: 3rem;
+}
+
+.about__title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  color: var(--sv-white);
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
+}
+
+.about__title-accent {
+  color: var(--sv-cyan);
+  position: relative;
+  display: inline-block;
+  background: var(--sv-cyan);
+  color: #000;
+  padding: 0 0.5rem;
+  margin-right: 0.3rem;
+  transform: skewX(-5deg);
+}
+
+.about__title-line {
+  width: 100px;
+  height: 5px;
+  background: var(--sv-red);
+  margin-top: 1rem;
+  border: 2px solid #000;
+}
+
+/* Content layout */
+.about__content {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+/* Speech bubble — actual comic book style */
+.about__speech {
+  position: relative;
+}
+
+.about__speech-bubble {
+  background: #fff;
+  color: #111;
+  padding: 2rem;
+  border-radius: 20px;
+  position: relative;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  border: 4px solid #000;
+  box-shadow: -6px 6px 0 #000;
+}
+
+.about__bio {
+  margin-bottom: 1rem;
+}
+
+.about__bio:last-of-type {
+  margin-bottom: 0;
+}
+
+.about__bio strong {
+  color: var(--sv-red);
+  font-weight: 700;
+}
+
+.about__bio--accent {
+  color: #333;
+}
+
+/* Speech bubble tail */
+.about__speech-tail {
+  position: absolute;
+  bottom: -25px;
+  left: 50px;
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 25px solid #000;
+}
+
+.about__speech-tail::after {
+  content: '';
+  position: absolute;
+  top: -30px;
+  left: -11px;
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 22px solid #fff;
+}
+
+/* Highlight cards — comic info panels */
+.about__highlights {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.8rem;
+}
+
+.about__highlight-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  background: var(--sv-dark-card);
+  border: 3px solid #000;
+  box-shadow: -4px 4px 0 #000;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.about__highlight-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: var(--sv-red);
+}
+
+.about__highlight-card:nth-child(2)::before { background: var(--sv-cyan); }
+.about__highlight-card:nth-child(3)::before { background: var(--sv-magenta); }
+.about__highlight-card:nth-child(4)::before { background: var(--sv-yellow); }
+
+.about__highlight-card:hover {
+  transform: translate(3px, 3px);
+  box-shadow: -1px 1px 0 #000;
+}
+
+.about__highlight-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.about__highlight-label {
+  font-family: var(--font-comic);
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: var(--sv-white);
+}
+
+.about__highlight-detail {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--sv-gray);
+  margin-top: 0.1rem;
+}
+
+/* Education — comic panel grid */
+.about__education {
+  margin-top: 2rem;
+}
+
+.about__edu-title {
+  font-size: 1.8rem;
+  color: var(--sv-yellow);
+  margin-bottom: 1.5rem;
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.3);
+}
+
+.about__edu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.about__edu-card {
+  padding: 1.5rem;
+  background: var(--sv-dark-card);
+  border: 3px solid #000;
+  box-shadow: -5px 5px 0 #000;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s ease;
+}
+
+.about__edu-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--sv-blue);
+}
+
+.about__edu-card--accent::after {
+  background: linear-gradient(90deg, var(--sv-magenta), var(--sv-cyan));
+}
+
+.about__edu-card:hover {
+  transform: translate(3px, 3px);
+  box-shadow: -1px 1px 0 #000;
+}
+
+.about__edu-year {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--sv-cyan);
+  margin-bottom: 0.5rem;
+  background: rgba(0, 212, 255, 0.1);
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.about__edu-name {
+  font-family: var(--font-comic);
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  color: var(--sv-white);
+  margin-bottom: 0.3rem;
+}
+
+.about__edu-desc {
+  font-size: 0.85rem;
+  color: var(--sv-gray);
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about__content {
+    grid-template-columns: 1fr;
+  }
+
+  .about__edu-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about__highlights {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .about__highlights {
+    grid-template-columns: 1fr;
+  }
+}

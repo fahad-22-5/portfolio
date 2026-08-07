@@ -1,0 +1,266 @@
+/* ============================================
+   EXPERIENCE SECTION — COMIC TIMELINE
+   ============================================ */
+
+.experience {
+  position: relative;
+  background: var(--sv-dark-surface);
+}
+
+.experience__container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.experience__header {
+  margin-bottom: 3rem;
+}
+
+.experience__title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  color: var(--sv-white);
+}
+
+.experience__title-accent {
+  display: inline-block;
+  background: var(--sv-red);
+  color: #fff;
+  padding: 0 0.5rem;
+  margin-right: 0.3rem;
+  transform: skewX(-5deg);
+  border: 2px solid #000;
+}
+
+.experience__title-line {
+  width: 100px;
+  height: 5px;
+  background: var(--sv-cyan);
+  margin-top: 1rem;
+  border: 2px solid #000;
+}
+
+/* Timeline */
+.experience__timeline {
+  position: relative;
+  padding-left: 3rem;
+}
+
+/* Vertical line */
+.experience__timeline::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #000;
+  border-left: 1px solid var(--sv-red);
+  border-right: 1px solid var(--sv-red);
+}
+
+/* Each experience card */
+.experience__card {
+  position: relative;
+  margin-bottom: 2.5rem;
+}
+
+.experience__card:last-child {
+  margin-bottom: 0;
+}
+
+/* Timeline dot */
+.experience__dot {
+  position: absolute;
+  left: -3rem;
+  top: 1.5rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 4px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.experience__dot--red { background: var(--sv-red); }
+.experience__dot--blue { background: var(--sv-blue); }
+.experience__dot--cyan { background: var(--sv-cyan); }
+
+.experience__dot-inner {
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+/* Card content — comic panel */
+.experience__card-content {
+  padding: 1.8rem;
+  background: var(--sv-dark-card);
+  border: 3px solid #000;
+  box-shadow: -6px 6px 0 #000;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s ease;
+}
+
+.experience__card-content:hover {
+  transform: translate(3px, 3px);
+  box-shadow: -1px 1px 0 #000;
+}
+
+/* Color strip at top */
+.experience__card-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+}
+
+.experience__card--red .experience__card-content::before { background: var(--sv-red); }
+.experience__card--blue .experience__card-content::before { background: var(--sv-blue); }
+.experience__card--cyan .experience__card-content::before { background: var(--sv-cyan); }
+
+/* Halftone texture on cards */
+.experience__card-content::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 8px 8px;
+  pointer-events: none;
+}
+
+/* Card header */
+.experience__card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.experience__role {
+  font-family: var(--font-comic);
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+  color: var(--sv-white);
+}
+
+.experience__company {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.experience__card--red .experience__company { color: var(--sv-red-glow); }
+.experience__card--blue .experience__company { color: var(--sv-blue-glow); }
+.experience__card--cyan .experience__company { color: var(--sv-cyan); }
+
+.experience__meta {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-align: right;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.3rem 0.6rem;
+  border: 2px solid #000;
+}
+
+.experience__period {
+  color: var(--sv-cyan);
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.experience__location {
+  color: var(--sv-gray);
+  display: block;
+}
+
+/* Bullet list */
+.experience__bullets {
+  list-style: none;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.experience__bullet {
+  font-size: 0.88rem;
+  color: var(--sv-gray);
+  padding-left: 1.2rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+  position: relative;
+}
+
+.experience__bullet::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+
+.experience__card--red .experience__bullet::before { color: var(--sv-red); }
+.experience__card--blue .experience__bullet::before { color: var(--sv-blue-glow); }
+.experience__card--cyan .experience__bullet::before { color: var(--sv-cyan); }
+
+/* Tech tags — comic label style */
+.experience__tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.experience__tech-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 0.25rem 0.55rem;
+  font-weight: 600;
+  border: 2px solid #000;
+  box-shadow: -2px 2px 0 #000;
+}
+
+.experience__tech-tag--red {
+  background: var(--sv-red);
+  color: #fff;
+}
+
+.experience__tech-tag--blue {
+  background: var(--sv-blue);
+  color: #fff;
+}
+
+.experience__tech-tag--cyan {
+  background: var(--sv-cyan);
+  color: #000;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .experience__timeline {
+    padding-left: 2.5rem;
+  }
+
+  .experience__dot {
+    left: -2.5rem;
+    width: 22px;
+    height: 22px;
+  }
+
+  .experience__card-top {
+    flex-direction: column;
+  }
+
+  .experience__meta {
+    text-align: left;
+  }
+}

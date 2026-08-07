@@ -1,41 +1,96 @@
-import React from 'react'
-import './Skills.css'
-import '../App.css'
+import React, { useEffect, useRef } from 'react';
+import './Skills.css';
 
-function Skills() { 
+const skillCategories = [
+  {
+    title: 'Backend & Core',
+    color: 'red',
+    skills: ['.NET', 'C#', 'SQL', 'MySQL', 'RabbitMQ', 'Firebase'],
+  },
+  {
+    title: 'Languages',
+    color: 'cyan',
+    skills: ['C/C++', 'Java', 'Python', 'JavaScript', 'Solidity'],
+  },
+  {
+    title: 'Frontend',
+    color: 'magenta',
+    skills: ['React.js', 'React Native', 'HTML5', 'CSS3'],
+  },
+  {
+    title: 'Cloud & Tools',
+    color: 'yellow',
+    skills: ['AWS', 'GCP', 'Git', 'GitHub', 'Salesforce', 'AI/ML'],
+  },
+];
+
+function Skills() {
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.querySelectorAll('.reveal').forEach((el) => {
+              el.classList.add('visible');
+            });
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className='Skills About'>
-      <h2 className='AboutMe SkillsHead'>SKILLS</h2>
-      <div className="skillBox">
-        <div className="Box One">
-        <button className='Title SkillBtn'>Programming Languages</button>
-            <button className='SkillBtn'>C/C++</button>
-            <button className='SkillBtn'>Python</button>
-            <button className='SkillBtn'>Java</button>
-            <button className='SkillBtn'>Solidity</button>
-            <button className='SkillBtn'>C#</button>
-            <button className='SkillBtn'>SQL</button>
+    <section className="skills" id="skills" ref={sectionRef}>
+      <div className="skills__container section-container">
+        <div className="skills__header reveal">
+          <h2 className="skills__title comic-heading">
+            <span className="skills__title-accent">My</span> Skills
+          </h2>
+          <div className="skills__title-line"></div>
         </div>
-        <div className="Box Two">
-        <button className='Title SkillBtn'>Frontend</button>
-            <button className='SkillBtn'>HTML5</button>
-            <button className='SkillBtn'>CSS3</button>
-            <button className='SkillBtn'>JavaScript</button>
-            <button className='SkillBtn'>ReactJs</button>
-            <button className='SkillBtn'>React Native</button>
-        </div>
-        <div className="Box Three">
-        <button className='Title SkillBtn'>Technologies</button>
-            <button className='SkillBtn'>AWS</button>
-            <button className='SkillBtn'>Salesforce</button>
-            <button className='SkillBtn'>MongoDB</button>
-            <button className='SkillBtn'>GCP</button>
-            <button className='SkillBtn'>AI/ML</button>
 
+        <div className="skills__grid">
+          {skillCategories.map((cat, i) => (
+            <div
+              key={i}
+              className={`skills__category reveal skills__category--${cat.color}`}
+              style={{ transitionDelay: `${i * 0.1}s` }}
+            >
+              <h3 className={`skills__category-title skills__category-title--${cat.color}`}>
+                {cat.title}
+              </h3>
+              <div className="skills__tags">
+                {cat.skills.map((skill, j) => (
+                  <span
+                    key={j}
+                    className={`skills__tag skills__tag--${cat.color}`}
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Soft skills */}
+        <div className="skills__soft reveal">
+          <h3 className="skills__soft-title comic-heading">Also Known For</h3>
+          <div className="skills__soft-list">
+            {['Problem-solving', 'Communication', 'Analytical Thinking', 'Leadership', 'Flexibility'].map((s, i) => (
+              <span key={i} className="skills__soft-tag">{s}</span>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  )
+    </section>
+  );
 }
 
-export default Skills
+export default Skills;

@@ -1,68 +1,195 @@
-.Skills {
-  background: #0096ff;
+/* ============================================
+   SKILLS SECTION — COMIC PANEL GRID
+   ============================================ */
+
+.skills {
+  position: relative;
+  background: var(--sv-dark);
 }
 
-.SkillsHead {
-  font-weight: bold;
+.skills__container {
+  position: relative;
+  z-index: 1;
 }
 
-.Box {
+/* Header */
+.skills__header {
+  margin-bottom: 3rem;
+}
+
+.skills__title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  color: var(--sv-white);
+}
+
+.skills__title-accent {
+  display: inline-block;
+  background: var(--sv-magenta);
+  color: #fff;
+  padding: 0 0.5rem;
+  margin-right: 0.3rem;
+  transform: skewX(-5deg);
+  border: 2px solid #000;
+}
+
+.skills__title-line {
+  width: 100px;
+  height: 5px;
+  background: var(--sv-yellow);
+  margin-top: 1rem;
+  border: 2px solid #000;
+}
+
+/* Grid */
+.skills__grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  gap: 1rem;
-  row-gap: 1rem;
-  background: #ff204e;
-  background-size: 10px, 100%;
-  border: 0.3rem solid #000;
-  width: 95%;
-  padding: 1rem;
-  margin: 0.5rem auto;
-  margin-top: 0;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.skillBox {
+/* Category card — comic panel */
+.skills__category {
+  padding: 1.8rem;
+  background: var(--sv-dark-card);
+  border: 3px solid #000;
+  box-shadow: -6px 6px 0 #000;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s ease;
+}
+
+.skills__category:hover {
+  transform: translate(3px, 3px);
+  box-shadow: -1px 1px 0 #000;
+}
+
+/* Color strip */
+.skills__category::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+}
+
+.skills__category--red::before { background: var(--sv-red); }
+.skills__category--cyan::before { background: var(--sv-cyan); }
+.skills__category--magenta::before { background: var(--sv-magenta); }
+.skills__category--yellow::before { background: var(--sv-yellow); }
+
+/* Halftone overlay */
+.skills__category::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 8px 8px;
+  pointer-events: none;
+}
+
+/* Category title */
+.skills__category-title {
+  font-family: var(--font-comic);
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 3px solid #000;
+  position: relative;
+  z-index: 1;
+}
+
+.skills__category-title--red { color: var(--sv-red-glow); }
+.skills__category-title--cyan { color: var(--sv-cyan); }
+.skills__category-title--magenta { color: var(--sv-magenta); }
+.skills__category-title--yellow { color: var(--sv-yellow); }
+
+/* Skill tags — comic label pills */
+.skills__list {
   display: flex;
-  flex-direction: column;
-  font-weight: 900;
-  font-size: 18px;
-  margin-top: 2rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
 }
 
-.SkillBtn {
-  border: none;
-  font-size: 1rem;
-  padding: 1rem;
-  font-family: "Kode Mono", monospace;
-  cursor: pointer;
-  background: #cfff97;
-  color: #004225;
-  font-weight: 700;
+.skills__tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  font-weight: 600;
+  border: 2px solid #000;
+  box-shadow: -2px 2px 0 #000;
+  transition: all 0.1s ease;
   cursor: default;
 }
 
-.Title {
-  background-color: #ffcd28;
-  border: 0.15rem solid #000;
+.skills__tag:hover {
+  transform: translate(1px, 1px);
+  box-shadow: -1px 1px 0 #000;
 }
 
-.Two {
-  animation: right-out ease-out;
-  animation-timeline: view();
+.skills__tag--red {
+  background: rgba(226, 54, 54, 0.2);
+  color: var(--sv-red-glow);
 }
 
-.Three {
-  animation: left-out ease-in;
-  animation-timeline: view();
+.skills__tag--cyan {
+  background: rgba(0, 212, 255, 0.15);
+  color: var(--sv-cyan);
 }
 
-@keyframes right-out {
-  to {
-    transform: translateX(-10rem);
-  }
+.skills__tag--magenta {
+  background: rgba(255, 45, 149, 0.15);
+  color: var(--sv-magenta);
 }
 
-@keyframes left-out {
-  to {
-    transform: translateX(10rem);
+.skills__tag--yellow {
+  background: rgba(255, 215, 0, 0.15);
+  color: var(--sv-yellow);
+}
+
+/* Soft skills */
+.skills__soft {
+  margin-top: 2rem;
+}
+
+.skills__soft-title {
+  font-family: var(--font-comic);
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  color: var(--sv-green);
+  margin-bottom: 1rem;
+}
+
+.skills__soft-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.skills__soft-tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  background: rgba(123, 237, 159, 0.1);
+  color: var(--sv-green);
+  border: 2px solid #000;
+  box-shadow: -2px 2px 0 #000;
+  font-weight: 500;
+  transition: all 0.1s ease;
+}
+
+.skills__soft-tag:hover {
+  transform: translate(1px, 1px);
+  box-shadow: -1px 1px 0 #000;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .skills__grid {
+    grid-template-columns: 1fr;
   }
 }
