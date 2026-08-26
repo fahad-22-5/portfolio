@@ -4,25 +4,25 @@ import './FunFacts.css';
 const facts = [
   {
     icon: '☕',
-    title: 'Caffeine Powered',
-    color: 'magenta',
+    title: 'CAFFEINE POWERED',
+    color: 'pink',
     desc: 'Recently tumbled down the specialty coffee rabbit hole. I now measure my code output in shots of espresso and pour-over bloom times.'
   },
   {
     icon: '🕸️',
-    title: 'Web Slinger',
-    color: 'red',
+    title: 'WEB SLINGER',
+    color: 'blue',
     desc: "Massive Spider-Man nerd. I spend all day building the web, but I'm still extremely disappointed it doesn't let me swing between skyscrapers."
   },
   {
     icon: '✈️',
-    title: 'Globe Trotter',
-    color: 'cyan',
+    title: 'GLOBE TROTTER',
+    color: 'green',
     desc: 'Have passport, will travel. Exploring new countries, getting lost in foreign cities, and pretending I know the local language.'
   },
   {
     icon: '🍿',
-    title: 'Cinema Purist',
+    title: 'CINEMA PURIST',
     color: 'yellow',
     desc: "If I'm watching a movie, I'm watching it in a theatre. No exceptions, no laptops, no small screens."
   }
@@ -50,26 +50,24 @@ function FunFacts() {
   }, []);
 
   return (
-    <section className="funfacts halftone-bg" id="funfacts" ref={sectionRef}>
-      <div className="funfacts__container section-container">
-        <div className="funfacts__header reveal">
-          <h2 className="funfacts__title comic-heading">
-            <span className="funfacts__title-accent">Alter</span> Ego
-          </h2>
-          <div className="funfacts__title-line"></div>
-          <p className="funfacts__subtitle">When I'm not writing code...</p>
-        </div>
-
-        <div className="funfacts__grid stagger-children">
+    <section className="funfacts" id="funfacts" ref={sectionRef}>
+      <div className="funfacts-container section-container">
+        
+        <div className="funfacts-grid stagger-children">
           {facts.map((fact, i) => (
-            <div key={i} className={`funfacts__card funfacts__card--${fact.color} reveal`}>
-              <div className="funfacts__icon-wrapper">
-                <span className="funfacts__icon">{fact.icon}</span>
+            <div 
+              key={i} 
+              className={`funfacts-card brutal-card reveal`}
+              style={{ 
+                '--card-color': `var(--max-neon-${fact.color})`,
+                transform: `rotate(${i % 2 === 0 ? '1deg' : '-1deg'})`
+              }}
+            >
+              <div className="funfacts-icon-wrapper" style={{ background: `var(--max-neon-${fact.color})` }}>
+                <span className="funfacts-icon">{fact.icon}</span>
               </div>
-              <h3 className={`funfacts__card-title comic-heading funfacts__card-title--${fact.color}`}>
-                {fact.title}
-              </h3>
-              <p className="funfacts__card-desc">{fact.desc}</p>
+              <h3 className="funfacts-card-title">{fact.title}</h3>
+              <p className="funfacts-card-desc">{fact.desc}</p>
             </div>
           ))}
         </div>

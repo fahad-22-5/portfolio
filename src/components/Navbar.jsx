@@ -3,31 +3,18 @@ import './Navbar.css';
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
-    let lastScrollY = window.scrollY;
-
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      // Hide on scroll down, show on scroll up
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setHidden(true);
-      } else {
-        setHidden(false);
-      }
-
-      setScrolled(currentScrollY > 50);
-      lastScrollY = currentScrollY;
+      setScrolled(window.scrollY > 50);
 
       // Determine active section
       const sections = ['hero', 'about', 'experience', 'skills', 'publications', 'funfacts', 'contact'];
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = document.getElementById(sections[i]);
-        if (el && el.getBoundingClientRect().top <= 150) {
+        if (el && el.getBoundingClientRect().top <= 200) {
           setActiveSection(sections[i]);
           break;
         }
@@ -39,12 +26,11 @@ function Navbar() {
   }, []);
 
   const navLinks = [
-    { id: 'about', label: 'About' },
-    { id: 'experience', label: 'Experience' },
-    { id: 'skills', label: 'Skills' },
-    { id: 'publications', label: 'Publications' },
-    { id: 'funfacts', label: 'Alter Ego' },
-    { id: 'contact', label: 'Contact' },
+    { id: 'experience', label: 'EXPERIENCE' },
+    { id: 'skills', label: 'SKILLS' },
+    { id: 'publications', label: 'RESEARCH' },
+    { id: 'about', label: 'THE HUMAN' },
+    { id: 'contact', label: 'PING ME' },
   ];
 
   const scrollTo = (id) => {
@@ -56,17 +42,17 @@ function Navbar() {
   };
 
   return (
-    <nav className={`navbar ${scrolled ? 'navbar--scrolled' : ''} ${hidden ? 'navbar--hidden' : ''}`} id="navbar">
-      <div className="navbar__inner">
-        <button className="navbar__logo comic-heading" onClick={() => scrollTo('hero')}>
-          F<span className="navbar__logo-dot">.</span>
+    <nav className={`navbar ${scrolled ? 'navbar-scrolled' : ''}`} id="navbar">
+      <div className="navbar-inner">
+        <button className="navbar-logo glitch-text" data-text="F." onClick={() => scrollTo('hero')}>
+          F<span style={{ color: 'var(--max-neon-red)' }}>.</span>
         </button>
 
-        <div className={`navbar__links ${mobileOpen ? 'navbar__links--open' : ''}`}>
+        <div className={`navbar-links ${mobileOpen ? 'navbar-links-open' : ''}`}>
           {navLinks.map((link) => (
             <button
               key={link.id}
-              className={`navbar__link ${activeSection === link.id ? 'navbar__link--active' : ''}`}
+              className={`navbar-link ${activeSection === link.id ? 'navbar-link-active' : ''}`}
               onClick={() => scrollTo(link.id)}
             >
               {link.label}
@@ -75,9 +61,9 @@ function Navbar() {
         </div>
 
         <button
-          className={`navbar__hamburger ${mobileOpen ? 'navbar__hamburger--open' : ''}`}
+          className={`navbar-hamburger ${mobileOpen ? 'navbar-hamburger-open' : ''}`}
           onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle navigation menu"
+          aria-label="Toggle menu"
         >
           <span></span>
           <span></span>

@@ -1,87 +1,84 @@
 .persona-header {
-  max-width: var(--container-max);
-  margin: 4rem auto 2rem;
-  padding: 2rem;
-  background: var(--sv-dark-card);
-  border: 4px solid #000;
-  box-shadow: -8px 8px 0 #000;
-  text-align: center;
   position: relative;
+  max-width: var(--container-max);
+  margin: 6rem auto 3rem;
+  padding: 3rem;
+  background: var(--ph-color, var(--max-neon-pink));
+  border: var(--brutal-border-thick);
+  box-shadow: 12px 12px 0 var(--max-black);
+  text-align: center;
   overflow: hidden;
-  transform: skewY(-2deg);
+  transform: rotate(-1deg);
+  z-index: 10;
 }
 
-.persona-header__inner {
-  transform: skewY(2deg); /* Un-skew the text */
+.persona-header-inner {
   position: relative;
   z-index: 2;
+  transform: rotate(1deg);
 }
 
-.persona-header__title {
-  font-size: clamp(3rem, 8vw, 5rem);
-  letter-spacing: 4px;
-  -webkit-text-stroke: 2px #000;
-  color: #fff;
+.persona-header-title {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 10vw, 8rem);
+  font-weight: 800;
+  color: var(--max-black);
   text-transform: uppercase;
-  margin-bottom: 0.5rem;
-  text-shadow: -4px 4px 0 #000;
+  line-height: 0.9;
+  letter-spacing: -3px;
+  margin-bottom: 1rem;
+  text-shadow: 4px 4px 0 var(--max-white);
 }
 
-.persona-header__subtitle {
-  font-family: var(--font-mono);
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #000;
-  background: var(--sv-yellow);
+.persona-header-title.glitch-text::before {
+  color: var(--max-black);
+  text-shadow: 2px 0 var(--max-white);
+}
+.persona-header-title.glitch-text::after {
+  color: var(--max-black);
+  text-shadow: -2px 0 var(--max-white);
+}
+
+.persona-header-badge {
   display: inline-block;
-  padding: 0.4rem 1.5rem;
-  border: 2px solid #000;
-  box-shadow: -3px 3px 0 #000;
-  letter-spacing: 2px;
+  background: var(--max-black);
+  color: var(--max-white);
+  padding: 0.8rem 2rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
   text-transform: uppercase;
+  border: 2px solid var(--max-white);
+  box-shadow: 4px 4px 0 var(--max-white);
+  letter-spacing: 2px;
 }
 
-/* Background Color variants */
-.persona-header--red {
-  background: var(--sv-red);
-}
-
-.persona-header--blue {
-  background: var(--sv-cyan);
-}
-
-.persona-header--red .persona-header__title {
-  color: var(--sv-yellow);
-}
-
-.persona-header--blue .persona-header__title {
-  color: var(--sv-white);
-}
-
-/* Comic action lines in the background */
-.persona-header__lines {
+.persona-header-bg {
   position: absolute;
-  top: -50%;
-  left: -50%;
-  right: -50%;
-  bottom: -50%;
-  background: repeating-conic-gradient(
-    from 0deg,
-    transparent 0deg 15deg,
-    rgba(0, 0, 0, 0.1) 15deg 30deg
-  );
-  animation: rotate-lines 60s linear infinite;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: 
+    linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1)),
+    linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1));
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+  opacity: 0.5;
   z-index: 1;
-}
-
-@keyframes rotate-lines {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  pointer-events: none;
 }
 
 @media (max-width: 768px) {
   .persona-header {
-    margin: 3rem 1rem 1rem;
-    padding: 1.5rem;
+    margin: 4rem 1rem 2rem;
+    padding: 2rem 1rem;
+    transform: none;
+  }
+  .persona-header-inner {
+    transform: none;
+  }
+  .persona-header-title {
+    font-size: clamp(3rem, 12vw, 5rem);
+  }
+  .persona-header-badge {
+    font-size: 1rem;
   }
 }

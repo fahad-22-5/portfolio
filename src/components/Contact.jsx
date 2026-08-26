@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './Contact.css';
-// Web3Forms API Key goes here
+
 const WEB3FORMS_ACCESS_KEY = "7362192a-fc0a-4a07-b6ee-0d3c3feefc64";
 
 function Contact() {
@@ -32,11 +32,6 @@ function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !email || !msg) return;
-
-    if (WEB3FORMS_ACCESS_KEY === "YOUR_ACCESS_KEY_HERE") {
-      alert("Please configure your Web3Forms access key first!");
-      return;
-    }
 
     setSending(true);
 
@@ -75,53 +70,46 @@ function Contact() {
   };
 
   return (
-    <section className="contact" id="contact" ref={sectionRef}>
-      <div className="contact__container section-container">
-        <div className="contact__header reveal">
-          <h2 className="contact__title comic-heading">
-            <span className="contact__title-accent">Get In</span> Touch!
-          </h2>
-          <div className="contact__title-line"></div>
-          <p className="contact__subtitle">
-            Got a project in mind, want to collaborate, or just want to say hey? Drop me a message!
-          </p>
-        </div>
-
-        <div className="contact__content">
+    <section className="contact noise-bg" id="contact" ref={sectionRef}>
+      <div className="contact-container section-container">
+        
+        <div className="contact-content">
           {/* Form */}
-          <form className="contact__form reveal" onSubmit={handleSubmit}>
-            <div className="contact__field">
-              <label className="contact__label" htmlFor="contact-name">Name</label>
+          <form className="contact-form brutal-card reveal" onSubmit={handleSubmit} style={{ '--card-color': 'var(--max-neon-blue)', transform: 'rotate(-1deg)' }}>
+            <h2 className="contact-title">PING ME</h2>
+            
+            <div className="contact-field">
+              <label className="contact-label" htmlFor="contact-name">WHO</label>
               <input
                 id="contact-name"
-                className="contact__input"
+                className="contact-input"
                 type="text"
-                placeholder="Peter Parker"
+                placeholder="YOUR NAME"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
 
-            <div className="contact__field">
-              <label className="contact__label" htmlFor="contact-email">Email</label>
+            <div className="contact-field">
+              <label className="contact-label" htmlFor="contact-email">WHERE</label>
               <input
                 id="contact-email"
-                className="contact__input"
+                className="contact-input"
                 type="email"
-                placeholder="spider@verse.com"
+                placeholder="YOUR EMAIL"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
 
-            <div className="contact__field">
-              <label className="contact__label" htmlFor="contact-msg">Message</label>
+            <div className="contact-field">
+              <label className="contact-label" htmlFor="contact-msg">WHAT</label>
               <textarea
                 id="contact-msg"
-                className="contact__input contact__textarea"
-                placeholder="Hey Fahad, let's build something amazing..."
+                className="contact-input contact-textarea"
+                placeholder="YOUR MESSAGE"
                 value={msg}
                 onChange={(e) => setMsg(e.target.value)}
                 rows="5"
@@ -131,53 +119,56 @@ function Contact() {
 
             <button
               type="submit"
-              className="hero__btn hero__btn--primary"
+              className="max-btn max-btn-primary"
               disabled={sending}
-              style={{ width: '100%', marginTop: '1rem', border: '3px solid #000' }}
+              style={{ width: '100%', marginTop: '1rem', border: '3px solid var(--max-black)' }}
             >
               {sending ? 'SENDING...' : sent ? 'SENT!' : 'SEND MESSAGE'}
             </button>
           </form>
 
           {/* Socials */}
-          <div className="contact__socials reveal">
-            <h3 className="contact__socials-title comic-heading">Or Find Me At</h3>
+          <div className="contact-socials reveal">
+            <h3 className="contact-socials-title">OR STALK ME</h3>
 
-            <div className="contact__social-cards">
+            <div className="contact-social-cards">
               <a
                 href="mailto:eqbalfahad@gmail.com"
-                className="contact__social-card"
+                className="contact-social-card brutal-card"
                 target="_blank"
                 rel="noopener noreferrer"
+                style={{ '--card-color': 'var(--max-neon-pink)', padding: '1.5rem', transform: 'rotate(1deg)' }}
               >
-                <span className="contact__social-icon">✉</span>
+                <span className="contact-social-icon">✉</span>
                 <div>
-                  <p className="contact__social-label">Email</p>
-                  <p className="contact__social-value">eqbalfahad@gmail.com</p>
+                  <p className="contact-social-label">EMAIL</p>
+                  <p className="contact-social-value">eqbalfahad@gmail.com</p>
                 </div>
               </a>
 
               <a
                 href="https://www.linkedin.com/in/fahadeqbalhashmi"
-                className="contact__social-card"
+                className="contact-social-card brutal-card"
                 target="_blank"
                 rel="noopener noreferrer"
+                style={{ '--card-color': 'var(--max-neon-yellow)', padding: '1.5rem', transform: 'rotate(-1deg)' }}
               >
-                <span className="contact__social-icon">in</span>
+                <span className="contact-social-icon">IN</span>
                 <div>
-                  <p className="contact__social-label">LinkedIn</p>
-                  <p className="contact__social-value">fahadeqbalhashmi</p>
+                  <p className="contact-social-label">LINKEDIN</p>
+                  <p className="contact-social-value">fahadeqbalhashmi</p>
                 </div>
               </a>
 
               <a
                 href="tel:+917250864992"
-                className="contact__social-card"
+                className="contact-social-card brutal-card"
+                style={{ '--card-color': 'var(--max-neon-green)', padding: '1.5rem', transform: 'rotate(1deg)' }}
               >
-                <span className="contact__social-icon">☎</span>
+                <span className="contact-social-icon">☎</span>
                 <div>
-                  <p className="contact__social-label">Phone</p>
-                  <p className="contact__social-value">+91 7250864992</p>
+                  <p className="contact-social-label">PHONE</p>
+                  <p className="contact-social-value">+91 7250864992</p>
                 </div>
               </a>
             </div>

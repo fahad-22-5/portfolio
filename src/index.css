@@ -1,41 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Grotesk:wght@400;600;700&display=swap');
+
 /* ============================================
-   SPIDER-VERSE DESIGN SYSTEM
+   HYPER-POP MAXIMALISM DESIGN SYSTEM
    ============================================ */
 
 :root {
-  /* --- Spider-Verse Palette --- */
-  --sv-dark: #0a0a0f;
-  --sv-dark-surface: #12121a;
-  --sv-dark-card: #1a1a2e;
-  --sv-red: #e23636;
-  --sv-red-glow: #ff4757;
-  --sv-blue: #2c5faa;
-  --sv-blue-glow: #3d7dd8;
-  --sv-magenta: #ff2d95;
-  --sv-cyan: #00d4ff;
-  --sv-yellow: #ffd700;
-  --sv-green: #7bed9f;
-  --sv-white: #f5f5f5;
-  --sv-gray: #8b8b9e;
-  --sv-border: #2a2a3e;
-
+  /* --- Hyper-Pop Palette --- */
+  --max-bg: #0a0a0a;
+  --max-surface: #151515;
+  --max-neon-pink: #ff007f;
+  --max-neon-red: #ff2a2a;
+  --max-neon-green: #39ff14;
+  --max-neon-blue: #00f0ff;
+  --max-neon-yellow: #eaff00;
+  --max-neon-purple: #b200ff;
+  --max-white: #f0f0f0;
+  --max-black: #000000;
+  
   /* --- Typography --- */
-  --font-comic: 'Bebas Neue', sans-serif;
+  --font-display: 'Syne', sans-serif;
   --font-body: 'Space Grotesk', sans-serif;
-  --font-mono: 'Kode Mono', monospace;
 
   /* --- Spacing --- */
-  --section-padding: 6rem 2rem;
-  --container-max: 1200px;
+  --section-padding: 8rem 2rem;
+  --container-max: 1400px;
 
+  /* --- Borders & Shadows --- */
+  --brutal-border: 4px solid var(--max-white);
+  --brutal-border-thick: 8px solid var(--max-white);
+  --brutal-border-black: 4px solid var(--max-black);
+  
+  --shadow-pink: 8px 8px 0 var(--max-neon-pink);
+  --shadow-red: 8px 8px 0 var(--max-neon-red);
+  --shadow-green: -8px 8px 0 var(--max-neon-green);
+  --shadow-blue: 8px -8px 0 var(--max-neon-blue);
+  --shadow-yellow: -8px -8px 0 var(--max-neon-yellow);
+  --shadow-white: 8px 8px 0 var(--max-white);
+  
   /* --- Transitions --- */
-  --transition-fast: 0.15s ease;
-  --transition-mid: 0.3s ease;
-  --transition-slow: 0.6s ease;
-
-  /* --- Borders --- */
-  --comic-border: 3px solid #000;
-  --comic-shadow: -5px 5px 0 #000;
+  --transition-fast: 0.1s cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-bouncy: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* --- Global Reset --- */
@@ -54,31 +58,47 @@ html {
 
 body {
   font-family: var(--font-body);
-  background: var(--sv-dark);
-  color: var(--sv-white);
+  background: var(--max-bg);
+  color: var(--max-white);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
-  background-color: var(--sv-dark);
+}
+
+/* --- Background Patterns --- */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+.grid-bg {
+  background-image: 
+    linear-gradient(var(--max-surface) 1px, transparent 1px),
+    linear-gradient(90deg, var(--max-surface) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
 /* --- Custom Scrollbar --- */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 14px;
 }
-
 ::-webkit-scrollbar-track {
-  background: var(--sv-dark);
+  background: var(--max-bg);
+  border-left: 2px solid var(--max-neon-pink);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: var(--sv-red);
-  border-radius: 4px;
+  background: var(--max-neon-green);
+  border: 3px solid var(--max-bg);
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--sv-red-glow);
+  background: var(--max-neon-yellow);
 }
 
 /* --- Utility Classes --- */
@@ -86,201 +106,121 @@ body {
   max-width: var(--container-max);
   margin: 0 auto;
   padding: var(--section-padding);
-}
-
-/* Comic heading — bold stroke outline like Spider-Verse titles */
-.comic-heading {
-  font-family: var(--font-comic);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.4);
-  paint-order: stroke fill;
-}
-
-/* Halftone dot overlay — applied via ::after on sections */
-.halftone-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1.2px, transparent 1.2px);
-  background-size: 6px 6px;
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Ben-Day dots — denser version */
-.benday-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, var(--sv-magenta) 0.8px, transparent 0.8px);
-  background-size: 12px 12px;
-  opacity: 0.06;
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Chromatic aberration text helper */
-.chromatic {
   position: relative;
+  z-index: 10;
 }
 
-.chromatic::before,
-.chromatic::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+.huge-heading {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 10vw, 8rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.9;
+  letter-spacing: -2px;
 }
 
-.chromatic::before {
-  color: var(--sv-cyan);
-  z-index: -1;
-  animation: chromatic-shift-r 3s ease-in-out infinite alternate;
-}
-
-.chromatic::after {
-  color: var(--sv-red);
-  z-index: -1;
-  animation: chromatic-shift-l 3s ease-in-out infinite alternate;
-}
-
-@keyframes chromatic-shift-r {
-  0% { transform: translate(2px, -1px); }
-  100% { transform: translate(-2px, 1px); }
-}
-
-@keyframes chromatic-shift-l {
-  0% { transform: translate(-2px, 1px); }
-  100% { transform: translate(2px, -1px); }
-}
-
-/* Scroll-triggered reveal animation */
-.reveal {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
-
-.reveal.visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* Stagger children */
-.stagger-children > *:nth-child(1) { transition-delay: 0.05s; }
-.stagger-children > *:nth-child(2) { transition-delay: 0.1s; }
-.stagger-children > *:nth-child(3) { transition-delay: 0.15s; }
-.stagger-children > *:nth-child(4) { transition-delay: 0.2s; }
-.stagger-children > *:nth-child(5) { transition-delay: 0.25s; }
-.stagger-children > *:nth-child(6) { transition-delay: 0.3s; }
-.stagger-children > *:nth-child(7) { transition-delay: 0.35s; }
-.stagger-children > *:nth-child(8) { transition-delay: 0.4s; }
-.stagger-children > *:nth-child(9) { transition-delay: 0.45s; }
-.stagger-children > *:nth-child(10) { transition-delay: 0.5s; }
-
-/* Links */
-a {
-  color: var(--sv-cyan);
-  text-decoration: none;
-  transition: color var(--transition-fast);
-}
-
-a:hover {
-  color: var(--sv-magenta);
-}
-
-/* Diagonal section divider — comic panel cut */
-.section-divider {
-  width: 100%;
-  height: 60px;
+.brutal-card {
+  background: var(--max-black);
+  border: var(--brutal-border);
+  box-shadow: var(--shadow-pink);
+  padding: 2.5rem;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   position: relative;
   overflow: hidden;
-  background: transparent;
-  border: none;
-  margin: 0;
+}
+.brutal-card:hover {
+  transform: translate(4px, 4px);
+  box-shadow: 4px 4px 0 var(--max-neon-pink);
 }
 
-.section-divider::before {
+.brutal-card::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg,
-    var(--sv-red) 0%, var(--sv-red) 25%,
-    var(--sv-magenta) 25%, var(--sv-magenta) 50%,
-    var(--sv-cyan) 50%, var(--sv-cyan) 75%,
-    var(--sv-blue) 75%, var(--sv-blue) 100%
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 255, 255, 0.03) 10px,
+    rgba(255, 255, 255, 0.03) 20px
   );
-  clip-path: polygon(0 40%, 100% 0, 100% 60%, 0 100%);
-  opacity: 0.7;
-}
-
-.section-divider::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--sv-dark);
-  clip-path: polygon(0 45%, 100% 5%, 100% 55%, 0 95%);
-}
-
-/* Selection color */
-::selection {
-  background: var(--sv-red);
-  color: white;
-}
-
-/* ============================================
-   SPIDER-WEB CORNER DECORATION
-   ============================================ */
-.spider-web-corner {
-  position: absolute;
-  width: 200px;
-  height: 200px;
   pointer-events: none;
-  opacity: 0.07;
-  z-index: 0;
 }
 
-.spider-web-corner--tl {
-  top: 0;
-  left: 0;
-}
-
-.spider-web-corner--br {
-  bottom: 0;
-  right: 0;
-  transform: rotate(180deg);
-}
-
-/* Comic onomatopoeia accent */
-.comic-sfx {
-  font-family: var(--font-comic);
-  font-size: 1.4rem;
-  letter-spacing: 4px;
-  color: var(--sv-yellow);
-  text-shadow:
-    2px 2px 0 var(--sv-red),
-    -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
-  -webkit-text-stroke: 1px #000;
-  transform: rotate(-8deg);
-  display: inline-block;
-  animation: sfx-bounce 2s ease-in-out infinite;
-}
-
-@keyframes sfx-bounce {
-  0%, 100% { transform: rotate(-8deg) scale(1); }
-  50% { transform: rotate(-5deg) scale(1.08); }
-}
-
-/* Comic panel border style */
-.comic-panel {
-  border: 3px solid #000;
-  box-shadow: -5px 5px 0 #000;
+/* Glitch Effect */
+.glitch-text {
   position: relative;
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+.glitch-text::before, .glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--max-bg);
+  color: var(--max-white);
+}
+.glitch-text::before {
+  left: 3px;
+  text-shadow: -2px 0 var(--max-neon-pink);
+  clip: rect(24px, 550px, 90px, 0);
+  animation: glitch-anim 3s infinite linear alternate-reverse;
+}
+.glitch-text::after {
+  left: -3px;
+  text-shadow: -2px 0 var(--max-neon-blue);
+  clip: rect(85px, 550px, 140px, 0);
+  animation: glitch-anim 2.5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% { clip: rect(74px, 9999px, 86px, 0); }
+  20% { clip: rect(31px, 9999px, 60px, 0); }
+  40% { clip: rect(100px, 9999px, 133px, 0); }
+  60% { clip: rect(11px, 9999px, 98px, 0); }
+  80% { clip: rect(138px, 9999px, 42px, 0); }
+  100% { clip: rect(80px, 9999px, 11px, 0); }
+}
+
+/* --- Links & Selection --- */
+a {
+  color: var(--max-neon-blue);
+  text-decoration: none;
+  font-weight: bold;
+  position: relative;
+}
+a:hover {
+  color: var(--max-black);
+  background: var(--max-neon-yellow);
+}
+
+::selection {
+  background: var(--max-neon-pink);
+  color: var(--max-black);
+}
+
+/* --- Badges & Tags --- */
+.max-badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: var(--max-neon-yellow);
+  color: var(--max-black);
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 2px solid var(--max-black);
+  box-shadow: 2px 2px 0 var(--max-black);
+  font-size: 0.85rem;
+}
+
+/* Scroll reveals */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }

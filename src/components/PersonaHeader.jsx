@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import './PersonaHeader.css';
 
-function PersonaHeader({ id, title, subtitle, color = 'red' }) {
+function PersonaHeader({ id, title, subtitle, color }) {
   const headerRef = useRef(null);
 
   useEffect(() => {
@@ -21,13 +21,14 @@ function PersonaHeader({ id, title, subtitle, color = 'red' }) {
   }, []);
 
   return (
-    <div id={id} className={`persona-header persona-header--${color} reveal`} ref={headerRef}>
-      <div className="persona-header__inner">
-        <h2 className="persona-header__title comic-heading">{title}</h2>
-        <p className="persona-header__subtitle">{subtitle}</p>
+    <div id={id} className="persona-header reveal" ref={headerRef} style={{ '--ph-color': color }}>
+      <div className="persona-header-inner">
+        <h2 className="persona-header-title glitch-text" data-text={title}>{title}</h2>
+        <div className="persona-header-badge">
+          {subtitle}
+        </div>
       </div>
-      {/* Action lines for comic effect */}
-      <div className="persona-header__lines"></div>
+      <div className="persona-header-bg"></div>
     </div>
   );
 }

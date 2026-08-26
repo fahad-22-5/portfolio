@@ -33,94 +33,76 @@ function Hero() {
     };
   }, []);
 
-
-
   return (
     <section className="hero" id="hero">
-
-      {/* Animated background particles */}
-      <div className="hero__particles">
-        {[...Array(20)].map((_, i) => (
-          <div key={i} className="hero__particle" style={{
-            '--delay': `${Math.random() * 5}s`,
-            '--x': `${Math.random() * 100}%`,
-            '--duration': `${3 + Math.random() * 4}s`,
-            '--size': `${2 + Math.random() * 4}px`,
-          }} />
-        ))}
-      </div>
-
-      <div className="hero__content">
-        {/* Left side: Text */}
-        <div className="hero__text">
-          <p className="hero__greeting">
-            Hey there, I'm
-          </p>
-
-          <h1 className="hero__name comic-heading">
-            <span className="hero__name-glitch" data-text="FAHAD">FAHAD</span>
-            <span className="hero__name-line2">
-              <span className="hero__name-glitch hero__name-glitch--alt" data-text="EQBAL">EQBAL</span>
-              {' '}
-              <span className="hero__name-glitch" data-text="HASHMI">HASHMI</span>
-            </span>
-          </h1>
-
-          <div className="hero__tagline">
-            <span className="hero__tagline-bracket">&lt;</span>
-            <TypeAni />
-            <span className="hero__tagline-bracket">/&gt;</span>
+      
+      {/* Background Graphic Elements */}
+      <div className="hero-bg-graphic hero-circle-1"></div>
+      <div className="hero-bg-graphic hero-circle-2"></div>
+      
+      <div className="hero-content">
+        <div className="hero-left">
+          <div className="hero-header">
+            <div className="max-badge" style={{ background: 'var(--max-neon-red)' }}>SPIDER-VERSE</div>
+            <div className="max-badge" style={{ background: 'var(--max-neon-blue)' }}>EARTH-199999</div>
           </div>
 
-          <p className="hero__subtitle">
-            With great backend architecture comes a great <em>need to check server logs</em>.
-          </p>
-
-          <div className="hero__cta">
-            <button className="hero__btn hero__btn--primary" onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}>
-              Get in Touch
-            </button>
-            <button className="hero__btn hero__btn--secondary" onClick={() => document.getElementById('about').scrollIntoView({ behavior: 'smooth' })}>
-              Know More
-            </button>
+          <h1 className="hero-title">
+            <span className="glitch-text" data-text="FAHAD">FAHAD</span>
+            <br />
+            <span className="glitch-text" data-text="EQBAL">EQBAL</span>
+          </h1>
+          
+          <div className="hero-subtitle-box brutal-card">
+            <p>
+              With great backend architecture comes a great <strong style={{ color: 'var(--max-neon-red)' }}>need to check server logs</strong>.
+            </p>
+            <div className="hero-type">
+               <TypeAni />
+            </div>
+            <div className="hero-cta-group">
+              <button className="max-btn max-btn-primary" onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })}>
+                THWIP ME
+              </button>
+              <button className="max-btn max-btn-secondary" onClick={() => document.getElementById('spider-man-section').scrollIntoView({ behavior: 'smooth' })}>
+                SEE SUITS
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Right side: Split Face Interactive Image */}
-        <div className="hero__split-face-wrapper" ref={cardRef}>
-          <div className="hero__split-face">
-            {/* Split Image */}
-            <img src="/split-face.jpg" alt="Spider-Man and Peter Parker" className="hero__split-img" />
+        <div className="hero-split-face-wrapper" ref={cardRef}>
+          <div className="hero-split-face brutal-card" style={{ '--card-color': 'var(--max-neon-red)' }}>
+            <img src="/split-face.jpg" alt="Spider-Man and Peter Parker" className="hero-split-img" />
 
-            {/* Clickable halves */}
             <div
-              className="hero__split-half hero__split-half--left"
+              className="hero-split-half hero-split-half-left"
               onClick={() => document.getElementById('spider-man-section').scrollIntoView({ behavior: 'smooth' })}
               title="View My Work"
             >
-              <span className="hero__split-label">WORK</span>
+              <span className="hero-split-label" style={{ color: 'var(--max-neon-red)' }}>SPIDEY</span>
             </div>
             <div
-              className="hero__split-half hero__split-half--right"
+              className="hero-split-half hero-split-half-right"
               onClick={() => document.getElementById('peter-parker-section').scrollIntoView({ behavior: 'smooth' })}
               title="View About Me"
             >
-              <span className="hero__split-label">ME</span>
+              <span className="hero-split-label" style={{ color: 'var(--max-neon-blue)' }}>PETER</span>
             </div>
           </div>
-          {/* Shadow behind */}
-          <div className="hero__split-shadow"></div>
         </div>
       </div>
-
-      {/* Scroll indicator */}
-      <div className="hero__scroll">
-        <div className="hero__scroll-line"></div>
-        <span className="hero__scroll-text">SCROLL</span>
+      
+      {/* Absolute positioning marquees for chaos */}
+      <div className="marquee-container hero-marquee-1" style={{ background: 'var(--max-neon-red)', color: 'var(--max-black)' }}>
+        <div className="marquee-content">
+          {Array(10).fill('WEB ARCHITECT / CREATIVE DEVELOPER / ').map((t, i) => (
+            <span key={i}>{t}</span>
+          ))}
+        </div>
       </div>
-
-      {/* Diagonal section end */}
-      <div className="hero__diagonal"></div>
+      
     </section>
   );
 }

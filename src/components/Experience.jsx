@@ -7,7 +7,7 @@ const experiences = [
     company: 'Falcon Autotech',
     period: 'Jul 2024 – Present',
     location: 'Noida, India',
-    color: 'red',
+    color: 'pink',
     bullets: [
       'Architected a high-throughput core sortation service capable of handling extreme loads, successfully processing over 100,000 parcels a day and built to reliably sustain peak loads of 10,000+ parcels per hour.',
       'Delivered an end-to-end automation project for one of India\'s largest retail companies, integrating PTL (Put-to-Light) systems, conveyors, a .NET web backend, and client-facing RabbitMQ integration APIs.',
@@ -23,7 +23,7 @@ const experiences = [
     company: 'SmartBridge',
     period: 'May 2023 – Jul 2023',
     location: 'Remote',
-    color: 'cyan',
+    color: 'blue',
     bullets: [
       'Completed 3+ cloud projects and 10+ comprehensive Salesforce modules.',
       'Developed custom applications using Apex and Flows to automate business processes.',
@@ -36,7 +36,7 @@ const experiences = [
     company: 'Ulavi Technologies',
     period: 'Jan 2023 – May 2023',
     location: 'Singapore',
-    color: 'magenta',
+    color: 'green',
     bullets: [
       'Built attraction ticketing website with React and Tailwind CSS.',
       'Achieved 20% reduction in page load times through performance optimization.',
@@ -71,32 +71,27 @@ function Experience() {
     <section className="experience" id="experience" ref={sectionRef}>
       <div className="experience__container section-container">
         <div className="experience__header reveal">
-          <h2 className="experience__title comic-heading">
-            <span className="experience__title-accent">Work</span> Experience
+          <h2 className="huge-heading">
+            EXPERIENCE
           </h2>
-          <div className="experience__title-line"></div>
         </div>
 
         <div className="experience__timeline">
-          {/* Vertical connecting line */}
           <div className="experience__line"></div>
 
           {experiences.map((exp, i) => (
             <div
               key={i}
               className={`experience__card reveal experience__card--${exp.color}`}
-              style={{ transitionDelay: `${i * 0.15}s` }}
+              style={{ transitionDelay: `${i * 0.1}s` }}
             >
-              {/* Timeline dot */}
-              <div className={`experience__dot experience__dot--${exp.color}`}>
-                <div className="experience__dot-inner"></div>
-              </div>
+              <div className={`experience__dot experience__dot--${exp.color}`}></div>
 
-              <div className="experience__card-content">
+              <div className="experience__card-content brutal-card">
                 <div className="experience__card-top">
                   <div>
                     <h3 className="experience__role">{exp.role}</h3>
-                    <p className="experience__company">{exp.company}</p>
+                    <p className={`experience__company text-${exp.color}`}>{exp.company}</p>
                   </div>
                   <div className="experience__meta">
                     <span className="experience__period">{exp.period}</span>
@@ -112,7 +107,7 @@ function Experience() {
 
                 <div className="experience__tech">
                   {exp.tech.map((t, j) => (
-                    <span key={j} className={`experience__tech-tag experience__tech-tag--${exp.color}`}>
+                    <span key={j} className={`max-badge max-badge-${exp.color}`}>
                       {t}
                     </span>
                   ))}

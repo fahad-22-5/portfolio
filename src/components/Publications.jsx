@@ -6,7 +6,7 @@ const publications = [
     title: 'A Pilot Study of a Gamified CBT-Based Digital Approach for Body Image Distress and Appearance-Related Concerns',
     journal: 'Human Behavior and Emerging Technologies',
     date: 'Jul 2026',
-    color: 'magenta',
+    color: 'pink',
     description:
       'Body image concerns represent a significant mental health challenge, yet stigma, costs, and limited access to professionals prevent many from seeking help. We developed a pilot-scale serious game integrating Cognitive Behavioral Therapy (CBT) techniques with AI-driven real-time emotional assessment to deliver interactive, personalized guidance. The adaptive feedback system provides more personalized support during gameplay compared to traditional approaches. The AI model achieved 97.15% accuracy on held-out test data, outperforming a BERT-based baseline classifier. The study provides preliminary indications that digital gamification may offer a scalable and accessible approach for mental health support.',
     tags: ['AI/ML', 'CBT', 'Gamification', 'NLP', 'Serious Games', 'Mental Health Tech'],
@@ -15,7 +15,7 @@ const publications = [
     title: 'Impact of Colour Image and Skeleton Plotting on Sign Language Recognition Using Convolutional Neural Networks (CNN)',
     journal: 'IEEE',
     date: 'Mar 2024',
-    color: 'cyan',
+    color: 'blue',
     description:
       'Sign language serves as a powerful and inclusive means of expression for the deaf and hard-of-hearing community. We introduced a CNN-based model for American Sign Language recognition where users capture hand gesture images and the model predicts the sign. The paper defines how different preprocessing techniques — color images vs. skeleton-mapped plotting — impact model accuracy. Using a self-created dataset of 40,000+ images and colored skeleton-mapped sign images, we achieved ~99% accuracy, demonstrating the significant impact of preprocessing on CNN performance.',
     tags: ['CNN', 'Computer Vision', 'Python', 'TensorFlow', 'ASL', 'Image Processing'],
@@ -45,35 +45,32 @@ function Publications() {
 
   return (
     <section className="publications" id="publications" ref={sectionRef}>
-      <div className="publications__container section-container">
-        <div className="publications__header reveal">
-          <h2 className="publications__title comic-heading">
-            <span className="publications__title-accent">Research</span> Publications
-          </h2>
-          <div className="publications__title-line"></div>
-        </div>
-
-        <div className="publications__grid">
+      <div className="publications-container section-container">
+        
+        <div className="publications-grid">
           {publications.map((pub, i) => (
             <article
               key={i}
-              className={`publications__card reveal publications__card--${pub.color}`}
-              style={{ transitionDelay: `${i * 0.15}s` }}
+              className={`publications-card brutal-card reveal`}
+              style={{ 
+                '--card-color': `var(--max-neon-${pub.color})`,
+                transitionDelay: `${i * 0.1}s`
+              }}
             >
-              <div className="publications__card-top">
-                <span className={`publications__journal publications__journal--${pub.color}`}>
+              <div className="publications-card-top">
+                <span className="max-badge" style={{ background: `var(--max-neon-${pub.color})` }}>
                   {pub.journal}
                 </span>
-                <span className="publications__date">{pub.date}</span>
+                <span className="publications-date">{pub.date}</span>
               </div>
 
-              <h3 className="publications__card-title">{pub.title}</h3>
+              <h3 className="publications-card-title">{pub.title}</h3>
 
-              <p className="publications__card-desc">{pub.description}</p>
+              <p className="publications-card-desc">{pub.description}</p>
 
-              <div className="publications__tags">
+              <div className="publications-tags">
                 {pub.tags.map((tag, j) => (
-                  <span key={j} className={`publications__tag publications__tag--${pub.color}`}>
+                  <span key={j} className="publications-tag" style={{ borderColor: `var(--max-neon-${pub.color})` }}>
                     {tag}
                   </span>
                 ))}

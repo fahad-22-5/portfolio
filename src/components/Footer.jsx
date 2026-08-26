@@ -5,24 +5,26 @@ function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="footer">
-      <div className="section-divider"></div>
-      <div className="footer__inner">
-        <div className="footer__left">
-          <span className="footer__logo comic-heading">Fahad<span className="footer__logo-dot">.</span></span>
-          <p className="footer__copy">© {currentYear} Fahad Eqbal Hashmi. All rights reserved.</p>
-        </div>
-
-        <div className="footer__right">
-          <a href="mailto:eqbalfahad@gmail.com" className="footer__link">Email</a>
-          <span className="footer__divider">·</span>
-          <a href="https://www.linkedin.com/in/fahadeqbalhashmi" target="_blank" rel="noopener noreferrer" className="footer__link">LinkedIn</a>
+    <footer className="footer checker-bg">
+      <div className="footer-marquee">
+        <div className="marquee-content-fast">
+          {Array(20).fill('END OF LINE / OVER AND OUT / ').map((t, i) => (
+            <span key={i}>{t}</span>
+          ))}
         </div>
       </div>
+      <div className="footer-inner section-container">
+        <div className="footer-left">
+          <span className="footer-logo glitch-text" data-text="FAHAD">FAHAD</span>
+          <p className="footer-copy">© {currentYear} FAHAD EQBAL HASHMI.</p>
+        </div>
 
-      <p className="footer__credit">
-        Designed & built with <span className="footer__heart">♥</span> and a lot of <span className="footer__coffee">☕</span>
-      </p>
+        <div className="footer-right">
+          <p className="footer-credit">
+            BUILT WITH <span style={{ color: 'var(--max-neon-pink)' }}>CHAOS</span> & <span style={{ color: 'var(--max-neon-yellow)' }}>COFFEE</span>
+          </p>
+        </div>
+      </div>
     </footer>
   );
 }

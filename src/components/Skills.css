@@ -1,195 +1,88 @@
-/* ============================================
-   SKILLS SECTION — COMIC PANEL GRID
-   ============================================ */
-
 .skills {
   position: relative;
-  background: var(--sv-dark);
+  background: var(--max-bg);
+  padding: 4rem 0;
 }
 
-.skills__container {
+.skills-container {
   position: relative;
   z-index: 1;
 }
 
-/* Header */
-.skills__header {
-  margin-bottom: 3rem;
-}
-
-.skills__title {
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  color: var(--sv-white);
-}
-
-.skills__title-accent {
-  display: inline-block;
-  background: var(--sv-magenta);
-  color: #fff;
-  padding: 0 0.5rem;
-  margin-right: 0.3rem;
-  transform: skewX(-5deg);
-  border: 2px solid #000;
-}
-
-.skills__title-line {
-  width: 100px;
-  height: 5px;
-  background: var(--sv-yellow);
-  margin-top: 1rem;
-  border: 2px solid #000;
-}
-
-/* Grid */
-.skills__grid {
+.skills-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
 }
 
-/* Category card — comic panel */
-.skills__category {
-  padding: 1.8rem;
-  background: var(--sv-dark-card);
-  border: 3px solid #000;
-  box-shadow: -6px 6px 0 #000;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.15s ease;
+.skills-card {
+  background: var(--max-surface);
+  border: var(--brutal-border-thick);
+  box-shadow: 8px 8px 0 var(--card-color);
 }
 
-.skills__category:hover {
-  transform: translate(3px, 3px);
-  box-shadow: -1px 1px 0 #000;
+.skills-card:hover {
+  transform: translate(4px, 4px) rotate(0deg) !important;
+  box-shadow: 4px 4px 0 var(--card-color);
+  z-index: 5;
 }
 
-/* Color strip */
-.skills__category::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
+.skills-card-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--card-color);
+  margin-bottom: 1.5rem;
+  border-bottom: 4px solid var(--card-color);
+  padding-bottom: 0.5rem;
+  letter-spacing: -1px;
 }
 
-.skills__category--red::before { background: var(--sv-red); }
-.skills__category--cyan::before { background: var(--sv-cyan); }
-.skills__category--magenta::before { background: var(--sv-magenta); }
-.skills__category--yellow::before { background: var(--sv-yellow); }
-
-/* Halftone overlay */
-.skills__category::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 8px 8px;
-  pointer-events: none;
-}
-
-/* Category title */
-.skills__category-title {
-  font-family: var(--font-comic);
-  font-size: 1.2rem;
-  letter-spacing: 2px;
-  margin-bottom: 1.2rem;
-  padding-bottom: 0.8rem;
-  border-bottom: 3px solid #000;
-  position: relative;
-  z-index: 1;
-}
-
-.skills__category-title--red { color: var(--sv-red-glow); }
-.skills__category-title--cyan { color: var(--sv-cyan); }
-.skills__category-title--magenta { color: var(--sv-magenta); }
-.skills__category-title--yellow { color: var(--sv-yellow); }
-
-/* Skill tags — comic label pills */
-.skills__list {
+.skills-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  position: relative;
-  z-index: 1;
+  gap: 0.8rem;
 }
 
-.skills__tag {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  padding: 0.35rem 0.7rem;
-  font-weight: 600;
-  border: 2px solid #000;
-  box-shadow: -2px 2px 0 #000;
-  transition: all 0.1s ease;
-  cursor: default;
+.skills-tag {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  background: var(--card-color);
+  color: var(--max-black);
+  border: 2px solid var(--max-black);
+  box-shadow: 2px 2px 0 var(--max-white);
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
 }
 
-.skills__tag:hover {
-  transform: translate(1px, 1px);
-  box-shadow: -1px 1px 0 #000;
+.skills-tag:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--max-white);
 }
 
-.skills__tag--red {
-  background: rgba(226, 54, 54, 0.2);
-  color: var(--sv-red-glow);
+.skills-soft {
+  background: var(--max-neon-blue);
+  box-shadow: 12px 12px 0 var(--max-black);
+  text-align: center;
+  margin: 0 auto;
+  max-width: 800px;
 }
 
-.skills__tag--cyan {
-  background: rgba(0, 212, 255, 0.15);
-  color: var(--sv-cyan);
-}
-
-.skills__tag--magenta {
-  background: rgba(255, 45, 149, 0.15);
-  color: var(--sv-magenta);
-}
-
-.skills__tag--yellow {
-  background: rgba(255, 215, 0, 0.15);
-  color: var(--sv-yellow);
-}
-
-/* Soft skills */
-.skills__soft {
-  margin-top: 2rem;
-}
-
-.skills__soft-title {
-  font-family: var(--font-comic);
-  font-size: 1.2rem;
-  letter-spacing: 2px;
-  color: var(--sv-green);
+.skills-soft .skills-card-title {
+  border-bottom: none;
   margin-bottom: 1rem;
 }
 
-.skills__soft-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
+.skills-soft .skills-tags {
+  justify-content: center;
 }
 
-.skills__soft-tag {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  padding: 0.35rem 0.7rem;
-  background: rgba(123, 237, 159, 0.1);
-  color: var(--sv-green);
-  border: 2px solid #000;
-  box-shadow: -2px 2px 0 #000;
-  font-weight: 500;
-  transition: all 0.1s ease;
-}
-
-.skills__soft-tag:hover {
-  transform: translate(1px, 1px);
-  box-shadow: -1px 1px 0 #000;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
-  .skills__grid {
+  .skills-grid {
     grid-template-columns: 1fr;
   }
 }

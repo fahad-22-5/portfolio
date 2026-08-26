@@ -1,193 +1,89 @@
-/* ============================================
-   PUBLICATIONS SECTION — COMIC ISSUE CARDS
-   ============================================ */
-
 .publications {
   position: relative;
-  background: var(--sv-dark-surface);
+  background: var(--max-bg);
+  padding-bottom: 4rem;
 }
 
-.publications__container {
+.publications-container {
   position: relative;
   z-index: 1;
 }
 
-/* Header */
-.publications__header {
-  margin-bottom: 3rem;
-}
-
-.publications__title {
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  color: var(--sv-white);
-}
-
-.publications__title-accent {
-  display: inline-block;
-  background: var(--sv-magenta);
-  color: #fff;
-  padding: 0 0.5rem;
-  margin-right: 0.3rem;
-  transform: skewX(-5deg);
-  border: 2px solid #000;
-}
-
-.publications__title-line {
-  width: 100px;
-  height: 5px;
-  background: var(--sv-cyan);
-  margin-top: 1rem;
-  border: 2px solid #000;
-}
-
-/* Grid */
-.publications__grid {
+.publications-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 3rem;
 }
 
-/* Card — comic issue panel */
-.publications__card {
-  background: var(--sv-dark-card);
-  border: 3px solid #000;
-  box-shadow: -6px 6px 0 #000;
-  padding: 2rem;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.15s ease;
+.publications-card {
+  background: var(--max-surface);
+  border: var(--brutal-border-thick);
+  box-shadow: 10px 10px 0 var(--card-color);
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
 }
 
-.publications__card:hover {
-  transform: translate(3px, 3px);
-  box-shadow: -1px 1px 0 #000;
+.publications-card:hover {
+  transform: translate(5px, 5px);
+  box-shadow: 5px 5px 0 var(--card-color);
 }
 
-/* Color strip */
-.publications__card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-}
-
-.publications__card--magenta::before {
-  background: var(--sv-magenta);
-}
-
-.publications__card--cyan::before {
-  background: var(--sv-cyan);
-}
-
-/* Halftone overlay */
-.publications__card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 8px 8px;
-  pointer-events: none;
-}
-
-/* Card top (journal + date) */
-.publications__card-top {
+.publications-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
-  gap: 0.5rem;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
 }
 
-.publications__journal {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 0.3rem 0.7rem;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  border: 2px solid #000;
-  box-shadow: -2px 2px 0 #000;
-}
-
-.publications__journal--magenta {
-  background: var(--sv-magenta);
-  color: #fff;
-}
-
-.publications__journal--cyan {
-  background: var(--sv-cyan);
-  color: #000;
-}
-
-.publications__date {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--sv-gray);
-  flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 0.2rem 0.5rem;
-  border: 2px solid #000;
-}
-
-/* Title */
-.publications__card-title {
-  font-size: 1.05rem;
+.publications-date {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--max-white);
+  background: var(--max-black);
+  padding: 0.3rem 0.6rem;
+  border: 2px solid var(--max-white);
   font-weight: 700;
-  line-height: 1.5;
-  color: var(--sv-white);
-  margin-bottom: 1rem;
-  position: relative;
-  z-index: 1;
 }
 
-/* Description */
-.publications__card-desc {
-  font-size: 0.88rem;
-  color: var(--sv-gray);
-  line-height: 1.7;
-  margin-bottom: 1.2rem;
+.publications-card-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--max-white);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+.publications-card-desc {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  margin-bottom: 2rem;
   flex: 1;
-  position: relative;
-  z-index: 1;
 }
 
-/* Tags */
-.publications__tags {
+.publications-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  position: relative;
-  z-index: 1;
+  gap: 0.6rem;
 }
 
-.publications__tag {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  padding: 0.25rem 0.55rem;
-  font-weight: 600;
-  border: 2px solid #000;
-  box-shadow: -2px 2px 0 #000;
+.publications-tag {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  font-weight: 700;
+  border: 2px solid;
+  color: var(--max-white);
+  background: transparent;
+  text-transform: uppercase;
 }
 
-.publications__tag--magenta {
-  background: rgba(255, 45, 149, 0.15);
-  color: var(--sv-magenta);
-}
-
-.publications__tag--cyan {
-  background: rgba(0, 212, 255, 0.1);
-  color: var(--sv-cyan);
-}
-
-/* Responsive */
 @media (max-width: 768px) {
-  .publications__grid {
+  .publications-grid {
     grid-template-columns: 1fr;
   }
 }

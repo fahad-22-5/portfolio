@@ -1,72 +1,85 @@
-/* ============================================
-   FOOTER — COMIC CREDITS PANEL
-   ============================================ */
-
 .footer {
-  background: #000;
-  padding: 2rem;
-  border-top: 5px solid var(--sv-red);
+  background: var(--max-bg);
+  border-top: var(--brutal-border-thick);
   position: relative;
+  overflow: hidden;
 }
 
-.footer__container {
-  max-width: var(--container-max);
-  margin: 0 auto;
+.footer-marquee {
+  background: var(--max-neon-yellow);
+  color: var(--max-black);
+  padding: 1rem 0;
+  border-bottom: var(--brutal-border-black);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+.marquee-content-fast {
+  display: inline-block;
+  animation: marquee 10s linear infinite;
+}
+
+.marquee-content-fast span {
+  padding: 0 2rem;
+}
+
+.footer-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  flex-wrap: wrap;
+  gap: 2rem;
+  position: relative;
+  z-index: 2;
 }
 
-.footer__credit {
-  font-family: var(--font-comic);
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--max-white);
+  letter-spacing: -2px;
+}
+
+.footer-copy {
+  font-family: var(--font-body);
+  font-weight: 700;
   font-size: 1rem;
-  letter-spacing: 2px;
-  color: var(--sv-gray);
+  color: var(--max-white);
 }
 
-.footer__credit-name {
-  color: var(--sv-red);
+.footer-right {
+  text-align: right;
 }
 
-.footer__socials {
-  display: flex;
-  gap: 0.6rem;
-}
-
-.footer__social-link {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--sv-dark-surface);
-  border: 2px solid #333;
-  color: var(--sv-gray);
-  font-size: 0.9rem;
-  text-decoration: none;
-  transition: all 0.15s ease;
-  box-shadow: -2px 2px 0 #333;
-}
-
-.footer__social-link:hover {
-  background: var(--sv-red);
-  border-color: #000;
-  color: white;
-  transform: translate(1px, 1px);
-  box-shadow: -1px 1px 0 #000;
-}
-
-.footer__tagline {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--sv-gray);
-  opacity: 0.5;
+.footer-credit {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--max-white);
 }
 
 @media (max-width: 768px) {
-  .footer__container {
+  .footer-inner {
     flex-direction: column;
+    text-align: center;
+    justify-content: center;
+  }
+  .footer-right {
     text-align: center;
   }
 }

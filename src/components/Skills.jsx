@@ -3,22 +3,22 @@ import './Skills.css';
 
 const skillCategories = [
   {
-    title: 'Backend & Core',
-    color: 'red',
+    title: 'BACKEND & CORE',
+    color: 'pink',
     skills: ['.NET', 'C#', 'SQL', 'MySQL', 'RabbitMQ', 'Firebase', 'PostgreSQL'],
   },
   {
-    title: 'Languages',
-    color: 'cyan',
+    title: 'LANGUAGES',
+    color: 'blue',
     skills: ['C/C++', 'Java', 'Python', 'JavaScript', 'Solidity'],
   },
   {
-    title: 'Frontend',
-    color: 'magenta',
+    title: 'FRONTEND',
+    color: 'green',
     skills: ['React.js', 'React Native', 'HTML5', 'CSS3'],
   },
   {
-    title: 'Cloud & Tools',
+    title: 'CLOUD & TOOLS',
     color: 'yellow',
     skills: ['AWS', 'GCP', 'Git', 'GitHub', 'Salesforce', 'AI/ML'],
   },
@@ -47,44 +47,34 @@ function Skills() {
 
   return (
     <section className="skills" id="skills" ref={sectionRef}>
-      <div className="skills__container section-container">
-        <div className="skills__header reveal">
-          <h2 className="skills__title comic-heading">
-            <span className="skills__title-accent">My</span> Skills
-          </h2>
-          <div className="skills__title-line"></div>
-        </div>
-
-        <div className="skills__grid">
+      <div className="skills-container section-container">
+        
+        <div className="skills-grid">
           {skillCategories.map((cat, i) => (
             <div
               key={i}
-              className={`skills__category reveal skills__category--${cat.color}`}
-              style={{ transitionDelay: `${i * 0.1}s` }}
+              className={`skills-card brutal-card reveal`}
+              style={{ 
+                '--card-color': `var(--max-neon-${cat.color})`, 
+                transform: `rotate(${i % 2 === 0 ? '-2deg' : '2deg'})`,
+                transitionDelay: `${i * 0.1}s` 
+              }}
             >
-              <h3 className={`skills__category-title skills__category-title--${cat.color}`}>
-                {cat.title}
-              </h3>
-              <div className="skills__tags">
+              <h3 className="skills-card-title">{cat.title}</h3>
+              <div className="skills-tags">
                 {cat.skills.map((skill, j) => (
-                  <span
-                    key={j}
-                    className={`skills__tag skills__tag--${cat.color}`}
-                  >
-                    {skill}
-                  </span>
+                  <span key={j} className="skills-tag">{skill}</span>
                 ))}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Soft skills */}
-        <div className="skills__soft reveal">
-          <h3 className="skills__soft-title comic-heading">Also Known For</h3>
-          <div className="skills__soft-list">
+        <div className="skills-soft brutal-card reveal" style={{ '--card-color': 'var(--max-white)', transform: 'rotate(-1deg)' }}>
+          <h3 className="skills-card-title" style={{ color: 'var(--max-black)' }}>ALSO KNOWN FOR</h3>
+          <div className="skills-tags">
             {['Problem-solving', 'Communication', 'Analytical Thinking', 'Leadership', 'Flexibility'].map((s, i) => (
-              <span key={i} className="skills__soft-tag">{s}</span>
+              <span key={i} className="skills-tag" style={{ background: 'var(--max-black)', color: 'var(--max-white)' }}>{s}</span>
             ))}
           </div>
         </div>

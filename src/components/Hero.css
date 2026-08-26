@@ -1,322 +1,165 @@
-/* ============================================
-   HERO SECTION — SPIDER-VERSE
-   ============================================ */
-
 .hero {
   position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6rem 2rem 4rem;
+  padding: 8rem 2rem;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 10% 20%, rgba(255, 45, 149, 0.1) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(226, 54, 54, 0.05) 0%, transparent 60%),
-    var(--sv-dark);
+  background: var(--max-bg);
 }
 
-/* Floating particles */
-.hero__particles {
+.hero-bg-graphic {
   position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.hero__particle {
-  position: absolute;
-  bottom: -10px;
-  left: var(--x);
-  width: var(--size);
-  height: var(--size);
-  background: var(--sv-red);
   border-radius: 50%;
-  opacity: 0.4;
-  animation: float-up var(--duration) var(--delay) infinite;
+  filter: blur(100px);
+  z-index: 0;
+  opacity: 0.6;
 }
 
-.hero__particle:nth-child(even) {
-  background: var(--sv-cyan);
+.hero-circle-1 {
+  width: 600px;
+  height: 600px;
+  background: var(--max-neon-red);
+  top: -200px;
+  left: -200px;
 }
 
-.hero__particle:nth-child(3n) {
-  background: var(--sv-magenta);
+.hero-circle-2 {
+  width: 500px;
+  height: 500px;
+  background: var(--max-neon-blue);
+  bottom: -100px;
+  right: -100px;
 }
 
-@keyframes float-up {
-  0% {
-    transform: translateY(0) scale(1);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.5;
-  }
-  90% {
-    opacity: 0.2;
-  }
-  100% {
-    transform: translateY(-100vh) scale(0.3);
-    opacity: 0;
-  }
-}
-
-/* Content layout */
-.hero__content {
-  max-width: var(--container-max);
+.hero-content {
+  position: relative;
+  z-index: 10;
   width: 100%;
+  max-width: var(--container-max);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 4rem;
-  z-index: 2;
-  position: relative;
 }
 
-/* --- Text side --- */
-.hero__text {
+.hero-left {
   flex: 1;
 }
 
-.hero__greeting {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  color: var(--sv-cyan);
-  margin-bottom: 0.5rem;
-  letter-spacing: 2px;
+.hero-header {
   display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.hero__thwip {
-  font-size: 1.1rem !important;
-  animation-duration: 1.5s;
-}
-
-.hero__name {
-  font-size: clamp(2.5rem, 7vw, 5rem);
-  line-height: 1.05;
-  margin-bottom: 1.2rem;
-  color: var(--sv-white);
-  text-shadow:
-    3px 3px 0 rgba(226, 54, 54, 0.3),
-    -1px -1px 0 rgba(0, 212, 255, 0.2);
-}
-
-.hero__name-line2 {
-  display: block;
-}
-
-/* Glitch effect */
-.hero__name-glitch {
-  position: relative;
-  display: inline-block;
-}
-
-.hero__name-glitch::before,
-.hero__name-glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.hero__name-glitch::before {
-  color: var(--sv-cyan);
-  z-index: -1;
-  animation: glitch-1 4s ease-in-out infinite;
-}
-
-.hero__name-glitch::after {
-  color: var(--sv-red);
-  z-index: -1;
-  animation: glitch-2 4s ease-in-out infinite;
-}
-
-.hero__name-glitch--alt::before {
-  color: var(--sv-magenta);
-}
-
-.hero__name-glitch--alt::after {
-  color: var(--sv-blue-glow);
-}
-
-@keyframes glitch-1 {
-  0%, 100% { transform: translate(0); }
-  20% { transform: translate(-3px, 2px); }
-  40% { transform: translate(2px, -1px); }
-  60% { transform: translate(-1px, -2px); }
-  80% { transform: translate(3px, 1px); }
-}
-
-@keyframes glitch-2 {
-  0%, 100% { transform: translate(0); }
-  20% { transform: translate(3px, -1px); }
-  40% { transform: translate(-2px, 2px); }
-  60% { transform: translate(1px, 1px); }
-  80% { transform: translate(-3px, -2px); }
-}
-
-/* Tagline */
-.hero__tagline {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  font-family: var(--font-mono);
-  font-size: 1.1rem;
-}
-
-.hero__tagline-bracket {
-  color: var(--sv-red);
-  font-weight: 700;
-}
-
-.hero__subtitle {
-  font-size: 1.15rem;
-  color: var(--sv-gray);
+  gap: 1rem;
   margin-bottom: 2rem;
-  max-width: 500px;
 }
 
-.hero__subtitle em {
-  color: var(--sv-yellow);
-  font-style: normal;
-  font-weight: 600;
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 10vw, 8rem);
+  font-weight: 800;
+  line-height: 0.85;
+  letter-spacing: -5px;
+  text-transform: uppercase;
+  margin-bottom: 3rem;
+  position: relative;
 }
 
-/* CTA buttons — comic book style */
-.hero__cta {
+.hero-subtitle-box {
+  max-width: 600px;
+  background: var(--max-surface) !important;
+  border: var(--brutal-border-thick) !important;
+  box-shadow: var(--shadow-blue) !important;
+  text-align: left;
+  z-index: 15;
+  margin-top: 2rem;
+}
+
+.hero-subtitle-box p {
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+}
+
+.hero-type {
+  font-family: var(--font-mono, monospace);
+  color: var(--max-neon-red);
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  background: var(--max-black);
+  padding: 1rem;
+  border: 2px solid var(--max-neon-blue);
+}
+
+.hero-cta-group {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
-.hero__btn {
-  font-family: var(--font-comic);
-  font-size: 1.1rem;
-  font-weight: 400;
-  padding: 0.85rem 2rem;
+.max-btn {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 800;
+  padding: 1rem 2rem;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all var(--transition-mid);
-  letter-spacing: 2px;
   text-transform: uppercase;
+  border: 3px solid var(--max-black);
+  transition: all var(--transition-fast);
 }
 
-.hero__btn--primary {
-  background: var(--sv-red);
-  color: white;
-  border: 3px solid #000;
-  box-shadow: -4px 4px 0 #000;
+.max-btn-primary {
+  background: var(--max-neon-red);
+  color: var(--max-black);
+  box-shadow: 4px 4px 0 var(--max-white);
 }
-
-.hero__btn--primary:hover {
+.max-btn-primary:hover {
   transform: translate(2px, 2px);
-  box-shadow: -1px 1px 0 #000;
+  box-shadow: 2px 2px 0 var(--max-white);
 }
 
-.hero__btn--primary:active {
-  transform: translate(0, 0);
-  box-shadow: -2px 2px 0 #000;
+.max-btn-secondary {
+  background: var(--max-neon-blue);
+  color: var(--max-black);
+  box-shadow: 4px 4px 0 var(--max-neon-red);
 }
-
-.hero__btn--secondary {
-  background: transparent;
-  color: var(--sv-white);
-  border: 3px solid var(--sv-white);
-  box-shadow: -4px 4px 0 var(--sv-cyan);
-}
-
-.hero__btn--secondary:hover {
-  border-color: var(--sv-cyan);
-  color: var(--sv-cyan);
+.max-btn-secondary:hover {
   transform: translate(2px, 2px);
-  box-shadow: -1px 1px 0 var(--sv-cyan);
+  box-shadow: 2px 2px 0 var(--max-neon-red);
 }
 
-.hero__btn--secondary:active {
-  transform: translate(0, 0);
-  box-shadow: -2px 2px 0 var(--sv-cyan);
-}
-
-/* --- Split Face Interactive Card --- */
-.hero__split-face-wrapper {
+/* Split Face Interactive Card */
+.hero-split-face-wrapper {
   position: relative;
   width: 320px;
   height: 400px;
   flex-shrink: 0;
   z-index: 3;
+  perspective: 1000px;
 }
 
-.hero__split-shadow {
+.hero-split-face {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 320px;
-  height: 400px;
-  background: var(--sv-cyan);
-  border-radius: 16px;
-  z-index: 0;
-  border: 4px solid #000;
-}
-
-.hero__split-face {
-  position: absolute;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   width: 100%;
   height: 100%;
-  border-radius: 16px;
-  border: 4px solid #000;
-  box-shadow: -8px 8px 0 #000;
   overflow: hidden;
   display: flex;
-  background-color: var(--sv-dark-card); /* Fallback */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  z-index: 2;
-  cursor: pointer;
+  transition: transform 0.1s ease;
+  padding: 0 !important; /* Override brutal-card padding */
 }
 
-.hero__split-face:hover {
-  transform: translate(3px, 3px);
-  box-shadow: -2px 2px 0 #000;
-}
-
-/* The actual image */
-.hero__split-img {
+.hero-split-img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.1); /* Zooms in slightly to crop out watermarks */
+  transform: scale(1.1); 
   z-index: 1;
 }
 
-/* Fallback text if image missing */
-.hero__split-placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 2rem;
-  color: var(--sv-gray);
-  font-family: var(--font-mono);
-  z-index: 0;
-  font-size: 0.9rem;
-}
-
-/* The two clickable halves */
-.hero__split-half {
+.hero-split-half {
   position: relative;
   flex: 1;
   height: 100%;
@@ -326,117 +169,57 @@
   align-items: flex-end;
   justify-content: center;
   padding-bottom: 1.5rem;
-  text-decoration: none;
+  cursor: pointer;
 }
 
-.hero__split-half--left:hover {
-  background: rgba(226, 54, 54, 0.4); /* Red tint for spiderman */
+.hero-split-half-left:hover {
+  background: rgba(255, 42, 42, 0.5); /* Red tint */
 }
 
-.hero__split-half--right:hover {
-  background: rgba(0, 212, 255, 0.4); /* Cyan tint for peter */
+.hero-split-half-right:hover {
+  background: rgba(0, 240, 255, 0.5); /* Blue tint */
 }
 
-/* Labels that appear on hover */
-.hero__split-label {
-  font-family: var(--font-comic);
+.hero-split-label {
+  font-family: var(--font-display);
   font-size: 2.2rem;
-  color: #fff;
-  text-shadow: 2px 2px 0 #000;
-  -webkit-text-stroke: 1px #000;
+  font-weight: 800;
+  text-shadow: 2px 2px 0 var(--max-black);
+  -webkit-text-stroke: 1px var(--max-black);
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.3s ease;
   pointer-events: none;
 }
 
-.hero__split-half:hover .hero__split-label {
+.hero-split-half:hover .hero-split-label {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Scroll indicator */
-.hero__scroll {
+/* Marquees */
+.hero-marquee-1 {
   position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  z-index: 2;
+  top: 10%;
+  transform: rotate(-3deg) scale(1.1);
+  opacity: 0.9;
+  z-index: 5;
 }
 
-.hero__scroll-line {
-  width: 2px;
-  height: 40px;
-  background: linear-gradient(to bottom, var(--sv-red), transparent);
-  animation: scroll-pulse 2s ease-in-out infinite;
-}
-
-@keyframes scroll-pulse {
-  0%, 100% { opacity: 1; transform: scaleY(1); }
-  50% { opacity: 0.3; transform: scaleY(0.6); }
-}
-
-.hero__scroll-text {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--sv-gray);
-  letter-spacing: 3px;
-}
-
-/* Diagonal section divider */
-.hero__diagonal {
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 80px;
-  background: var(--sv-dark);
-  clip-path: polygon(0 60%, 100% 0, 100% 100%, 0 100%);
-  z-index: 3;
-}
-
-/* --- Responsive --- */
 @media (max-width: 900px) {
-  .hero__content {
+  .hero-content {
     flex-direction: column;
     text-align: center;
   }
-
-  .hero__subtitle {
-    margin: 0 auto 2rem;
+  .hero-subtitle-box {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
   }
-
-  .hero__cta {
+  .hero-cta-group {
     justify-content: center;
   }
-
-  .hero__tagline {
-    justify-content: center;
-  }
-
-  .hero__greeting {
-    justify-content: center;
-  }
-
-  .hero__split-face-wrapper {
-    margin-top: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero__split-face,
-  .hero__split-shadow,
-  .hero__split-face-wrapper {
-    width: 280px;
-    height: 350px;
-  }
-
-  .hero__btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
+  .hero-split-face-wrapper {
+    margin-top: 2rem;
   }
 }
