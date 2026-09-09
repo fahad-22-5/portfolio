@@ -1,8 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Environment, Text, RoundedBox } from '@react-three/drei';
+import { useSpring, animated, config } from '@react-spring/three';
+import * as THREE from 'three';
 import './Barista.css';
 
-/* ── Recipe Engine ── */
+// --- Recipes & Logic ---
 const RECIPES = [
   { name: 'Espresso', ingredients: ['espresso'] },
   { name: 'Double Espresso', ingredients: ['espresso', 'espresso'] },
@@ -25,762 +29,548 @@ function evaluateDrink(contents) {
   return found ? found.name : 'Mystery Brew 🤔';
 }
 
-/* ── Definitions ── */
-const SERVING_GLASSES = [
-  { id: 'espresso_cup', label: 'Espresso Cup' },
-  { id: 'tall_glass', label: 'Tall Glass' },
-];
-
-const CROCKERY_TOOLS = [
-  { id: 'shot_glass', label: 'Shot Glass', purpose: 'Catch espresso from machine' },
-  { id: 'frothing_pitcher', label: 'Frothing Pitcher', purpose: 'Steam milk' },
-];
-
-const INGREDIENTS = [
-  { id: 'water', label: 'Water', img: '/assets/water_pitcher.png' },
-  { id: 'milk', label: 'Milk', img: '/assets/milk_jug.png' },
-  { id: 'ice', label: 'Ice', img: '/assets/ice_bucket.png' },
-];
-
-/* ── Image Mapping ── */
-const TALL_GLASS_IMAGES = {
-  '': '/assets/tall_glass_empty.png',
-  'espresso': '/assets/tall_glass_espresso.png',
-  'water': '/assets/tall_glass_water.png',
-  'milk': '/assets/tall_glass_milk.png',
-  'ice': '/assets/tall_glass_ice.png',
-  'espresso,water': '/assets/tall_glass_americano.png',
-  'espresso,ice,water': '/assets/tall_glass_iced_americano.png',
-  'espresso,steamed_milk': '/assets/tall_glass_latte.png',
-  'espresso,ice,steamed_milk': '/assets/tall_glass_iced_latte.png',
-  'ice,water': '/assets/tall_glass_iced_water.png',
-  'ice,milk': '/assets/tall_glass_iced_milk.png',
-  'steamed_milk': '/assets/tall_glass_milk.png',
-  'ice,steamed_milk': '/assets/tall_glass_iced_milk.png',
-};
-
-function getServingGlassImg(glassType, contents) {
-  if (glassType === 'tall_glass') {
-    const key = [...(contents || [])].sort().join(',');
-    return TALL_GLASS_IMAGES[key] || '/assets/tall_glass_empty.png';
-  }
-  if (glassType === 'espresso_cup') {
-    return contents && contents.length > 0
-      ? '/assets/espresso_cup_filled.png'
-      : '/assets/espresso_cup_empty.png';
-  }
-  return '/assets/tall_glass_empty.png';
+function getLiquidColor(contents) {
+  if (!contents || contents.length === 0) return 'transparent';
+  if (contents.includes('espresso') && contents.includes('steamed_milk')) return '#c29a76';
+  if (contents.includes('espresso') && contents.includes('water')) return '#4a3320';
+  if (contents.includes('espresso')) return '#3b2818';
+  if (contents.includes('steamed_milk') || contents.includes('milk')) return '#ffffff';
+  if (contents.includes('water')) return '#88ccff';
+  return '#ff00ff';
 }
 
-function getToolImg(toolType, isFull) {
-  if (toolType === 'shot_glass') {
-    return isFull ? '/assets/shot_glass_full.png' : '/assets/shot_glass_empty.png';
-  }
-  if (toolType === 'frothing_pitcher') {
-    return isFull ? '/assets/frothing_pitcher_full.png' : '/assets/frothing_pitcher_empty.png';
-  }
-  return '/assets/shot_glass_empty.png';
+// --- 3D Sub-Components ---
+function Liquid({ contents, heightMultiplier = 1 }) {
+  const fillLevel = Math.min(contents.length * 0.3 * heightMultiplier, heightMultiplier);
+  const color = getLiquidColor(contents);
+
+  // Animate the liquid filling up and changing color
+  const { scaleY, posY, liquidColor, opacity } = useSpring({
+    scaleY: fillLevel === 0 ? 0.01 : fillLevel,
+    posY: fillLevel === 0 ? 0.05 : (fillLevel / 2) - (heightMultiplier / 2) + 0.05,
+    liquidColor: color,
+    opacity: fillLevel === 0 ? 0 : 0.9,
+    config: config.wobbly
+  });
+
+  return (
+    <animated.mesh position-y={posY} scale-y={scaleY}>
+      <cylinderGeometry args={[0.38, 0.38, 1, 32]} />
+      <animated.meshPhysicalMaterial 
+        color={liquidColor} 
+        transmission={0.2}
+        transparent={true}
+        opacity={opacity}
+        roughness={0.1}
+      />
+    </animated.mesh>
+  );
 }
 
-function getSlotImg(slot) {
-  if (!slot) return null;
-  if (slot.kind === 'tool') return getToolImg(slot.toolType, slot.contents.length > 0);
-  if (slot.kind === 'glass') return getServingGlassImg(slot.glassType, slot.contents);
-  return null;
+function GlassCup({ type, contents, selected, onClick, position }) {
+  const isTall = type === 'tall_glass';
+  const height = isTall ? 1.5 : 0.6;
+  const radius = isTall ? 0.4 : 0.35;
+  
+  const [hovered, setHovered] = useState(false);
+
+  // Smooth position and scale transitions
+  const { pos, scale } = useSpring({
+    pos: position,
+    scale: hovered ? 1.05 : (selected ? 1.1 : 1),
+    config: config.stiff
+  });
+
+  useEffect(() => {
+    document.body.style.cursor = hovered ? 'pointer' : 'auto';
+  }, [hovered]);
+
+  return (
+    <animated.group 
+      position={pos} 
+      scale={scale}
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onPointerOver={(e) => { e.stopPropagation(); setHovered(true); }}
+      onPointerOut={() => setHovered(false)}
+    >
+      {/* Selection Highlight */}
+      {selected && (
+        <mesh position={[0, 0, 0]}>
+          <cylinderGeometry args={[radius + 0.1, radius + 0.1, 0.1, 32]} />
+          <meshBasicMaterial color="#00ff00" transparent opacity={0.5} />
+        </mesh>
+      )}
+      {/* Glass Body */}
+      <mesh position={[0, height/2, 0]} castShadow>
+        <cylinderGeometry args={[radius, radius - 0.05, height, 32]} />
+        <meshPhysicalMaterial 
+          transmission={0.9} 
+          opacity={1} 
+          transparent 
+          roughness={0.1} 
+          ior={1.5} 
+          color="#ffffff" 
+        />
+      </mesh>
+      {/* Liquid Contents */}
+      <group position={[0, height/2, 0]}>
+        <Liquid contents={contents} heightMultiplier={height - 0.1} />
+      </group>
+      
+      {/* Label above cup */}
+      {contents && contents.length > 0 && (
+        <Text position={[0, height + 0.3, 0]} fontSize={0.2} color="white" anchorY="bottom">
+          {evaluateDrink(contents) || contents.join(', ')}
+        </Text>
+      )}
+    </animated.group>
+  );
 }
 
-/* ── Main Component ── */
+function Pitcher({ contents, selected, onClick, position, isSteaming }) {
+  const height = 1.2;
+  const radius = 0.4;
+  
+  const [hovered, setHovered] = useState(false);
+  const { pos, scale } = useSpring({
+    pos: position,
+    scale: hovered ? 1.05 : (selected ? 1.1 : 1),
+    config: config.stiff
+  });
+
+  useEffect(() => {
+    document.body.style.cursor = hovered ? 'pointer' : 'auto';
+  }, [hovered]);
+
+  // Steaming shake effect
+  const steamRef = useRef();
+  useFrame(({ clock }) => {
+    if (isSteaming && steamRef.current) {
+      steamRef.current.position.x = Math.sin(clock.elapsedTime * 40) * 0.02;
+    } else if (steamRef.current) {
+      steamRef.current.position.x = 0;
+    }
+  });
+
+  return (
+    <animated.group 
+      position={pos} 
+      scale={scale}
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onPointerOver={(e) => { e.stopPropagation(); setHovered(true); }}
+      onPointerOut={() => setHovered(false)}
+    >
+      <group ref={steamRef}>
+        {selected && (
+          <mesh position={[0, 0, 0]}>
+            <cylinderGeometry args={[radius + 0.1, radius + 0.1, 0.1, 32]} />
+            <meshBasicMaterial color="#00ff00" transparent opacity={0.5} />
+          </mesh>
+        )}
+        <mesh position={[0, height/2, 0]} castShadow>
+          <cylinderGeometry args={[radius, radius, height, 32]} />
+          <meshStandardMaterial color="#cccccc" metalness={0.8} roughness={0.2} />
+        </mesh>
+        <mesh position={[radius + 0.15, height/2, 0]} castShadow>
+          <boxGeometry args={[0.3, 0.6, 0.1]} />
+          <meshStandardMaterial color="#cccccc" metalness={0.8} roughness={0.2} />
+        </mesh>
+        
+        {isSteaming && (
+          <Text position={[0, height + 0.3, 0]} fontSize={0.2} color="#00ff00">STEAMING...</Text>
+        )}
+        {!isSteaming && contents && contents.length > 0 && (
+          <Text position={[0, height + 0.3, 0]} fontSize={0.2} color="white">
+            {contents.includes('steamed_milk') ? 'Steamed Milk' : 'Milk'}
+          </Text>
+        )}
+      </group>
+    </animated.group>
+  );
+}
+
+function EspressoMachine({ machineState, steamState, onBrew, onSteam }) {
+  const brewHover = useRef(false);
+  const steamHover = useRef(false);
+  const [bHover, setBHover] = useState(false);
+  const [sHover, setSHover] = useState(false);
+
+  const { brewScale } = useSpring({ brewScale: bHover ? 1.1 : 1 });
+  const { steamScale } = useSpring({ steamScale: sHover ? 1.1 : 1 });
+
+  return (
+    <group position={[0, 0, -1.5]}>
+      {/* Main Body */}
+      <RoundedBox args={[4, 3, 2]} position={[0, 1.5, 0]} radius={0.1} castShadow receiveShadow>
+        <meshStandardMaterial color="#222" metalness={0.7} roughness={0.3} />
+      </RoundedBox>
+      
+      {/* Control Panel Area */}
+      <mesh position={[0, 2.5, 1.01]}>
+        <planeGeometry args={[3, 0.6]} />
+        <meshStandardMaterial color="#111" />
+      </mesh>
+      <Text position={[0, 2.5, 1.02]} fontSize={0.2} color="#ccc">FAHAD-X ESPRESSO</Text>
+
+      {/* Group Spout */}
+      <mesh position={[0, 1.2, 0.8]} castShadow>
+        <cylinderGeometry args={[0.2, 0.2, 0.4, 16]} />
+        <meshStandardMaterial color="#555" metalness={0.9} />
+      </mesh>
+      
+      {/* Steam Wand */}
+      <mesh position={[1.2, 1.2, 0.8]} rotation={[0, 0, -Math.PI/6]} castShadow>
+        <cylinderGeometry args={[0.05, 0.05, 0.6, 16]} />
+        <meshStandardMaterial color="#bbb" metalness={0.9} />
+      </mesh>
+
+      {/* Brew Button */}
+      <animated.group 
+        position={[-0.8, 2, 1]} 
+        scale={brewScale}
+        onClick={(e) => { e.stopPropagation(); onBrew(); }}
+        onPointerOver={(e) => { e.stopPropagation(); setBHover(true); document.body.style.cursor='pointer'; }}
+        onPointerOut={() => { setBHover(false); document.body.style.cursor='auto'; }}
+      >
+        <boxGeometry args={[0.4, 0.2, 0.1]} />
+        <meshStandardMaterial color={machineState === 'ready' ? '#ff3b30' : '#881111'} />
+        <Text position={[0, -0.3, 0.05]} fontSize={0.12} color="white">BREW</Text>
+      </animated.group>
+
+      {/* Steam Button */}
+      <animated.group 
+        position={[1.2, 2, 1]} 
+        scale={steamScale}
+        onClick={(e) => { e.stopPropagation(); onSteam(); }}
+        onPointerOver={(e) => { e.stopPropagation(); setSHover(true); document.body.style.cursor='pointer'; }}
+        onPointerOut={() => { setSHover(false); document.body.style.cursor='auto'; }}
+      >
+        <boxGeometry args={[0.4, 0.2, 0.1]} />
+        <meshStandardMaterial color={steamState === 'ready' ? '#007aff' : '#003366'} />
+        <Text position={[0, -0.3, 0.05]} fontSize={0.12} color="white">STEAM</Text>
+      </animated.group>
+
+      {/* Drip Tray */}
+      <mesh position={[0, 0.1, 1]} receiveShadow>
+        <boxGeometry args={[3.8, 0.2, 1.5]} />
+        <meshStandardMaterial color="#111" metalness={0.8} />
+      </mesh>
+      <mesh position={[0, 0.21, 1]}>
+        <planeGeometry args={[3.6, 1.3]} />
+        <meshStandardMaterial color="#666" metalness={0.9} />
+      </mesh>
+    </group>
+  );
+}
+
+// --- Main Application ---
 export default function Barista() {
   const idRef = useRef(0);
   const nextId = () => { idRef.current += 1; return idRef.current; };
 
-  // Machine drip tray
-  const [machineSlot, setMachineSlot] = useState(null);
+  const [slots, setSlots] = useState([null, null, null, null, null]);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  
+  const [machineState, setMachineState] = useState('ready');
+  const [steamState, setSteamState] = useState('ready');
 
-  // Steam wand slot
-  const [steamSlot, setSteamSlot] = useState(null); // { kind: 'pitcher', contents: ['milk'], state: 'ready'|'steaming' }
   const [telemetry, setTelemetry] = useState(null);
-  const [showServedDrinks, setShowServedDrinks] = useState(true);
-  const [showNerdPopup, setShowNerdPopup] = useState(false);
-  const [statsForNerds, setStatsForNerds] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [eventLogs, setEventLogs] = useState([{ id: 0, text: '[SYS] Initializing sensors...', type: 'info' }]);
+  const [eventLogs, setEventLogs] = useState([{ id: 0, text: '[SYS] Initializing 3D Interface...', type: 'info' }]);
+  const connectionRef = useRef(null);
+
   const addLog = (text, type = 'info') => {
     setEventLogs(prev => [...prev.slice(-14), { id: Date.now() + Math.random(), text, type }]);
   };
 
-  const emitActionLog = (text, type = 'info', prefix = '[ACTION]') => {
-    const formattedText = `${prefix} ${text}`;
-    if (connectionRef.current && isConnected) {
-      connectionRef.current.invoke("BroadcastActionLog", formattedText, type).catch(err => console.error(err));
-    } else {
-      addLog(formattedText, type);
-    }
-  };
-
-  const connectionRef = useRef(null);
-  const logOutputRef = useRef(null);
-
-  useEffect(() => {
-    if (logOutputRef.current) {
-      logOutputRef.current.scrollTop = logOutputRef.current.scrollHeight;
-    }
-  }, [eventLogs, telemetry]);
-
   useEffect(() => {
     let isMounted = true;
-
-    const customRetryPolicy = {
-      nextRetryDelayInMilliseconds: () => 3000
-    };
-
     const connection = new HubConnectionBuilder()
       .withUrl("http://localhost:5095/coffeehub")
-      .withAutomaticReconnect(customRetryPolicy)
+      .withAutomaticReconnect()
       .configureLogging(LogLevel.Information)
       .build();
 
-    connection.on("ReceiveTelemetry", (data) => {
-      if (isMounted) setTelemetry(data);
-    });
-    
-    connection.on("ReceiveActionLog", (message, type) => {
-      if (isMounted) {
-        setEventLogs(prev => [...prev.slice(-14), { id: Date.now() + Math.random(), text: message, type }]);
-      }
-    });
-    
-    connection.onreconnecting(() => {
-      if (isMounted) {
-        setIsConnected(false);
-        setEventLogs(prev => [...prev.slice(-14), { id: Date.now(), text: '[ERR] Connection lost. Reconnecting...', type: 'error' }]);
-      }
-    });
-    
-    connection.onreconnected(() => {
-      if (isMounted) {
-        setIsConnected(true);
-        setEventLogs(prev => [...prev.slice(-14), { id: Date.now(), text: '[SYS] Connection re-established', type: 'success' }]);
-      }
-    });
-
-    connection.onclose(() => {
-      if (isMounted) {
-        setIsConnected(false);
-        setEventLogs(prev => [...prev.slice(-14), { id: Date.now(), text: '[ERR] Connection closed.', type: 'error' }]);
-      }
-    });
+    connection.on("ReceiveTelemetry", (data) => { if (isMounted) setTelemetry(data); });
+    connection.on("ReceiveActionLog", (message, type) => { if (isMounted) addLog(message, type); });
 
     const startConnection = async () => {
       if (!isMounted) return;
       try {
         await connection.start();
-        if (isMounted) {
-          setIsConnected(true);
-          setEventLogs(prev => [...prev.slice(-14), { id: Date.now(), text: '[SYS] Connection established', type: 'success' }]);
-        }
+        if (isMounted) { setIsConnected(true); addLog('[SYS] Backend Connected', 'info'); }
       } catch (err) {
-        if (isMounted) {
-          setIsConnected(false);
-          setEventLogs(prev => [...prev.slice(-14), { id: Date.now(), text: '[ERR] Backend offline. Retrying...', type: 'error' }]);
-          console.log(`Initial connection failed. Retrying in 3s...`);
-          setTimeout(startConnection, 3000);
-        }
+        if (isMounted) { setIsConnected(false); addLog('[ERR] Backend offline.', 'error'); }
       }
     };
 
     startConnection();
     connectionRef.current = connection;
-
-    return () => {
-      isMounted = false;
-      connection.stop();
-    };
+    return () => { isMounted = false; connection.stop(); };
   }, []);
 
-  // Counter: 3 workspace slots
-  const [counter, setCounter] = useState([null, null, null]);
-
-  // Finished drinks
-  const [finished, setFinished] = useState([]);
-
-  /* ── Drag Helpers ── */
-  const dStart = (e, data) => e.dataTransfer.setData('application/json', JSON.stringify(data));
-  const dOver = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
-  const dLeave = (e) => e.currentTarget.classList.remove('drag-over');
-  const getData = (e) => {
-    e.preventDefault();
-    e.currentTarget.classList.remove('drag-over');
-    const raw = e.dataTransfer.getData('application/json');
-    try { return JSON.parse(raw); } catch { return null; }
-  };
-
-  /* ── Helper: find first empty counter slot ── */
-  const firstEmptySlot = () => counter.findIndex(s => s === null);
-
-  /* ── Crockery: Grab tool → goes to counter ── */
-  const grabTool = (toolType) => {
-    const idx = firstEmptySlot();
-    if (idx === -1) return; // no empty slots
-    const c = [...counter];
-    c[idx] = { id: nextId(), kind: 'tool', toolType, contents: [] };
-    setCounter(c);
-    emitActionLog(`Grabbed ${toolType.replace('_', ' ')}`);
-  };
-
-  /* ── DROP: Counter slot item or Shelf Tool → Machine/Steam Wand ── */
-  const onDropMachine = (e) => {
-    const d = getData(e);
-    if (!d) return;
-
-    // If it's a frothing pitcher, route it to the steam wand!
-    if (d.toolType === 'frothing_pitcher') {
-      if (steamSlot) return;
-      if (d.type === 'shelf_tool') {
-        setSteamSlot({ id: nextId(), toolType: 'frothing_pitcher', state: 'ready', contents: [] });
-        emitActionLog("Placed pitcher on steam wand");
-      } else if (d.type === 'counter_item') {
-        const slot = counter[d.slotIndex];
-        if (slot) {
-          setSteamSlot({ id: slot.id, toolType: 'frothing_pitcher', state: 'ready', contents: [...slot.contents] });
-          const c = [...counter];
-          c[d.slotIndex] = null;
-          setCounter(c);
-          emitActionLog("Moved pitcher to steam wand");
-        }
-      }
-      return;
-    }
-
-    // Otherwise, handle shot glass for the drip tray
-    if (machineSlot) return;
-    if (d.type === 'shelf_tool' && d.toolType === 'shot_glass') {
-      setMachineSlot({ id: nextId(), toolType: 'shot_glass', state: 'empty', shots: 0 });
-      emitActionLog("Placed shot glass on machine");
-      return;
-    }
-
-    if (d.type === 'counter_item' && d.kind === 'tool' && d.toolType === 'shot_glass') {
-      const slot = counter[d.slotIndex];
-      if (slot) {
-        setMachineSlot({
-          id: slot.id,
-          toolType: 'shot_glass',
-          state: slot.contents.length > 0 ? 'ready' : 'empty',
-          shots: slot.contents.length,
-        });
-        const c = [...counter];
-        c[d.slotIndex] = null;
-        setCounter(c);
-        emitActionLog("Moved shot glass to machine");
-      }
-    }
-  };
-
-  const onDropSteamWand = (e) => {
-    const d = getData(e);
-    if (!d) return;
-
-    // If it's a shot glass, route it to the main drip tray!
-    if (d.toolType === 'shot_glass') {
-      onDropMachine({ ...e, dataTransfer: { getData: () => JSON.stringify(d) }, preventDefault: () => {}, currentTarget: { classList: { remove: () => {} } } });
-      // Actually simpler: just duplicate the route logic for safety
-      if (machineSlot) return;
-      if (d.type === 'shelf_tool') {
-        setMachineSlot({ id: nextId(), toolType: 'shot_glass', state: 'empty', shots: 0 });
-        emitActionLog("Placed shot glass on machine");
-      } else if (d.type === 'counter_item') {
-        const slot = counter[d.slotIndex];
-        if (slot) {
-          setMachineSlot({ id: slot.id, toolType: 'shot_glass', state: slot.contents.length > 0 ? 'ready' : 'empty', shots: slot.contents.length });
-          const c = [...counter];
-          c[d.slotIndex] = null;
-          setCounter(c);
-          emitActionLog("Moved shot glass to machine");
-        }
-      }
-      return;
-    }
-
-    // Normal steam wand logic
-    if (steamSlot) return;
-    if (d.type === 'shelf_tool' && d.toolType === 'frothing_pitcher') {
-      setSteamSlot({ id: nextId(), toolType: 'frothing_pitcher', state: 'ready', contents: [] });
-      emitActionLog("Placed pitcher on steam wand");
-      return;
-    }
-
-    if (d.type === 'counter_item' && d.kind === 'tool' && d.toolType === 'frothing_pitcher') {
-      const slot = counter[d.slotIndex];
-      if (slot) {
-        setSteamSlot({
-          id: slot.id,
-          toolType: 'frothing_pitcher',
-          state: 'ready',
-          contents: [...slot.contents],
-        });
-        const c = [...counter];
-        c[d.slotIndex] = null;
-        setCounter(c);
-        emitActionLog("Moved pitcher to steam wand");
-      }
-    }
-  };
-
-  /* ── DROP: Machine glass → Counter ── */
-  const onDropCounterSlot = (e, idx) => {
-    const d = getData(e);
-    if (!d) return;
-    const c = [...counter];
-
-    if (d.type === 'shelf_tool' && !c[idx]) {
-      c[idx] = { id: nextId(), kind: 'tool', toolType: d.toolType, contents: [] };
-      setCounter(c);
-      emitActionLog(`Placed ${d.toolType.replace('_', ' ')} on counter`);
-      return;
-    }
-
-    if (d.type === 'machine_glass' && machineSlot) {
-      if (!c[idx]) {
-        const contents = [];
-        for (let i = 0; i < machineSlot.shots; i++) contents.push('espresso');
-        c[idx] = { id: machineSlot.id, kind: 'tool', toolType: machineSlot.toolType, contents };
-        setCounter(c);
-        setMachineSlot(null);
-        emitActionLog("Moved espresso shot to counter");
-        return;
-      } else if (c[idx].kind === 'glass' && machineSlot.shots > 0) {
-        const contents = [];
-        for (let i = 0; i < machineSlot.shots; i++) contents.push('espresso');
-        c[idx] = { ...c[idx], contents: [...c[idx].contents, ...contents] };
-        setCounter(c);
-        setMachineSlot(null);
-        emitActionLog("Poured espresso into cup");
-        return;
-      }
-    }
-
-    if (d.type === 'cupboard_glass' && !c[idx]) {
-      c[idx] = { id: nextId(), kind: 'glass', glassType: d.glassType, contents: [] };
-      setCounter(c);
-      emitActionLog(`Placed ${d.glassType.replace('_', ' ')} on counter`);
-      return;
-    }
-
-    if (d.type === 'ingredient' && c[idx]) {
-      c[idx] = { ...c[idx], contents: [...c[idx].contents, d.ingredient] };
-      setCounter(c);
-      emitActionLog(`Added ${d.ingredient} to cup`);
-      return;
-    }
-
-    if (d.type === 'steam_pitcher' && steamSlot) {
-      if (!c[idx]) {
-        c[idx] = { id: steamSlot.id, kind: 'tool', toolType: steamSlot.toolType, contents: [...steamSlot.contents] };
-        setCounter(c);
-        setSteamSlot(null);
-        emitActionLog("Moved pitcher to counter");
-        return;
-      } else if (c[idx].kind === 'glass' && steamSlot.contents.length > 0) {
-        c[idx] = { ...c[idx], contents: [...c[idx].contents, ...steamSlot.contents] };
-        setCounter(c);
-        setSteamSlot(null);
-        emitActionLog("Poured milk into cup");
-        return;
-      }
-    }
-
-    if (d.type === 'counter_item' && d.slotIndex !== idx) {
-      const sourceSlot = c[d.slotIndex];
-      const targetSlot = c[idx];
-
-      if (sourceSlot && targetSlot && sourceSlot.kind === 'tool' && targetSlot.kind === 'glass' && sourceSlot.contents.length > 0) {
-        c[idx] = { ...targetSlot, contents: [...targetSlot.contents, ...sourceSlot.contents] };
-        c[d.slotIndex] = null;
-        setCounter(c);
-        emitActionLog("Poured contents into glass");
-        return;
-      }
-
-      if (sourceSlot && !targetSlot) {
-        c[idx] = sourceSlot;
-        c[d.slotIndex] = null;
-        setCounter(c);
-        emitActionLog("Rearranged counter");
-        return;
-      }
-    }
-  };
-
-  /* ── DROP: Counter glass → Serve Tray ── */
-  const onDropFinish = (e) => {
-    const d = getData(e);
-    if (!d || d.type !== 'counter_item') return;
-    const slot = counter[d.slotIndex];
-    if (!slot || slot.kind !== 'glass' || slot.contents.length === 0) return;
-
-    const drinkName = evaluateDrink(slot.contents);
-    setFinished([
-      ...finished,
-      {
-        id: nextId(),
-        glassType: slot.glassType,
-        contents: [...slot.contents],
-        drinkName: drinkName || 'Mystery Brew',
-        timestamp: new Date().toLocaleTimeString(),
-      },
+  useEffect(() => {
+    setSlots([
+      { id: nextId(), kind: 'glass', type: 'tall_glass', contents: [] },
+      { id: nextId(), kind: 'glass', type: 'espresso_cup', contents: [] },
+      { id: nextId(), kind: 'tool', type: 'frothing_pitcher', contents: [] },
+      null, null
     ]);
+  }, []);
 
-    const c = [...counter];
-    c[d.slotIndex] = null;
-    setCounter(c);
-    emitActionLog(`${drinkName || 'Mystery Brew'}!`, 'success', '[SERVE]');
+  const SLOT_POSITIONS = [
+    [-2.5, 0, 1.5], [0, 0, 1.5], [2.5, 0, 1.5],
+    [0, 0.22, -0.7], [1.2, 0.22, -0.7]
+  ];
+
+  const handleSlotClick = (idx) => {
+    if (selectedSlot === null) {
+      if (slots[idx]) setSelectedSlot(idx);
+    } else {
+      if (selectedSlot === idx) {
+        setSelectedSlot(null);
+      } else {
+        const source = slots[selectedSlot];
+        const target = slots[idx];
+        if (!target) {
+          const newSlots = [...slots];
+          newSlots[idx] = source;
+          newSlots[selectedSlot] = null;
+          setSlots(newSlots);
+        } else {
+          if (source.contents.length > 0) {
+            const newSlots = [...slots];
+            newSlots[idx] = { ...target, contents: [...target.contents, ...source.contents] };
+            newSlots[selectedSlot] = { ...source, contents: [] };
+            setSlots(newSlots);
+            addLog('Poured liquid', 'action');
+          }
+        }
+        setSelectedSlot(null);
+      }
+    }
   };
 
-  /* ── DROP: Trash ── */
-  const onDropTrash = (e) => {
-    const d = getData(e);
-    if (!d || d.type !== 'counter_item') return;
-    const c = [...counter];
-    c[d.slotIndex] = null;
-    setCounter(c);
-    emitActionLog(`Trashed item`);
+  const addIngredientToSelected = (ingredient) => {
+    if (selectedSlot !== null && slots[selectedSlot]) {
+      const item = slots[selectedSlot];
+      const newSlots = [...slots];
+      newSlots[selectedSlot] = { ...item, contents: [...item.contents, ingredient] };
+      setSlots(newSlots);
+      addLog(`Added ${ingredient}`, 'action');
+    } else {
+      addLog('Select a cup first!', 'error');
+    }
   };
 
-  /* ── Brew & Steam ── */
+  const spawnItem = (type, kind) => {
+    const emptyIdx = slots.findIndex(s => s === null);
+    if (emptyIdx !== -1) {
+      const newSlots = [...slots];
+      newSlots[emptyIdx] = { id: nextId(), kind, type, contents: [] };
+      setSlots(newSlots);
+      addLog(`Spawned ${type}`, 'action');
+    } else {
+      addLog('No empty slots on table!', 'error');
+    }
+  };
+
+  const serveDrink = () => {
+    if (selectedSlot !== null && slots[selectedSlot]) {
+      const item = slots[selectedSlot];
+      const drinkName = evaluateDrink(item.contents);
+      addLog(`Served: ${drinkName}!`, 'action');
+      const newSlots = [...slots];
+      newSlots[selectedSlot] = null;
+      setSlots(newSlots);
+      setSelectedSlot(null);
+    }
+  };
+
+  const trashItem = () => {
+    if (selectedSlot !== null) {
+      const newSlots = [...slots];
+      newSlots[selectedSlot] = null;
+      setSlots(newSlots);
+      setSelectedSlot(null);
+      addLog('Trashed item', 'action');
+    }
+  };
+
   const brewEspresso = () => {
-    if (!isConnected) return;
-    if (!machineSlot || machineSlot.shots >= 2) return;
-    if (machineSlot.state === 'grinding' || machineSlot.state === 'brewing') return;
+    if (machineState !== 'ready') return;
+    const dripSlot = slots[3];
+    if (!dripSlot) { addLog('Place cup on drip tray!', 'error'); return; }
     
-    // Prevent UI action if the physical machine is overheated
-    if (telemetry?.temperature > 115 || telemetry?.state?.includes('Overheat')) return;
-
     if (connectionRef.current && isConnected) {
-        connectionRef.current.invoke("TriggerMachineAction", "Brew").catch(err => console.error(err));
+      connectionRef.current.invoke("TriggerMachineAction", "Brew").catch(e => console.error(e));
     }
 
-    setMachineSlot(prev => ({ ...prev, state: 'grinding' }));
+    setMachineState('grinding');
+    addLog('Grinding beans...', 'info');
     setTimeout(() => {
-      setMachineSlot(prev => ({ ...prev, state: 'brewing' }));
+      setMachineState('brewing');
+      addLog('Brewing espresso...', 'info');
       setTimeout(() => {
-        setMachineSlot(prev => ({ ...prev, state: 'ready', shots: prev.shots + 1 }));
+        setMachineState('ready');
+        const newSlots = [...slots];
+        newSlots[3] = { ...dripSlot, contents: [...dripSlot.contents, 'espresso'] };
+        setSlots(newSlots);
+        addLog('Shot pulled.', 'info');
       }, 2000);
     }, 1000);
   };
 
   const steamMilk = () => {
-    if (!isConnected) return;
-    if (!steamSlot || steamSlot.state === 'steaming' || !steamSlot.contents.includes('milk')) return;
+    if (steamState !== 'ready') return;
+    const sSlot = slots[4];
+    if (!sSlot || sSlot.type !== 'frothing_pitcher' || !sSlot.contents.includes('milk')) {
+      addLog('Place pitcher with milk under wand!', 'error');
+      return;
+    }
     
-    // Prevent UI action if the physical machine is overheated
-    if (telemetry?.temperature > 115 || telemetry?.state?.includes('Overheat')) return;
-
     if (connectionRef.current && isConnected) {
-        connectionRef.current.invoke("TriggerMachineAction", "Steam").catch(err => console.error(err));
+      connectionRef.current.invoke("TriggerMachineAction", "Steam").catch(e => console.error(e));
     }
 
-    setSteamSlot(prev => ({ ...prev, state: 'steaming' }));
+    setSteamState('steaming');
+    addLog('Steaming milk...', 'info');
     setTimeout(() => {
-      setSteamSlot(prev => {
-        const newContents = prev.contents.map(c => c === 'milk' ? 'steamed_milk' : c);
-        return { ...prev, state: 'ready', contents: newContents };
-      });
+      setSteamState('ready');
+      const newSlots = [...slots];
+      const newContents = sSlot.contents.map(x => x === 'milk' ? 'steamed_milk' : x);
+      newSlots[4] = { ...sSlot, contents: newContents };
+      setSlots(newSlots);
+      addLog('Milk steamed.', 'info');
     }, 2500);
   };
 
-  const clearSlot = (idx) => { const c = [...counter]; c[idx] = null; setCounter(c); };
-  const clearMachine = () => setMachineSlot(null);
-  const clearSteam = () => setSteamSlot(null);
-  const resetAll = () => { setMachineSlot(null); setSteamSlot(null); setCounter([null, null, null]); };
-
-  const activeDrink = (() => {
-    for (const slot of counter) {
-      if (slot && slot.kind === 'glass' && slot.contents.length > 0) {
-        return evaluateDrink(slot.contents);
-      }
-    }
-    return null;
-  })();
-
-  const isOverheated = telemetry?.temperature > 115 || telemetry?.state?.includes('Overheat');
-
   return (
     <div className="barista-container">
-      {/* Header */}
       <div className="barista-header">
-        <h1>Barista Sandbox</h1>
+        <h1>Barista 3D</h1>
         <div className="header-actions">
-          <label className="stats-toggle-label">
-            <div className={`stats-toggle-switch ${statsForNerds ? 'active' : ''}`}>
-              <div className="stats-toggle-knob"></div>
-            </div>
-            <input 
-              type="checkbox" 
-              className="hidden-checkbox" 
-              checked={statsForNerds} 
-              onChange={(e) => setStatsForNerds(e.target.checked)} 
-            />
-            Stats for Nerds
-          </label>
-          <button className="nerd-btn" onClick={() => setShowNerdPopup(true)}>🤓 Backend Nerd</button>
-          <button className="reset-all-btn" onClick={resetAll}>Reset Kitchen</button>
+          <button onClick={() => spawnItem('espresso_cup', 'glass')}>+ Espresso Cup</button>
+          <button onClick={() => spawnItem('tall_glass', 'glass')}>+ Tall Glass</button>
+          <button onClick={() => spawnItem('frothing_pitcher', 'tool')}>+ Pitcher</button>
         </div>
       </div>
 
-      <div className={`kitchen-scene ${statsForNerds ? 'sidebar-open' : ''}`}>
-        
-        <div className="kitchen-main-content">
-        {/* ═══ WALL & SHELVES (Top Half) ═══ */}
-        <div className="wall-section">
-          <div className="shelf shelf-ingredients">
-            <div className="shelf-group">
-              <span className="shelf-label">Glasses</span>
-              {SERVING_GLASSES.map(g => (
-                <div key={g.id} className="shelf-item" draggable
-                  onDragStart={e => dStart(e, { type: 'cupboard_glass', glassType: g.id })}>
-                  <img src={getServingGlassImg(g.id, [])} alt={g.label} className="shelf-img" />
-                  <span className="item-label">{g.label}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="shelf-group">
-              <span className="shelf-label">Ingredients</span>
-              {INGREDIENTS.map(ing => (
-                <div key={ing.id} className="shelf-item" draggable
-                  onDragStart={e => dStart(e, { type: 'ingredient', ingredient: ing.id })}>
-                  <img src={ing.img} alt={ing.label} className="shelf-img" />
-                  <span className="item-label">{ing.label}</span>
-                </div>
-              ))}
-            </div>
-            
-            <div className="shelf-group">
-              <span className="shelf-label">Tools</span>
-              {CROCKERY_TOOLS.map(tool => (
-                <div key={tool.id} className="shelf-item tool-item" 
-                  draggable
-                  onDragStart={e => dStart(e, { type: 'shelf_tool', toolType: tool.id })}
-                  onClick={() => grabTool(tool.id)} title={`Drag or Click: ${tool.label}`}>
-                  <img src={getToolImg(tool.id, false)} alt={tool.label} className="shelf-img small-img" />
-                  <span className="item-label">{tool.label}</span>
-                </div>
-              ))}
-            </div>
+      <div className={`status-overlay ${!isConnected ? 'offline' : ''}`}>
+        <div>{isConnected ? '🟢 SYSTEM ONLINE' : '🔴 OFFLINE'}</div>
+        {telemetry && (
+          <div style={{ marginTop: 10, fontSize: '0.8rem' }}>
+            <div>Temp: {telemetry.temperature.toFixed(1)}°C</div>
+            <div>Pressure: {telemetry.pressure.toFixed(1)} bar</div>
+            <div>Water: {telemetry.waterLevel.toFixed(1)}L</div>
           </div>
-
+        )}
+        <div className="logs">
+          {eventLogs.map(log => (
+            <div key={log.id} className={`log-${log.type}`}>{log.text}</div>
+          ))}
         </div>
-
-        {/* ═══ COUNTERTOP (Bottom Half) ═══ */}
-        <div className="countertop-section">
-          
-          {/* Machine Zone */}
-          <div className="machine-zone">
-            <div className="machine-wrapper">
-              <img src="/assets/espresso_machine.png" alt="Espresso Machine" className="machine-main-img" />
-
-              {/* Steam Wand (Left) */}
-              <div className="steam-wand-zone">
-                <button className={`steam-btn ${steamSlot?.state === 'steaming' ? 'steaming' : ''} ${isOverheated || !isConnected ? 'error-btn' : ''}`}
-                  onClick={steamMilk}
-                  disabled={!isConnected || isOverheated || !steamSlot || steamSlot.state === 'steaming' || !steamSlot.contents.includes('milk')}>
-                  {!isConnected ? 'OFFLINE' : isOverheated ? 'LOCKED' : steamSlot?.state === 'steaming' ? '♨️ Steaming...' : 'Steam Milk'}
-                </button>
-                <div className={`steam-tray ${!steamSlot ? 'empty-tray' : ''}`}
-                  onDrop={onDropSteamWand} onDragOver={dOver} onDragLeave={dLeave}>
-                  {steamSlot && (
-                    <div className={`tray-glass ${steamSlot.state === 'steaming' ? 'shake' : ''}`}
-                      draggable={steamSlot.state === 'ready'}
-                      onDragStart={e => { if (steamSlot.state === 'ready') dStart(e, { type: 'steam_pitcher' }); }}>
-                      <img src={getToolImg(steamSlot.toolType, steamSlot.contents.length > 0)} alt="Pitcher" className="tray-img" />
-                      {steamSlot.contents.includes('steamed_milk') && <span className="shot-badge">Steamed</span>}
-                      {steamSlot.contents.includes('milk') && !steamSlot.contents.includes('steamed_milk') && <span className="shot-badge">Milk</span>}
-                    </div>
-                  )}
-                </div>
-                {steamSlot && <button className="clear-machine-btn steam-clear" onClick={clearSteam}>✕</button>}
-              </div>
-
-              {/* Espresso Brew (Right/Center) */}
-              <button className={`brew-btn ${machineSlot?.state === 'grinding' ? 'grinding' : ''} ${isOverheated || !isConnected ? 'error-btn' : ''}`}
-                onClick={brewEspresso}
-                disabled={!isConnected || isOverheated || !machineSlot || machineSlot.state === 'grinding' || machineSlot.state === 'brewing' || machineSlot.shots >= 2}>
-                {!isConnected ? 'OFFLINE'
-                  : isOverheated ? 'OVERHEATED'
-                  : machineSlot?.state === 'grinding' ? '⚙️ Grinding...'
-                  : machineSlot?.state === 'brewing' ? '☕ Brewing...'
-                  : machineSlot?.shots >= 2 ? 'Max Shots'
-                  : 'Brew Shot'}
-              </button>
-
-              <div className={`drip-tray ${!machineSlot ? 'empty-tray' : ''}`}
-                onDrop={onDropMachine} onDragOver={dOver} onDragLeave={dLeave}>
-                {machineSlot && (
-                  <div className={`tray-glass ${machineSlot.state === 'grinding' ? 'shake' : ''}`}
-                    draggable={machineSlot.state === 'ready'}
-                    onDragStart={e => { if (machineSlot.state === 'ready') dStart(e, { type: 'machine_glass' }); }}>
-                    <img src={getToolImg(machineSlot.toolType, machineSlot.shots > 0)} alt="Shot glass" className="tray-img" />
-                    {machineSlot.shots > 0 && <span className="shot-badge">{machineSlot.shots}x</span>}
-                  </div>
-                )}
-              </div>
-              {machineSlot && <button className="clear-machine-btn" onClick={clearMachine}>✕ Remove</button>}
-            </div>
-          </div>
-
-          {/* Workspace Zone (3 slots) */}
-          <div className="workspace-zone">
-            {counter.map((slot, i) => (
-              <div key={i} className={`workspace-slot ${slot ? 'occupied' : ''}`}
-                onDrop={e => onDropCounterSlot(e, i)} onDragOver={dOver} onDragLeave={dLeave}>
-                
-                {slot && (
-                  <div className="slot-item-wrapper"
-                    draggable
-                    onDragStart={e => dStart(e, { type: 'counter_item', slotIndex: i, kind: slot.kind, toolType: slot.toolType })}>
-                    
-                    <div className="slot-drink-label-container">
-                      {slot.kind === 'glass' && slot.contents.length > 0 && (
-                        <div className="slot-drink-label">{evaluateDrink(slot.contents)}</div>
-                      )}
-                    </div>
-
-                    <img src={getSlotImg(slot)} alt="item" className="slot-item-img" />
-                    
-                    <div className="slot-tags">
-                      {slot.contents.length > 0
-                        ? slot.contents.map((c, j) => <span key={j} className={`ingredient-tag tag-${c}`}>{c}</span>)
-                        : <span className="empty-label">Empty</span>
-                      }
-                    </div>
-                    
-                    <button className="slot-clear-btn" onClick={() => clearSlot(i)}>✕</button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Serve & Trash Zone (Right Panel) */}
-          <div className="right-panel">
-            <div className="serve-zone">
-              <div className="serving-tray" onDrop={onDropFinish} onDragOver={dOver} onDragLeave={dLeave}>
-                <span className="tray-label">Serving Tray</span>
-                <span className="tray-sub">Drop finished drinks here</span>
-              </div>
-
-              {finished.length > 0 && (
-                <div className="finished-list-overlay">
-                  <div className="finished-header" onClick={() => setShowServedDrinks(!showServedDrinks)} style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3 style={{ margin: 0 }}>Served Drinks</h3>
-                    <span>{showServedDrinks ? '▲' : '▼'}</span>
-                  </div>
-                  {showServedDrinks && finished.map((drink) => (
-                    <div key={drink.id} className="finished-item">
-                      <img src={getServingGlassImg(drink.glassType, drink.contents)} alt={drink.drinkName} className="finished-img" />
-                      <div className="finished-info">
-                        <span className="finished-name">{drink.drinkName}</span>
-                        <span className="finished-time">{drink.timestamp}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="trash-zone"
-              onDragOver={e => e.preventDefault()}
-              onDrop={onDropTrash}
-            >
-              🗑️ Trash (Drop to empty)
-            </div>
-          </div>
-        </div>
-        </div>
-        
-        {/* Telemetry Sidebar */}
-        <div className={`telemetry-sidebar ${statsForNerds ? 'open' : ''}`}>
-          <div className="sidebar-header">
-            <h3>System Telemetry</h3>
-            <button className="close-sidebar-btn" onClick={() => setStatsForNerds(false)}>×</button>
-          </div>
-          
-          <div className="telemetry-section">
-            <h4>Machine State</h4>
-            <div className="telemetry-grid">
-              <div className={`telemetry-item ${telemetry?.temperature > 110 ? 'danger' : ''}`}>
-                <span>Boiler Temp</span>
-                <strong>{telemetry?.temperature || 22}°C</strong>
-              </div>
-              <div className="telemetry-item">
-                <span>Pump Pressure</span>
-                <strong>{telemetry?.pressure || 0} bar</strong>
-              </div>
-              <div className="telemetry-item">
-                <span>Status</span>
-                <strong>{telemetry?.state || 'Idle'}</strong>
-              </div>
-            </div>
-          </div>
-
-          <div className="telemetry-section">
-            <h4>Event Logs</h4>
-            <div className="log-output" ref={logOutputRef}>
-              {eventLogs.map(log => (
-                <div key={log.id} className={`log-line ${log.type === 'error' ? 'error' : log.type === 'success' ? 'success' : ''}`}>
-                  {log.text}
-                </div>
-              ))}
-              {telemetry?.temperature > 110 && <div className="log-line error">[ALARM] CRITICAL OVERHEAT!</div>}
-              {telemetry?.state === 'Brewing' && <div className="log-line">[OP] Extracting espresso...</div>}
-            </div>
-          </div>
-        </div>
-
       </div>
 
-      {/* Nerd Popup */}
-      {showNerdPopup && (
-        <div className="nerd-modal-overlay" onClick={() => setShowNerdPopup(false)}>
-          <div className="nerd-modal-content" onClick={e => e.stopPropagation()}>
-            <button className="close-nerd-btn" onClick={() => setShowNerdPopup(false)}>×</button>
-            <h2>🤓 The "Unnecessarily Crazy" Backend</h2>
-            <p className="nerd-intro">
-              This simple coffee simulator is actually powered by a completely over-engineered 
-              <strong> .NET 10 Microservices Architecture</strong> using Clean Architecture principles.
-            </p>
-            
-            <div className="nerd-tech-stack">
-              <div className="tech-item">
-                <span className="tech-icon">🌐</span>
-                <div>
-                  <strong>SignalR (WebSockets)</strong>
-                  <p>Provides a real-time, bi-directional connection between this React frontend and the .NET API.</p>
-                </div>
-              </div>
-              <div className="tech-item">
-                <span className="tech-icon">🚌</span>
-                <div>
-                  <strong>MassTransit (Message Broker)</strong>
-                  <p>When you click "Brew", the API doesn't just return a response. It publishes a <code>MachineActivatedEvent</code> to an event bus, completely decoupling the web layer from the processing layer.</p>
-                </div>
-              </div>
-              <div className="tech-item">
-                <span className="tech-icon">⚙️</span>
-                <div>
-                  <strong>IoT Telemetry Simulation</strong>
-                  <p>A background Consumer microservice picks up the event, acts like physical machine hardware, and continuously streams <code>TelemetryUpdatedEvent</code> messages back through the bus and out via SignalR to the HUD.</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="nerd-flow">
-              <code>React UI ➡️ SignalR ➡️ ASP.NET API ➡️ MassTransit Bus ➡️ Consumer Service (Calculates Heat/Pressure) ➡️ MassTransit ➡️ SignalR ➡️ React HUD</code>
-            </div>
+      <div className="instruction-text">
+        1. Click a cup to select it.<br/>
+        2. Click an empty slot to move it.<br/>
+        3. Click another cup to pour.<br/>
+        4. Use UI below to add ingredients.
+      </div>
+
+      <div className="overlay-ui">
+        <div className="overlay-panel">
+          <div className="panel-title">Add Ingredients to Selected</div>
+          <div className="button-row">
+            <button className="ing-btn" onClick={() => addIngredientToSelected('water')}>Water</button>
+            <button className="ing-btn" onClick={() => addIngredientToSelected('milk')}>Milk</button>
+            <button className="ing-btn" onClick={() => addIngredientToSelected('ice')}>Ice</button>
           </div>
         </div>
-      )}
+        <div className="overlay-panel" style={{ borderColor: 'rgba(255, 50, 50, 0.3)' }}>
+           <div className="panel-title">Actions</div>
+           <div className="button-row">
+             <button className="ing-btn" style={{ background: '#2a4a35' }} onClick={serveDrink}>Serve Drink</button>
+             <button className="ing-btn" style={{ background: '#4a2a2a' }} onClick={trashItem}>Trash Item</button>
+           </div>
+        </div>
+      </div>
+
+      <div className="kitchen-scene">
+        <Canvas shadows camera={{ position: [0, 4, 8], fov: 45 }}>
+          <Environment preset="city" background blur={0.8} />
+          <ambientLight intensity={0.5} />
+          <directionalLight castShadow position={[5, 10, 5]} intensity={1.5} shadow-mapSize={[1024, 1024]} />
+          <OrbitControls makeDefault minPolarAngle={0} maxPolarAngle={Math.PI / 2 - 0.1} minDistance={4} maxDistance={15} />
+          
+          <mesh receiveShadow position={[0, -0.5, 1.5]}>
+            <boxGeometry args={[10, 1, 4]} />
+            <meshStandardMaterial color="#3a2b22" roughness={0.8} />
+          </mesh>
+
+          <EspressoMachine machineState={machineState} steamState={steamState} onBrew={brewEspresso} onSteam={steamMilk} />
+
+          {/* Render Slots & Items */}
+          {slots.map((item, idx) => {
+            const pos = SLOT_POSITIONS[idx];
+            const isTableSlot = idx < 3;
+            const slotMarker = isTableSlot && (
+              <mesh 
+                position={[pos[0], 0.01, pos[2]]} 
+                rotation={[-Math.PI/2, 0, 0]}
+                onClick={(e) => { e.stopPropagation(); handleSlotClick(idx); }}
+                onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor='pointer'; }}
+                onPointerOut={() => { document.body.style.cursor='auto'; }}
+              >
+                <ringGeometry args={[0.4, 0.45, 32]} />
+                <meshBasicMaterial color={selectedSlot === idx ? '#00ff00' : '#ffffff'} opacity={0.2} transparent />
+              </mesh>
+            );
+
+            let itemMesh = null;
+            if (item) {
+              const isSelected = selectedSlot === idx;
+              if (item.type === 'frothing_pitcher') {
+                itemMesh = <Pitcher 
+                  contents={item.contents} 
+                  selected={isSelected}
+                  isSteaming={idx === 4 && steamState === 'steaming'}
+                  position={pos}
+                  onClick={() => handleSlotClick(idx)}
+                />;
+              } else {
+                itemMesh = <GlassCup 
+                  type={item.type} 
+                  contents={item.contents} 
+                  selected={isSelected}
+                  position={pos}
+                  onClick={() => handleSlotClick(idx)}
+                />;
+              }
+            } else if (idx === 3 || idx === 4) {
+               itemMesh = (
+                 <mesh 
+                  position={[pos[0], pos[1] + 0.3, pos[2]]} 
+                  onClick={(e) => { e.stopPropagation(); handleSlotClick(idx); }}
+                  onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor='pointer'; }}
+                  onPointerOut={() => { document.body.style.cursor='auto'; }}
+                 >
+                   <boxGeometry args={[1, 1, 1]} />
+                   <meshBasicMaterial visible={false} />
+                 </mesh>
+               );
+            }
+
+            return (
+              <group key={`slot-${idx}`}>
+                {slotMarker}
+                {itemMesh}
+              </group>
+            );
+          })}
+        </Canvas>
+      </div>
     </div>
   );
 }
