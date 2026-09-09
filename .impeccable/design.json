@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-27T18:10:00Z",
+  "title": "Design System: Fahad's Portfolio",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Spider Red", "canonical": "#ff2a2a", "tonalRamp": ["#ffe5e5", "#ffb3b3", "#ff8080", "#ff4d4d", "#ff2a2a", "#cc0000", "#990000", "#660000"] },
+      "primary-pink": { "role": "primary", "displayName": "Venom Pink", "canonical": "#ff007f", "tonalRamp": ["#ffe6f2", "#ffb3d9", "#ff80bf", "#ff4da6", "#ff007f", "#cc0066", "#99004d", "#660033"] },
+      "primary-green": { "role": "primary", "displayName": "Radioactive Green", "canonical": "#39ff14", "tonalRamp": ["#eaffea", "#b3ffb3", "#80ff80", "#4dff4d", "#39ff14", "#26cc0a", "#1a9907", "#0d6604"] },
+      "secondary": { "role": "secondary", "displayName": "Electro Blue", "canonical": "#00f0ff", "tonalRamp": ["#e5fdff", "#b3faff", "#80f7ff", "#4df3ff", "#00f0ff", "#00c0cc", "#009099", "#006066"] },
+      "neutral-bg": { "role": "neutral", "displayName": "Abyss Black", "canonical": "#0a0a0a", "tonalRamp": ["#e6e6e6", "#cccccc", "#b3b3b3", "#999999", "#808080", "#4d4d4d", "#1a1a1a", "#0a0a0a"] },
+      "neutral-border": { "role": "neutral", "displayName": "Comic Ink", "canonical": "#000000", "tonalRamp": ["#e6e6e6", "#cccccc", "#b3b3b3", "#999999", "#808080", "#4d4d4d", "#1a1a1a", "#000000"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Massive headers, hero titles." },
+      "body": { "displayName": "Body", "purpose": "Standard reading text." }
+    },
+    "shadows": [
+      { "name": "shadow-pink", "value": "8px 8px 0 #ff007f", "purpose": "Default shadow for brutal-cards." },
+      { "name": "shadow-blue", "value": "8px -8px 0 #00f0ff", "purpose": "Used for elevated text boxes." }
+    ],
+    "motion": [
+      { "name": "transition-fast", "value": "0.1s cubic-bezier(0.25, 1, 0.5, 1)", "purpose": "Fast hover transitions." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Tactile, heavy, bold arcade button.",
+      "html": "<button class=\"ds-btn-primary\">PING ME</button>",
+      "css": ".ds-btn-primary { background: #ff2a2a; color: #000; padding: 1rem 2rem; font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; text-transform: uppercase; cursor: pointer; border: 3px solid #000; box-shadow: 4px 4px 0 #f0f0f0; transition: all 0.1s cubic-bezier(0.25, 1, 0.5, 1); } .ds-btn-primary:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #f0f0f0; }"
+    },
+    {
+      "name": "Brutal Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "High contrast offset container.",
+      "html": "<div class=\"ds-brutal-card\"><h3>SECTION</h3><p>Content goes here.</p></div>",
+      "css": ".ds-brutal-card { background: #000; border: 4px solid #f0f0f0; box-shadow: 8px 8px 0 #ff007f; padding: 2.5rem; transition: transform 0.1s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.1s cubic-bezier(0.25, 1, 0.5, 1); color: #f0f0f0; font-family: 'Space Grotesk', sans-serif; } .ds-brutal-card:hover { transform: translate(4px, 4px); box-shadow: 4px 4px 0 #ff007f; } .ds-brutal-card h3 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2rem; margin-bottom: 1rem; margin-top: 0; }"
+    },
+    {
+      "name": "Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Arcade style solid label.",
+      "html": "<span class=\"ds-max-badge\">LABEL</span>",
+      "css": ".ds-max-badge { display: inline-block; padding: 0.3rem 0.8rem; background: #eaff00; color: #000; font-family: 'Syne', sans-serif; font-weight: 700; text-transform: uppercase; border: 2px solid #000; box-shadow: 2px 2px 0 #000; font-size: 0.85rem; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Neon Brutalist Spider-Verse",
+    "overview": "The visual language is raw, glitchy, comic-book inspired, and undeniably fun. It completely rejects modern, minimalist \"clean\" design in favor of aggressive, high-contrast, hyper-pop energy. The aesthetic is built on harsh collisions of saturated neon colors against deep blacks, paired with brutalist typography and hard offset drop shadows.",
+    "keyCharacteristics": [
+      "Unapologetically loud and vibrant",
+      "Strictly flat geometry with zero blur or softness",
+      "High-contrast comic-book style layouts",
+      "Glitch animations and kinetic typography"
+    ],
+    "rules": [
+      { "name": "The Maximum Contrast Rule", "body": "Neons must only ever touch deep blacks or pure whites. Never mix neons together in gradients; they must collide with hard edges.", "section": "colors" },
+      { "name": "The Glitch Rule", "body": "Important display text should break the fourth wall using the custom CSS glitch animation with split cyan and pink channels.", "section": "typography" },
+      { "name": "The Hard Offset Rule", "body": "All shadows must be solid blocks of color with 0px blur.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use heavy, solid-color offset shadows for any elevated element.",
+      "Do ensure all borders are at least 3px thick.",
+      "Do keep components completely rectangular (no rounded corners)."
+    ],
+    "donts": [
+      "Don't use soft box-shadows or blurs (except for the underlying hero ambient blobs).",
+      "Don't use pastel or muted colors.",
+      "Don't use subtle transitions; interactions should feel instantaneous or bouncy."
+    ]
+  }
+}

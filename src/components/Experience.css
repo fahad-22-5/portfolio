@@ -1,169 +1,201 @@
-.experience {
+/* ============================================
+   EXPERIENCE: COMIC GUTTER
+   ============================================ */
+
+.comic-experience {
   position: relative;
   background: var(--max-bg);
+  padding: 6rem 2rem;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  overflow: visible;
 }
 
-.experience__header {
-  margin-bottom: 4rem;
-  text-align: center;
-}
-
-.experience__timeline {
-  position: relative;
-  padding-left: 4rem;
-}
-
-/* Vertical line */
-.experience__timeline::before {
-  content: '';
-  position: absolute;
-  left: 20px;
-  top: 0; bottom: 0;
-  width: 8px;
-  background: var(--max-white);
-  border: 2px solid var(--max-black);
-}
-
-.experience__card {
-  position: relative;
-  margin-bottom: 4rem;
-}
-
-/* Timeline dot */
-.experience__dot {
-  position: absolute;
-  left: -4rem;
-  top: 2rem;
-  width: 32px;
-  height: 32px;
-  border-radius: 0;
-  border: 4px solid var(--max-black);
-  z-index: 2;
-  transform: rotate(45deg);
-}
-.experience__dot--pink { background: var(--max-neon-pink); }
-.experience__dot--blue { background: var(--max-neon-blue); }
-.experience__dot--green { background: var(--max-neon-green); }
-
-/* Customizing the brutal-card for experience */
-.experience__card-content {
-  background: var(--max-surface);
-  border: var(--brutal-border-thick);
-}
-.experience__card--pink .experience__card-content { box-shadow: var(--shadow-pink); }
-.experience__card--blue .experience__card-content { box-shadow: var(--shadow-blue); }
-.experience__card--green .experience__card-content { box-shadow: var(--shadow-green); }
-
-.experience__card--pink .experience__card-content:hover { box-shadow: 4px 4px 0 var(--max-neon-pink); }
-.experience__card--blue .experience__card-content:hover { box-shadow: 4px 4px 0 var(--max-neon-blue); }
-.experience__card--green .experience__card-content:hover { box-shadow: 4px 4px 0 var(--max-neon-green); }
-
-.experience__card-top {
+.comic-exp-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-  gap: 1rem;
-  position: relative;
-  z-index: 1;
+  align-items: flex-end;
+  border-bottom: 10px solid var(--max-black);
+  margin-bottom: 4rem;
+  padding-bottom: 1rem;
 }
 
-.experience__role {
+.exp-volume-box {
+  background: var(--max-neon-red);
+  color: var(--max-black);
   font-family: var(--font-display);
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 800;
-  letter-spacing: -1px;
+  padding: 0.5rem 1rem;
+  border: 4px solid var(--max-black);
+  box-shadow: 6px 6px 0 var(--max-white);
+  transform: rotate(2deg);
+}
+
+.comic-gutter-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  position: relative;
+}
+/* The Gutter Line */
+.comic-gutter-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 20px;
+  width: 12px;
+  background: var(--max-white);
+  border: 4px solid var(--max-black);
+  z-index: 0;
+}
+
+.comic-exp-panel {
+  position: relative;
+  background: var(--max-white);
+  border: 8px solid var(--max-black);
+  padding: 3rem;
+  margin-left: 60px; /* Make room for gutter line */
+  box-shadow: 15px 15px 0 var(--max-black);
+  z-index: 1;
+  transition: all var(--transition-fast);
+}
+.comic-exp-panel:hover {
+  transform: translate(-5px, 5px) !important;
+  box-shadow: 20px 10px 0 var(--max-black);
+}
+
+/* Color Themes for Panels */
+.panel-color-pink { box-shadow: 15px 15px 0 var(--max-neon-pink); }
+.panel-color-blue { box-shadow: 15px 15px 0 var(--max-neon-blue); }
+.panel-color-green { box-shadow: 15px 15px 0 var(--max-neon-green); }
+
+.panel-color-pink:hover { box-shadow: 20px 10px 0 var(--max-neon-pink); }
+.panel-color-blue:hover { box-shadow: 20px 10px 0 var(--max-neon-blue); }
+.panel-color-green:hover { box-shadow: 20px 10px 0 var(--max-neon-green); }
+
+.exp-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 4px solid var(--max-black);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.exp-company-box {
+  background: var(--max-black);
   color: var(--max-white);
-  line-height: 1.1;
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-}
-
-.experience__company {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  padding: 0.5rem 1rem;
   text-transform: uppercase;
 }
-.text-pink { color: var(--max-neon-pink); }
-.text-blue { color: var(--max-neon-blue); }
-.text-green { color: var(--max-neon-green); }
+.panel-color-pink .exp-company-box { color: var(--max-neon-pink); }
+.panel-color-blue .exp-company-box { color: var(--max-neon-blue); }
+.panel-color-green .exp-company-box { color: var(--max-neon-green); }
 
-.experience__meta {
+.exp-meta-box {
   font-family: var(--font-body);
   font-size: 1rem;
-  text-align: right;
-  flex-shrink: 0;
-  background: var(--max-white);
+  font-weight: 700;
+  background: var(--max-neon-yellow);
   color: var(--max-black);
-  padding: 0.5rem 1rem;
-  border: 3px solid var(--max-black);
+  padding: 0.3rem 0.8rem;
+  border: 2px solid var(--max-black);
   box-shadow: 4px 4px 0 var(--max-black);
-  font-weight: bold;
 }
 
-.experience__period {
-  display: block;
-  margin-bottom: 0.2rem;
-}
-
-.experience__location {
-  display: block;
-  opacity: 0.8;
-}
-
-.experience__bullets {
-  list-style: none;
+.exp-role {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--max-black);
+  text-transform: uppercase;
+  line-height: 0.9;
   margin-bottom: 2rem;
-  position: relative;
-  z-index: 1;
+}
+.exp-role::before, .exp-role::after {
+  background: transparent !important;
+  color: var(--max-black) !important;
 }
 
-.experience__bullet {
+.exp-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.exp-bullet-item {
+  display: flex;
+  gap: 1rem;
   font-size: 1.1rem;
-  color: var(--max-white);
-  padding-left: 2rem;
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  position: relative;
+  font-weight: 600;
+  color: var(--max-black);
+  line-height: 1.5;
 }
 
-.experience__bullet::before {
-  content: '■';
-  position: absolute;
-  left: 0;
-  top: 0;
+.exp-bullet-icon {
   font-size: 1.2rem;
+  margin-top: 2px;
 }
-.experience__card--pink .experience__bullet::before { color: var(--max-neon-pink); }
-.experience__card--blue .experience__bullet::before { color: var(--max-neon-blue); }
-.experience__card--green .experience__bullet::before { color: var(--max-neon-green); }
+.panel-color-pink .exp-bullet-icon { color: var(--max-neon-pink); }
+.panel-color-blue .exp-bullet-icon { color: var(--max-neon-blue); }
+.panel-color-green .exp-bullet-icon { color: var(--max-neon-green); }
 
-.experience__tech {
+.exp-tech-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.8rem;
-  position: relative;
-  z-index: 1;
+  gap: 0.5rem;
+  background: var(--max-black);
+  padding: 1rem;
+  border: 4px solid var(--max-black);
+  margin: 0 -3rem -3rem -3rem; /* Bleed to edges */
 }
 
-.max-badge-pink { background: var(--max-neon-pink); }
-.max-badge-blue { background: var(--max-neon-blue); }
-.max-badge-green { background: var(--max-neon-green); }
+.exp-tech-tag {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--max-black);
+  background: var(--max-white);
+  padding: 0.2rem 0.5rem;
+  text-transform: uppercase;
+}
+
+.exp-sfx {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 800;
+  -webkit-text-stroke: 2px var(--max-black);
+  pointer-events: none;
+  z-index: 10;
+}
+.exp-sfx-1 { top: -20px; right: -20px; color: var(--max-neon-yellow); transform: rotate(15deg); text-shadow: 4px 4px 0 var(--max-black); }
+.exp-sfx-2 { bottom: 20px; right: -40px; color: var(--max-neon-pink); transform: rotate(-10deg); text-shadow: 4px 4px 0 var(--max-black); }
+.exp-sfx-3 { top: 40px; left: -50px; color: var(--max-neon-blue); transform: rotate(-25deg); text-shadow: 4px 4px 0 var(--max-black); }
 
 @media (max-width: 900px) {
-  .experience__timeline {
-    padding-left: 3rem;
+  .comic-gutter-timeline::before {
+    display: none; /* Hide gutter line on mobile */
   }
-  .experience__dot {
-    left: -3rem;
-    width: 24px;
-    height: 24px;
+  .comic-exp-panel {
+    margin-left: 0;
+    padding: 1.5rem;
+    transform: none !important;
   }
-  .experience__card-top {
+  .exp-panel-header {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
-  .experience__meta {
-    text-align: left;
-    margin-top: 1rem;
+  .exp-tech-strip {
+    margin: 0 -1.5rem -1.5rem -1.5rem;
+  }
+  .exp-sfx {
+    font-size: 3rem;
   }
 }

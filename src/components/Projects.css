@@ -1,262 +1,168 @@
 /* ============================================
-   PROJECTS SECTION
+   PROJECTS: COMIC RACK
    ============================================ */
 
-.projects {
-  position: relative;
-  background: var(--sv-dark-surface);
-}
-
-.projects__container {
-  position: relative;
-  z-index: 1;
-}
-
-/* Header */
-.projects__header {
-  margin-bottom: 3rem;
-}
-
-.projects__title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  color: var(--sv-white);
-}
-
-.projects__title-accent {
-  color: var(--sv-yellow);
-  position: relative;
-}
-
-.projects__title-accent::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: var(--sv-yellow);
-  border-radius: 2px;
-}
-
-.projects__title-line {
-  width: 80px;
-  height: 3px;
-  background: linear-gradient(90deg, var(--sv-magenta), transparent);
-  margin-top: 1rem;
-}
-
-/* Grid */
-.projects__grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-}
-
-/* Card (flip container) */
-.projects__card {
-  perspective: 1000px;
-  height: 420px;
-  cursor: pointer;
-  position: relative;
-  transform-style: preserve-3d;
-}
-
-.projects__card-front,
-.projects__card-back {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  border-radius: 16px;
-  padding: 2rem;
-  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+.projects-panel {
   display: flex;
   flex-direction: column;
-  border: 3px solid #000;
-  box-shadow: -5px 5px 0 #000;
+  gap: 4rem;
 }
 
-/* Front */
-.projects__card-front {
-  transform: rotateY(0deg);
-  overflow: hidden;
+.projects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 8px solid var(--max-black);
+  padding-bottom: 1rem;
+}
+
+.barcode {
+  width: 100px;
+  height: 60px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--max-black) 0,
+    var(--max-black) 4px,
+    transparent 4px,
+    transparent 8px,
+    var(--max-black) 8px,
+    var(--max-black) 10px,
+    transparent 10px,
+    transparent 14px
+  );
+}
+
+.comic-rack {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  padding: 4rem 2rem;
+  overflow: visible;
+}
+
+.comic-issue-cover {
+  flex: 1;
+  min-width: 300px;
+  max-width: 400px;
+  background: var(--max-white);
+  border: 6px solid var(--max-black);
+  box-shadow: 15px 15px 0 var(--max-black);
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  transition: all var(--transition-bouncy);
+  cursor: pointer;
   position: relative;
 }
 
-.projects__card--red .projects__card-front {
-  background:
-    radial-gradient(ellipse at 30% 70%, rgba(226, 54, 54, 0.25) 0%, transparent 60%),
-    var(--sv-dark-card);
+.comic-issue-cover:hover {
+  transform: translateY(-20px) rotate(0deg) scale(1.05) !important;
+  box-shadow: 25px 25px 0 var(--max-black);
+  z-index: 10 !important;
 }
 
-.projects__card--cyan .projects__card-front {
-  background:
-    radial-gradient(ellipse at 70% 30%, rgba(0, 212, 255, 0.2) 0%, transparent 60%),
-    var(--sv-dark-card);
+/* Color Variants */
+.cover-red { background: var(--max-neon-red); }
+.cover-cyan { background: var(--max-neon-blue); }
+.cover-yellow { background: var(--max-neon-yellow); }
+
+.cover-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 4px solid var(--max-black);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--max-black);
 }
 
-.projects__card-front::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 10px 10px;
-  pointer-events: none;
+.cover-price {
+  background: var(--max-white);
+  padding: 0 0.5rem;
+  border: 2px solid var(--max-black);
 }
 
-.projects__card--flipped .projects__card-front {
-  transform: rotateY(180deg);
-}
-
-/* Back */
-.projects__card-back {
-  transform: rotateY(-180deg);
-  background: var(--sv-dark-card);
-  overflow-y: auto;
-}
-
-.projects__card--flipped .projects__card-back {
-  transform: rotateY(0deg);
-}
-
-/* Issue number */
-.projects__card-issue {
-  font-size: 3.5rem;
-  opacity: 0.08;
-  position: absolute;
-  top: 0.5rem;
-  right: 1rem;
-  z-index: 0;
-  letter-spacing: 3px;
-}
-
-/* Cover content */
-.projects__card-cover {
+.cover-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  z-index: 1;
+  background: var(--max-white);
+  border: 4px solid var(--max-black);
+  padding: 1.5rem;
 }
 
-.projects__card-title {
-  font-size: 2.5rem;
-  line-height: 1.1;
+.cover-title {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--max-black);
+  text-transform: uppercase;
+  line-height: 0.9;
   margin-bottom: 0.5rem;
 }
 
-.projects__card--red .projects__card-title {
-  color: var(--sv-red-glow);
+.cover-subtitle {
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--max-black);
+  margin-bottom: 1.5rem;
+  background: var(--max-neon-yellow);
+  display: inline-block;
+  align-self: flex-start;
+  padding: 0.2rem 0.5rem;
+  border: 2px solid var(--max-black);
 }
 
-.projects__card--cyan .projects__card-title {
-  color: var(--sv-cyan);
-}
-
-.projects__card-subtitle {
+.cover-desc {
   font-size: 1rem;
-  color: var(--sv-gray);
-  font-weight: 500;
+  color: var(--max-black);
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  font-weight: 600;
 }
 
-.projects__card-bottom {
-  z-index: 1;
-}
-
-.projects__card-flip-hint {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--sv-gray);
-  opacity: 0.6;
-  letter-spacing: 0.5px;
+.cover-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin-top: auto;
 }
 
-/* Back content */
-.projects__card-back-title {
-  font-size: 1.5rem;
-  margin-bottom: 0.8rem;
-  color: var(--sv-white);
+.cover-tag {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: var(--max-black);
+  color: var(--max-white);
+  padding: 0.2rem 0.5rem;
 }
 
-.projects__card-desc {
-  font-size: 0.92rem;
-  color: var(--sv-gray);
-  line-height: 1.7;
-  margin-bottom: 1rem;
+.cover-footer {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--max-black);
+  margin-top: 1rem;
+  letter-spacing: 1px;
 }
 
-.projects__card-highlights {
-  margin-bottom: 1rem;
-}
-
-.projects__card-highlight {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--sv-white);
-  margin-bottom: 0.4rem;
-}
-
-.projects__card-highlight-dot {
-  font-size: 0.5rem;
-  color: var(--sv-red);
-}
-
-.projects__card--cyan .projects__card-highlight-dot {
-  color: var(--sv-cyan);
-}
-
-/* Tech tags */
-.projects__card-tech {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 0.5rem;
-}
-
-.projects__tech-tag {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 4px;
-  font-weight: 500;
-}
-
-.projects__tech-tag--red {
-  background: rgba(226, 54, 54, 0.15);
-  color: var(--sv-red-glow);
-}
-
-.projects__tech-tag--cyan {
-  background: rgba(0, 212, 255, 0.1);
-  color: var(--sv-cyan);
-}
-
-/* Hover effects */
-.projects__card:hover .projects__card-front {
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.projects__card--red:hover .projects__card-front {
-  box-shadow: 0 15px 50px rgba(226, 54, 54, 0.2);
-}
-
-.projects__card--cyan:hover .projects__card-front {
-  box-shadow: 0 15px 50px rgba(0, 212, 255, 0.15);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .projects__grid {
-    grid-template-columns: 1fr;
+@media (max-width: 900px) {
+  .comic-rack {
+    flex-direction: column;
+    gap: 4rem;
   }
-
-  .projects__card {
-    height: 380px;
+  .comic-issue-cover {
+    margin-left: 0 !important;
+    transform: none !important;
+    width: 100%;
   }
-
-  .projects__card-title {
-    font-size: 2rem;
+  .comic-issue-cover:hover {
+    transform: translateY(-10px) !important;
   }
 }

@@ -1,88 +1,191 @@
-.skills {
+/* ============================================
+   SKILLS: TECH HUD
+   ============================================ */
+
+.tech-hud {
   position: relative;
   background: var(--max-bg);
-  padding: 4rem 0;
+  padding: 6rem 4rem;
+  border: 10px solid var(--max-black);
+  box-shadow: 15px 15px 0 var(--max-black);
+  margin: 4rem 2rem;
+  overflow: hidden;
+  font-family: var(--font-body);
+  color: var(--max-neon-green);
 }
 
-.skills-container {
+.hud-overlay {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(57, 255, 20, 0.05) 2px,
+    rgba(57, 255, 20, 0.05) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid var(--max-neon-green);
+  padding-bottom: 1rem;
+  margin-bottom: 3rem;
   position: relative;
   z-index: 1;
 }
 
-.skills-grid {
+.hud-title {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  color: var(--max-neon-green);
+  margin: 0;
+}
+
+.hud-status {
+  font-weight: 700;
+  background: var(--max-neon-green);
+  color: var(--max-black);
+  padding: 0.2rem 1rem;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.hud-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 4rem;
+  gap: 3rem;
+  position: relative;
+  z-index: 1;
 }
 
-.skills-card {
-  background: var(--max-surface);
-  border: var(--brutal-border-thick);
-  box-shadow: 8px 8px 0 var(--card-color);
+.hud-panel {
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.5);
 }
 
-.skills-card:hover {
-  transform: translate(4px, 4px) rotate(0deg) !important;
-  box-shadow: 4px 4px 0 var(--card-color);
-  z-index: 5;
-}
-
-.skills-card-title {
-  font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  color: var(--card-color);
+.hud-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
-  border-bottom: 4px solid var(--card-color);
-  padding-bottom: 0.5rem;
-  letter-spacing: -1px;
+  color: var(--max-neon-green);
+}
+.hud-panel-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 2px;
+}
+.hud-bracket {
+  opacity: 0.5;
 }
 
-.skills-tags {
+.hud-skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hud-skill-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.hud-skill-name {
+  width: 100px;
+  font-weight: 600;
+}
+
+.hud-progress-track {
+  flex: 1;
+  height: 12px;
+  background: rgba(57, 255, 20, 0.1);
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  position: relative;
+}
+
+.hud-progress-bar {
+  height: 100%;
+  background: var(--max-neon-green);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+  width: 0;
+  transition: width 1.5s cubic-bezier(0.1, 0.8, 0.3, 1);
+}
+
+.tech-hud.scanning .hud-progress-bar {
+  /* The width is set inline in JSX, the class triggers the CSS transition */
+}
+
+.hud-skill-level {
+  width: 40px;
+  text-align: right;
+  font-family: monospace;
+}
+
+.hud-footer {
+  margin-top: 4rem;
+  border-top: 1px solid rgba(57, 255, 20, 0.3);
+  padding-top: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hud-soft-skills {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.8rem;
+  gap: 1rem;
+  align-items: center;
 }
 
-.skills-tag {
-  font-family: var(--font-display);
-  font-size: 1rem;
+.hud-label {
   font-weight: 700;
-  padding: 0.4rem 0.8rem;
-  background: var(--card-color);
-  color: var(--max-black);
-  border: 2px solid var(--max-black);
-  box-shadow: 2px 2px 0 var(--max-white);
-  transition: all var(--transition-fast);
-  text-transform: uppercase;
+  margin-right: 1rem;
 }
 
-.skills-tag:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0 var(--max-white);
+.hud-soft-tag {
+  color: rgba(57, 255, 20, 0.8);
+  font-size: 0.9rem;
 }
 
-.skills-soft {
-  background: var(--max-neon-blue);
-  box-shadow: 12px 12px 0 var(--max-black);
-  text-align: center;
-  margin: 0 auto;
-  max-width: 800px;
+/* Scanline animation */
+.hud-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(57, 255, 20, 0.3);
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.5);
+  animation: scan 4s linear infinite;
+  pointer-events: none;
+  z-index: 10;
 }
 
-.skills-soft .skills-card-title {
-  border-bottom: none;
-  margin-bottom: 1rem;
-}
-
-.skills-soft .skills-tags {
-  justify-content: center;
+@keyframes scan {
+  0% { top: -10%; }
+  100% { top: 110%; }
 }
 
 @media (max-width: 768px) {
-  .skills-grid {
-    grid-template-columns: 1fr;
+  .tech-hud {
+    padding: 3rem 2rem;
+    margin: 2rem 1rem;
+  }
+  .hud-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
 }
