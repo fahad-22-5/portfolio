@@ -1,4 +1,6 @@
+import React, { useState, useCallback } from 'react';
 import './App.css';
+import RenovationBanner from './components/RenovationBanner';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -11,8 +13,14 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 
 function App() {
+  const [bannerVisible, setBannerVisible] = useState(true);
+  const handleBannerVisibility = useCallback((isVisible) => {
+    setBannerVisible(isVisible);
+  }, []);
+
   return (
-    <div className="App">
+    <div className="App" style={{ '--banner-height': bannerVisible ? '38px' : '0px' }}>
+      <RenovationBanner onVisibilityChange={handleBannerVisibility} />
       <Navbar />
       <Hero />
       <div className="section-divider"></div>

@@ -1,0 +1,144 @@
+/* ============================================
+   RENOVATION BANNER — COMIC TICKER STRIP
+   ============================================ */
+
+.renovation-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--sv-red);
+  border-bottom: 3px solid #000;
+  overflow: hidden;
+  height: 36px;
+  display: flex;
+  align-items: center;
+}
+
+/* Halftone overlay on banner */
+.renovation-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.12) 1px, transparent 1px);
+  background-size: 4px 4px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Scrolling marquee track */
+.renovation-banner__track {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: banner-scroll 20s linear infinite;
+  gap: 4rem;
+  padding-right: 4rem;
+}
+
+.renovation-banner__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-comic);
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #fff;
+  -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.renovation-banner__icon {
+  font-size: 1rem;
+  animation: icon-spin 2s ease-in-out infinite;
+}
+
+.renovation-banner__divider {
+  color: var(--sv-yellow);
+  font-size: 1.2rem;
+  -webkit-text-stroke: 1px #000;
+  flex-shrink: 0;
+}
+
+/* Close button */
+.renovation-banner__close {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid #000;
+  color: #fff;
+  font-family: var(--font-comic);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  line-height: 1;
+}
+
+.renovation-banner__close:hover {
+  background: #000;
+  color: var(--sv-yellow);
+  transform: translateY(-50%) scale(1.05);
+}
+
+/* Slide-out animation on dismiss */
+.renovation-banner--closing {
+  animation: banner-dismiss 0.4s ease forwards;
+}
+
+@keyframes banner-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes icon-spin {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(15deg); }
+  75% { transform: rotate(-15deg); }
+}
+
+@keyframes banner-dismiss {
+  0% {
+    height: 36px;
+    opacity: 1;
+  }
+  100% {
+    height: 0;
+    opacity: 0;
+    border-bottom-width: 0;
+  }
+}
+
+/* Desktop: slightly taller */
+@media (min-width: 769px) {
+  .renovation-banner {
+    height: 38px;
+  }
+
+  .renovation-banner__item {
+    font-size: 0.9rem;
+    letter-spacing: 4px;
+  }
+
+  @keyframes banner-dismiss {
+    0% {
+      height: 38px;
+      opacity: 1;
+    }
+    100% {
+      height: 0;
+      opacity: 0;
+      border-bottom-width: 0;
+    }
+  }
+}
