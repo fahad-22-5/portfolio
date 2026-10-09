@@ -23,10 +23,10 @@ function About() {
   }, []);
 
   const highlights = [
+    { icon: '⚙️', label: '2.5 Years Experience', detail: 'Backend .NET/C# Systems' },
     { icon: '🎓', label: '3-Continent Education', detail: 'India → London → New York' },
-    { icon: '📄', label: '2 Research Papers', detail: 'IEEE + Wiley (HBET)' },
-    { icon: '✈️', label: 'Global Deployment', detail: '2.5 Months in Madrid, Spain' },
-    { icon: '🏢', label: 'Workshop Alumni', detail: 'Google, Microsoft, Columbia' },
+    { icon: '✈️', label: 'Global Deployment', detail: '2.5 Months On-Site in Madrid, Spain' },
+    { icon: '📄', label: '2 Research Publications', detail: 'IEEE + Wiley (HBET)' },
   ];
 
   return (
@@ -43,19 +43,10 @@ function About() {
           <div className="about__speech reveal">
             <div className="about__speech-bubble">
               <p className="about__bio">
-                Ok, let's do this one last time! My name is <strong>Fahad</strong>. A while back,
-                I was bitten by a coding bug and for the past <strong>six years</strong>, I've been
-                diving into code like nobody's business. I think you know the rest — building apps,
-                debugging nightmares, the whole web.
+                Ok, let's do this one last time! My name is <strong>Fahad Eqbal Hashmi</strong>. I'm a <strong>Backend-focused Software Engineer</strong> with 2.5 years of real-world experience building high-throughput, critical backend systems in <strong>.NET/C#</strong>. I've owned and delivered end-to-end scalable backend systems for automation across India and 2+ systems internationally for major FMCG/Quick Commerce, e-commerce, retail, and logistics players.
               </p>
               <p className="about__bio about__bio--accent">
-                Currently at <strong>Falcon Autotech</strong>, coding the automation that gets your
-                package sorted — literally. My main stack is <strong>.NET backend</strong>, and I
-                specialize in building <strong>high-throughput Warehouse Management and Control Systems</strong> that
-                power the supply chain under extreme load. I work across the full logistics
-                stack — from <strong>PLC communication</strong> on the warehouse floor to integrating
-                <strong> conveyors and PTL systems</strong>, <strong>RESTful APIs</strong>, and <strong>RabbitMQ
-                message queues</strong> that reliably process over 100,000 parcels a day.
+                Currently at <strong>Falcon Autotech</strong>, I architect high-throughput core sortation services processing over <strong>100,000 parcels a day</strong> (sustaining peak loads of 10,000+ parcels/hour). My expertise spans <strong>PLC communication layers</strong>, <strong>PTL (Put-to-Light) systems</strong>, <strong>conveyors</strong>, <strong>RESTful APIs</strong>, <strong>RabbitMQ</strong>, and optimized SQL data flows. I'm also proficient in AI-assisted workflows like <strong>Claude Code, Antigravity, Cursor, and Codex</strong> to accelerate delivery.
               </p>
             </div>
             <div className="about__speech-tail"></div>
@@ -80,12 +71,12 @@ function About() {
             <div className="about__edu-card">
               <div className="about__edu-year">2020 – 2024</div>
               <h4 className="about__edu-name">Amity University, Noida</h4>
-              <p className="about__edu-desc">B.Tech in Computer Science & Engineering</p>
+              <p className="about__edu-desc">Bachelor of Technology (B.Tech) in Computer Science & Engineering</p>
             </div>
             <div className="about__edu-card about__edu-card--accent">
-              <div className="about__edu-year">Jan – May 2023</div>
-              <h4 className="about__edu-name">Study Abroad</h4>
-              <p className="about__edu-desc">Birkbeck, University of London & Adelphi University, New York</p>
+              <div className="about__edu-year">Study-Abroad Semester</div>
+              <h4 className="about__edu-name">International Academic Exposure</h4>
+              <p className="about__edu-desc">Adelphi University (New York, USA) & Birkbeck, University of London (UK)</p>
             </div>
           </div>
         </div>

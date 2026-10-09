@@ -5,15 +5,15 @@ function TypeAni() {
   return (
     <TypeAnimation
       sequence={[
-        'SOFTWARE DEVELOPER',
+        'BACKEND SOFTWARE ENGINEER',
         1200,
-        'BACKEND ENGINEER',
+        '.NET / C# DEVELOPER',
         1200,
-        'SUPPLY CHAIN TECH BUILDER',
+        'WAREHOUSE AUTOMATION ARCHITECT',
         1200,
-        'WAREHOUSE SYSTEMS ARCHITECT',
+        'HIGH-THROUGHPUT SYSTEMS BUILDER',
         1200,
-        'DATABASE ARCHITECT',
+        'AI-ASSISTED WORKFLOW EXPERT',
         1200,
       ]}
       wrapper="span"

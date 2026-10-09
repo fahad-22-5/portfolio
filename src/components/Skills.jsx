@@ -3,24 +3,24 @@ import './Skills.css';
 
 const skillCategories = [
   {
-    title: 'Backend & Core',
+    title: 'Backend Core',
     color: 'red',
-    skills: ['.NET', 'C#', 'SQL', 'MySQL', 'RabbitMQ', 'Firebase', 'PostgreSQL'],
+    skills: ['.NET', 'C#', 'RabbitMQ', 'Windows Services', 'RESTful APIs', 'Unit Testing', 'OOPs', 'API Design'],
   },
   {
-    title: 'Languages',
+    title: 'Databases & Storage',
     color: 'cyan',
-    skills: ['C/C++', 'Java', 'Python', 'JavaScript', 'Solidity'],
+    skills: ['MySQL', 'SQL Server', 'Stored Procedures', 'Database Design', 'NoSQL'],
   },
   {
-    title: 'Frontend',
-    color: 'magenta',
-    skills: ['React.js', 'React Native', 'HTML5', 'CSS3'],
-  },
-  {
-    title: 'Cloud & Tools',
+    title: 'Tools & Cloud',
     color: 'yellow',
-    skills: ['AWS', 'GCP', 'Git', 'GitHub', 'Salesforce', 'AI/ML'],
+    skills: ['Claude Code', 'Antigravity', 'Cursor', 'Codex', 'AWS', 'GCP', 'Git', 'GitHub', 'Bitbucket'],
+  },
+  {
+    title: 'AI & Architecture',
+    color: 'magenta',
+    skills: ['RAG', 'AI Agents', 'Data Structures & Algorithms', 'System Design', 'Debugging & Root-Cause Analysis'],
   },
 ];
 
@@ -79,11 +79,11 @@ function Skills() {
           ))}
         </div>
 
-        {/* Soft skills */}
+        {/* Soft skills & Practices */}
         <div className="skills__soft reveal">
           <h3 className="skills__soft-title comic-heading">Also Known For</h3>
           <div className="skills__soft-list">
-            {['Problem-solving', 'Communication', 'Analytical Thinking', 'Leadership', 'Flexibility'].map((s, i) => (
+            {['System Design', 'Debugging & Root-Cause Analysis', 'Cross-Team Collaboration', 'Documentation', 'Decision-Making', 'Agile Practices', 'Continuous Learning'].map((s, i) => (
               <span key={i} className="skills__soft-tag">{s}</span>
             ))}
           </div>

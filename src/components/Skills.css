@@ -107,21 +107,24 @@
 .skills__category-title--yellow { color: var(--sv-yellow); }
 
 /* Skill tags — comic label pills */
-.skills__list {
+.skills__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.65rem;
   position: relative;
   z-index: 1;
 }
 
 .skills__tag {
+  display: inline-flex;
+  align-items: center;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.8rem;
   font-weight: 600;
   border: 2px solid #000;
-  box-shadow: -2px 2px 0 #000;
+  box-shadow: -3px 3px 0 #000;
+  white-space: nowrap;
   transition: all 0.1s ease;
   cursor: default;
 }
