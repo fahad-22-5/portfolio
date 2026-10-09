@@ -14,6 +14,7 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import Warehouse from './components/Warehouse';
 import { initGA, trackPageView } from './utils/analytics';
+import { Analytics } from '@vercel/analytics/react';
 
 function HomePage() {
   const [bannerVisible, setBannerVisible] = useState(true);
@@ -59,10 +60,13 @@ function App() {
   }, [location]);
 
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/warehouse" element={<Warehouse />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/warehouse" element={<Warehouse />} />
+      </Routes>
+      <Analytics />
+    </>
   );
 }
 
