@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import RenovationBanner from './components/RenovationBanner';
 import Navbar from './components/Navbar';
@@ -11,8 +12,9 @@ import FunFacts from './components/FunFacts';
 import Publications from './components/Publications';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import Warehouse from './components/Warehouse';
 
-function App() {
+function HomePage() {
   const [bannerVisible, setBannerVisible] = useState(true);
   const handleBannerVisibility = useCallback((isVisible) => {
     setBannerVisible(isVisible);
@@ -41,6 +43,15 @@ function App() {
       <Contact />
       <Footer />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/warehouse" element={<Warehouse />} />
+    </Routes>
   );
 }
 

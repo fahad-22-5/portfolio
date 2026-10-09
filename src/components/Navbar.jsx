@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './Navbar.css';
 
 function Navbar() {
@@ -72,6 +73,9 @@ function Navbar() {
               {link.label}
             </button>
           ))}
+          <Link to="/warehouse" className="navbar__link navbar__link--warehouse" onClick={() => setMobileOpen(false)}>
+            🏭 Warehouse
+          </Link>
         </div>
 
         <button

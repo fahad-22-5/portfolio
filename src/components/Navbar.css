@@ -92,6 +92,25 @@
   box-shadow: -2px 2px 0 #000;
 }
 
+.navbar__link--warehouse {
+  color: #f0c040;
+  border-color: rgba(240, 192, 64, 0.3);
+  text-decoration: none;
+  animation: warehouse-pulse 3s ease-in-out infinite;
+}
+
+.navbar__link--warehouse:hover {
+  color: #fff;
+  background: rgba(240, 192, 64, 0.2);
+  border-color: rgba(240, 192, 64, 0.6);
+  box-shadow: 0 0 12px rgba(240, 192, 64, 0.25);
+}
+
+@keyframes warehouse-pulse {
+  0%, 100% { border-color: rgba(240, 192, 64, 0.15); }
+  50% { border-color: rgba(240, 192, 64, 0.45); }
+}
+
 /* Hamburger */
 .navbar__hamburger {
   display: none;

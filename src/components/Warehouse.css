@@ -1,0 +1,522 @@
+/* ============================================
+   WAREHOUSE PAGE — IMMERSIVE 3D HUD
+   ============================================ */
+
+.warehouse-page {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #0a0a1a;
+}
+
+.warehouse-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.warehouse-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── HUD Overlay ── */
+.warehouse-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 1.5rem 2rem;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.warehouse-hud > * {
+  pointer-events: auto;
+}
+
+.warehouse-hud__title {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.warehouse-hud__title h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #f0c040;
+  text-shadow:
+    0 0 10px rgba(240, 192, 64, 0.4),
+    0 0 30px rgba(240, 192, 64, 0.2);
+  margin: 0;
+}
+
+.warehouse-hud__icon {
+  font-size: 1.6rem;
+  filter: drop-shadow(0 0 6px rgba(240, 192, 64, 0.5));
+}
+
+/* Help / Controls toggle button */
+.warehouse-hud__help-btn {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 20px;
+  padding: 0.3rem 0.8rem;
+  color: #fbbf24;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.warehouse-hud__help-btn:hover {
+  background: rgba(245, 158, 11, 0.3);
+  border-color: rgba(245, 158, 11, 0.6);
+  transform: translateY(-1px);
+}
+
+/* Controls panel */
+.warehouse-hud__controls {
+  background: rgba(10, 10, 26, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(240, 192, 64, 0.2);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  max-width: 320px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s ease;
+  visibility: visible;
+}
+
+.warehouse-hud__controls--hidden {
+  opacity: 0;
+  transform: translateY(-12px);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.warehouse-hud__key-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.warehouse-hud__label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(240, 192, 64, 0.7);
+}
+
+.warehouse-hud__keys {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.warehouse-hud__key-row {
+  display: flex;
+  gap: 4px;
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: #f5f5f5;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.15s ease;
+}
+
+kbd:hover {
+  background: rgba(240, 192, 64, 0.15);
+  border-color: rgba(240, 192, 64, 0.4);
+  color: #f0c040;
+}
+
+/* Camera toggle button */
+.warehouse-hud__cam-btn {
+  background: rgba(240, 192, 64, 0.12);
+  border: 1px solid rgba(240, 192, 64, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  color: #f0c040;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.warehouse-hud__cam-btn:hover {
+  background: rgba(240, 192, 64, 0.25);
+  border-color: rgba(240, 192, 64, 0.6);
+  box-shadow: 0 0 12px rgba(240, 192, 64, 0.2);
+  transform: translateY(-1px);
+}
+
+.warehouse-hud__cam-btn:active {
+  transform: translateY(0);
+}
+
+/* Reset button */
+.warehouse-hud__reset-btn {
+  background: rgba(255, 75, 75, 0.12);
+  border: 1px solid rgba(255, 75, 75, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  color: #ff6b6b;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.warehouse-hud__reset-btn:hover {
+  background: rgba(255, 75, 75, 0.25);
+  border-color: rgba(255, 75, 75, 0.6);
+  box-shadow: 0 0 12px rgba(255, 75, 75, 0.2);
+  transform: translateY(-1px);
+}
+
+.warehouse-hud__reset-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Top-Right Header Bar ── */
+.warehouse-top-right {
+  position: fixed;
+  top: 1.5rem;
+  right: 2rem;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  pointer-events: auto;
+}
+
+/* Score HUD */
+.warehouse-score {
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 14px;
+  padding: 0.55rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.warehouse-score__icon {
+  font-size: 1.4rem;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+}
+
+.warehouse-score__details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
+}
+
+.warehouse-score__value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: #fbbf24;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+}
+
+.warehouse-score__label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(248, 250, 252, 0.6);
+  text-transform: uppercase;
+}
+
+/* Back to Portfolio Button */
+.warehouse-back-btn {
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.65rem 1.2rem;
+  color: #f8fafc;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.warehouse-back-btn:hover {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: rgba(245, 158, 11, 0.6);
+  color: #fbbf24;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+}
+
+/* ── Speed indicator ── */
+.warehouse-speed {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.warehouse-speed__label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  color: rgba(240, 192, 64, 0.5);
+}
+
+.warehouse-speed__bar {
+  width: 140px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.warehouse-speed__fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #f0c040, #ff6b35);
+  border-radius: 3px;
+  transition: width 0.1s ease;
+  box-shadow: 0 0 8px rgba(240, 192, 64, 0.4);
+}
+
+/* ── Crosshair (first-person mode) ── */
+.warehouse-crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.warehouse-crosshair::before,
+.warehouse-crosshair::after {
+  content: '';
+  position: absolute;
+  background: rgba(240, 192, 64, 0.4);
+}
+
+.warehouse-crosshair::before {
+  width: 2px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.warehouse-crosshair::after {
+  width: 100%;
+  height: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .warehouse-hud {
+    padding: 1rem;
+  }
+
+  .warehouse-hud__title h1 {
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+
+  .warehouse-hud__controls {
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 0.8rem;
+    max-width: 240px;
+  }
+
+  .warehouse-speed {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .warehouse-speed__bar {
+    width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .warehouse-hud__controls {
+    display: none;
+  }
+}
+
+/* ── Objective HUD Banner ── */
+.warehouse-objective {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  pointer-events: none;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4), 0 0 10px rgba(245, 158, 11, 0.25);
+  border-radius: 30px;
+  padding: 0.65rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.warehouse-objective--deliver {
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4), 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+.warehouse-objective__icon {
+  font-size: 1.2rem;
+}
+
+.warehouse-objective__text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f8fafc;
+  letter-spacing: 0.5px;
+}
+
+.warehouse-objective kbd {
+  background: rgba(245, 158, 11, 0.25);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.warehouse-objective--deliver kbd {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #34d399;
+}
+
+.warehouse-objective--ready {
+  background: rgba(6, 78, 59, 0.95);
+  border-color: #10b981;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.7), 0 0 15px rgba(16, 185, 129, 0.5);
+  animation: dropPulse 0.8s ease-in-out infinite alternate;
+}
+
+.warehouse-objective--ready kbd {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #34d399;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.6);
+}
+
+@keyframes dropPulse {
+  from { transform: translateX(-50%) scale(1); }
+  to { transform: translateX(-50%) scale(1.06); }
+}
+
+/* ── Center Screen Drop Banner Prompt ── */
+.warehouse-drop-prompt {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  pointer-events: none;
+  background: rgba(6, 78, 59, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 2px solid #34d399;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.6), 0 0 60px rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  animation: centerDropPulse 0.7s ease-in-out infinite alternate;
+}
+
+.warehouse-drop-prompt__icon {
+  font-size: 2rem;
+}
+
+.warehouse-drop-prompt__text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.warehouse-drop-prompt kbd {
+  background: #10b981;
+  color: #ffffff;
+  border: 1px solid #6ee7b7;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  box-shadow: 0 0 12px rgba(110, 231, 183, 0.8);
+}
+
+@keyframes centerDropPulse {
+  from { transform: translate(-50%, -50%) scale(1); }
+  to { transform: translate(-50%, -50%) scale(1.05); }
+}
