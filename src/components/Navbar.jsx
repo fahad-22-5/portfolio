@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
+import { trackEvent } from '../utils/analytics';
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -73,7 +74,14 @@ function Navbar() {
               {link.label}
             </button>
           ))}
-          <Link to="/warehouse" className="navbar__link navbar__link--warehouse" onClick={() => setMobileOpen(false)}>
+          <Link
+            to="/warehouse"
+            className="navbar__link navbar__link--warehouse"
+            onClick={() => {
+              setMobileOpen(false);
+              trackEvent('warehouse_nav_clicked');
+            }}
+          >
             🏭 Warehouse
           </Link>
         </div>

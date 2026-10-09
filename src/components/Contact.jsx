@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './Contact.css';
+import { trackEvent } from '../utils/analytics';
 // Web3Forms API Key goes here
 const WEB3FORMS_ACCESS_KEY = "7362192a-fc0a-4a07-b6ee-0d3c3feefc64";
 
@@ -60,6 +61,7 @@ function Contact() {
 
       if (result.success) {
         setSent(true);
+        trackEvent('contact_form_submitted', { form_name: 'contact_form' });
         setName('');
         setEmail('');
         setMsg('');

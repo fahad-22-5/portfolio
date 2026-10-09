@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import * as THREE from 'three';
 import './Warehouse.css';
+import { trackEvent } from '../utils/analytics';
 
 /* ──────────────────────────────────────
    HELPER — rounded-box geometry
@@ -130,6 +131,7 @@ export default function Warehouse() {
      MAIN THREE.JS SCENE SETUP & ANIMATION
      ──────────────────────────────────── */
   useEffect(() => {
+    trackEvent('warehouse_simulation_started');
     const mount = mountRef.current;
     if (!mount) return;
 

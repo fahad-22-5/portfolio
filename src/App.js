@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import RenovationBanner from './components/RenovationBanner';
 import Navbar from './components/Navbar';
@@ -13,6 +13,7 @@ import Publications from './components/Publications';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import Warehouse from './components/Warehouse';
+import { initGA, trackPageView } from './utils/analytics';
 
 function HomePage() {
   const [bannerVisible, setBannerVisible] = useState(true);
@@ -47,6 +48,16 @@ function HomePage() {
 }
 
 function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    initGA();
+  }, []);
+
+  useEffect(() => {
+    trackPageView(location.pathname + location.search);
+  }, [location]);
+
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
