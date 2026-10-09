@@ -657,7 +657,7 @@ export default function Warehouse() {
 
     // ─── 6.5 Autonomous Ground AMR Mini-Bots with Obstacle Proximity Safety Stop ───
     const miniBots = [];
-    const createMiniBot = (startX, startZ, waypoints, bodyHex, labelText) => {
+    const createMiniBot = (startX, startZ, waypoints, bodyHex) => {
       const group = new THREE.Group();
 
       // Sleek Compact AMR Chassis Body
@@ -693,26 +693,23 @@ export default function Warehouse() {
       const beaconDome = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), beaconMat);
       beaconDome.position.set(0.6, 0.52, -0.5); group.add(beaconDome);
 
-      // Floating AMR Status Badge Label
-      const labelSprite = createLabelSprite(labelText, '#38bdf8', '#0284c7');
-      labelSprite.position.set(0, 1.8, 0); labelSprite.scale.set(3.8, 0.9, 1); group.add(labelSprite);
-
       group.position.set(startX, 0, startZ);
       scene.add(group);
 
       const botData = {
-        group, labelSprite, ledMat, beaconMat,
+        group, ledMat, beaconMat,
         waypoints, currentWaypointIdx: 0,
-        isStopped: false, speed: 6.0, bodyHex, labelText
+        isStopped: false, speed: 6.0, bodyHex
       };
       miniBots.push(botData);
       return botData;
     };
 
-    createMiniBot(-45, -45, [[-45, -45], [-45, 45], [-45, -45]], 0xeab308, '🤖 Ground AMR #1');
-    createMiniBot(-35, 40, [[-35, 40], [35, 40], [-35, 40]], 0xf97316, '🤖 Ground AMR #2');
-    createMiniBot(45, 45, [[45, 45], [45, -45], [45, 45]], 0x10b981, '🤖 Ground AMR #3');
-    createMiniBot(35, -40, [[35, -40], [-35, -40], [35, -40]], 0x8b5cf6, '🤖 Ground AMR #4');
+    // 100% Obstacle-Free Open Floor Highways (Clear of ASRS, Industrial Racks, and Conveyors)
+    createMiniBot(30, -50, [[30, -50], [30, 50], [30, -50]], 0xeab308); // East Open Corridor Highway
+    createMiniBot(-25, 30, [[-25, 30], [45, 30], [-25, 30]], 0xf97316); // Front Open Highway
+    createMiniBot(45, -30, [[45, -30], [-25, -30], [45, -30]], 0x10b981); // Back Open Highway
+    createMiniBot(35, 30, [[35, 30], [35, -30], [-25, -30], [-25, 30], [35, 30]], 0x8b5cf6); // Outer Perimeter Ring Highway
 
     // ─── 7. Forklift Vehicle ───
     const forklift = new THREE.Group();
