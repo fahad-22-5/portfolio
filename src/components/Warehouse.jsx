@@ -655,6 +655,65 @@ export default function Warehouse() {
     createSideConveyor(-100, 0, 24, Math.PI / 2);
     createSideConveyor(100, 0, 24, Math.PI / 2);
 
+    // ─── 6.5 Autonomous Ground AMR Mini-Bots with Obstacle Proximity Safety Stop ───
+    const miniBots = [];
+    const createMiniBot = (startX, startZ, waypoints, bodyHex, labelText) => {
+      const group = new THREE.Group();
+
+      // Sleek Compact AMR Chassis Body
+      const chassisMat = new THREE.MeshStandardMaterial({ color: bodyHex, metalness: 0.8, roughness: 0.2 });
+      const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.35, 1.4), chassisMat);
+      chassis.position.set(0, 0.22, 0); chassis.castShadow = true; group.add(chassis);
+
+      // Top Deck Protective Rubber Pad
+      const padMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
+      const pad = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.05, 1.2), padMat);
+      pad.position.set(0, 0.41, 0); group.add(pad);
+
+      // Carried Mini Cargo Box (Industrial Blue)
+      const toteMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3 });
+      const tote = new THREE.Mesh(createRoundedBox(1.1, 0.6, 0.9, 0.04, 2), toteMat);
+      tote.position.set(0, 0.74, 0); tote.castShadow = true; group.add(tote);
+
+      // Rubber All-Terrain AMR Wheels
+      const wheelGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.12, 16);
+      const wheelMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
+      [[-0.82, 0.18, -0.5], [0.82, 0.18, -0.5], [-0.82, 0.18, 0.5], [0.82, 0.18, 0.5]].forEach(([wx, wy, wz]) => {
+        const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+        wheel.rotation.z = Math.PI / 2; wheel.position.set(wx, wy, wz); wheel.castShadow = true; group.add(wheel);
+      });
+
+      // LiDAR Safety Sensor & Front LED Strip
+      const ledMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+      const ledBar = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.06, 0.06), ledMat);
+      ledBar.position.set(0, 0.32, 0.71); group.add(ledBar);
+
+      // Safety Warning Beacon Light Dome
+      const beaconMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 0.8 });
+      const beaconDome = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), beaconMat);
+      beaconDome.position.set(0.6, 0.52, -0.5); group.add(beaconDome);
+
+      // Floating AMR Status Badge Label
+      const labelSprite = createLabelSprite(labelText, '#38bdf8', '#0284c7');
+      labelSprite.position.set(0, 1.8, 0); labelSprite.scale.set(3.8, 0.9, 1); group.add(labelSprite);
+
+      group.position.set(startX, 0, startZ);
+      scene.add(group);
+
+      const botData = {
+        group, labelSprite, ledMat, beaconMat,
+        waypoints, currentWaypointIdx: 0,
+        isStopped: false, speed: 6.0, bodyHex, labelText
+      };
+      miniBots.push(botData);
+      return botData;
+    };
+
+    createMiniBot(-45, -45, [[-45, -45], [-45, 45], [-45, -45]], 0xeab308, '🤖 Ground AMR #1');
+    createMiniBot(-35, 40, [[-35, 40], [35, 40], [-35, 40]], 0xf97316, '🤖 Ground AMR #2');
+    createMiniBot(45, 45, [[45, 45], [45, -45], [45, 45]], 0x10b981, '🤖 Ground AMR #3');
+    createMiniBot(35, -40, [[35, -40], [-35, -40], [35, -40]], 0x8b5cf6, '🤖 Ground AMR #4');
+
     // ─── 7. Forklift Vehicle ───
     const forklift = new THREE.Group();
     const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.3, metalness: 0.4 });
@@ -851,7 +910,7 @@ export default function Warehouse() {
     const forkliftState = { speed: 0, rotSpeed: 0, maxSpeed: 0.45 };
 
     sceneRef.current = {
-      scene, camera, renderer, forklift, beacon, conveyors,
+      scene, camera, renderer, forklift, beacon, conveyors, miniBots,
       overheadLights, bulbs, ambient, hemi, sunLight, doorLight,
       spotL, spotR, hlLensMatL, hlLensMatR, tailMat,
       sky, skyMat, interactableBoxes, deliveryZones, collectibles, forkliftState, asrsData,
@@ -1575,6 +1634,55 @@ export default function Warehouse() {
           pkg.position.x += pkg.userData.speed * delta;
           if (pkg.position.x > length / 2) pkg.position.x = -length / 2;
         });
+      });
+
+      // ─── Autonomous Ground AMR Mini-Bots Proximity Safety Stop ───
+      miniBots.forEach((bot) => {
+        const botPos = bot.group.position;
+        const distToPlayer = botPos.distanceTo(forklift.position);
+
+        // Check if player forklift is in front or nearby (Proximity threshold < 7.0 units)
+        const isPlayerNearby = distToPlayer < 7.0;
+
+        if (isPlayerNearby) {
+          // 🛑 SAFETY PROXIMITY STOP!
+          bot.isStopped = true;
+
+          // Flash high-intensity red hazard warning lights
+          const flash = Math.sin(elapsed * 16) > 0 ? 2.5 : 0.2;
+          bot.beaconMat.color.setHex(0xef4444);
+          bot.beaconMat.emissive.setHex(0xef4444);
+          bot.beaconMat.emissiveIntensity = flash;
+          bot.ledMat.color.setHex(0xef4444);
+        } else {
+          // 🟢 SAFE TRANSIT ON WAREHOUSE FLOOR
+          bot.isStopped = false;
+          bot.beaconMat.color.setHex(0xf59e0b);
+          bot.beaconMat.emissive.setHex(0xf59e0b);
+          bot.beaconMat.emissiveIntensity = 0.8;
+          bot.ledMat.color.setHex(0x38bdf8);
+
+          // Move along assigned waypoints route
+          const targetWp = bot.waypoints[bot.currentWaypointIdx];
+          const targetVec = new THREE.Vector3(targetWp[0], 0, targetWp[1]);
+          const dir = targetVec.clone().sub(botPos);
+          const distToWp = dir.length();
+
+          if (distToWp < 0.8) {
+            bot.currentWaypointIdx = (bot.currentWaypointIdx + 1) % bot.waypoints.length;
+          } else {
+            dir.normalize();
+            const moveStep = Math.min(distToWp, bot.speed * delta);
+            botPos.add(dir.multiplyScalar(moveStep));
+
+            // Smoothly rotate to face direction of travel
+            const targetAngle = Math.atan2(dir.x, dir.z);
+            let diff = (targetAngle - bot.group.rotation.y) % (Math.PI * 2);
+            if (diff < -Math.PI) diff += Math.PI * 2;
+            if (diff > Math.PI) diff -= Math.PI * 2;
+            bot.group.rotation.y += diff * Math.min(1, delta * 10);
+          }
+        }
       });
 
       // Camera follow
