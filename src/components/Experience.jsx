@@ -4,13 +4,13 @@ import './Experience.css';
 const experiences = [
   {
     role: 'Software Engineer',
-    company: 'Falcon Autotech',
+    company: 'Warehouse Automation & Robotics',
     period: 'July 2024 – Present',
     location: 'Noida, India',
     color: 'red',
     bullets: [
       'Architected high-throughput core sortation services capable of handling extreme loads, successfully processing over 100,000 parcels a day and built to reliably sustain peak loads of 10,000+ parcels per hour.',
-      'Delivered an end-to-end automation project for one of India\'s largest retail companies, integrating PTL (Put-to-Light) systems, conveyors, a .NET web backend, and client-facing RabbitMQ integration APIs.',
+      'Delivered multiple end-to-end automation projects for India\'s largest retail companies, integrating PTL (Put-to-Light) systems, conveyors, a .NET web backend, and client-facing RabbitMQ integration APIs.',
       'Developed PLC communication layers to interface software systems with physical sortation hardware on the warehouse floor.',
       'Implemented cron-based job schedulers for automated report generation, data syncing, and system health monitoring.',
       'Writing optimized stored procedures and managing SQL data flows aligned with high-volume sortation system requirements.',

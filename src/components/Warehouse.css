@@ -408,49 +408,50 @@ kbd:hover {
   transform: translateX(-50%);
   z-index: 10;
   pointer-events: none;
-  background: rgba(15, 23, 42, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(245, 158, 11, 0.5);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4), 0 0 10px rgba(245, 158, 11, 0.25);
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(245, 158, 11, 0.6);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5), 0 0 12px rgba(245, 158, 11, 0.3);
   border-radius: 30px;
-  padding: 0.65rem 1.4rem;
+  padding: 0.75rem 1.6rem;
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.9rem;
   white-space: nowrap;
   transition: all 0.3s ease;
 }
 
 .warehouse-objective--deliver {
-  border-color: rgba(16, 185, 129, 0.6);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4), 0 0 12px rgba(16, 185, 129, 0.3);
+  border-color: rgba(16, 185, 129, 0.7);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5), 0 0 14px rgba(16, 185, 129, 0.4);
 }
 
 .warehouse-objective__icon {
-  font-size: 1.2rem;
+  font-size: 1.35rem;
 }
 
 .warehouse-objective__text {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 1.0rem;
+  font-weight: 700;
   color: #f8fafc;
   letter-spacing: 0.5px;
 }
 
 .warehouse-objective kbd {
   background: rgba(245, 158, 11, 0.25);
-  border: 1px solid rgba(245, 158, 11, 0.5);
+  border: 1px solid rgba(245, 158, 11, 0.6);
   color: #fbbf24;
-  padding: 2px 7px;
-  border-radius: 4px;
-  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.95rem;
 }
 
 .warehouse-objective--deliver kbd {
   background: rgba(16, 185, 129, 0.25);
-  border-color: rgba(16, 185, 129, 0.5);
+  border-color: rgba(16, 185, 129, 0.6);
   color: #34d399;
 }
 
@@ -520,3 +521,879 @@ kbd:hover {
   from { transform: translate(-50%, -50%) scale(1); }
   to { transform: translate(-50%, -50%) scale(1.05); }
 }
+
+/* ============================================
+   THE 100K SHIFT — CAREER QUESTS HUD & MODALS
+   ============================================ */
+
+/* ── Shift Mission Card (Top-Left under Title) ── */
+.warehouse-shift-card {
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(245, 158, 11, 0.15);
+  border-radius: 14px;
+  padding: 0.85rem 1.1rem;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+
+.warehouse-shift-card:hover {
+  border-color: rgba(245, 158, 11, 0.7);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.25);
+}
+
+.warehouse-shift-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.warehouse-shift-card__badge {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.warehouse-shift-card__order-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: #94a3b8;
+}
+
+.warehouse-shift-card__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.warehouse-shift-card__client {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  color: #38bdf8;
+  font-weight: 500;
+}
+
+.warehouse-shift-card__target {
+  background: rgba(30, 41, 59, 0.7);
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+}
+
+.warehouse-shift-card__reward {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  color: #34d399;
+  font-weight: 700;
+}
+
+/* 5-step progress bar */
+.warehouse-shift-card__progress-bar {
+  display: flex;
+  gap: 4px;
+  margin-top: 0.1rem;
+}
+
+.warehouse-shift-card__progress-seg {
+  flex: 1;
+  height: 5px;
+  background: rgba(51, 65, 85, 0.6);
+  border-radius: 3px;
+  transition: all 0.4s ease;
+}
+
+.warehouse-shift-card__progress-seg--done {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+}
+
+.warehouse-shift-card__progress-seg--active {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+  animation: segPulse 1.2s infinite alternate;
+}
+
+@keyframes segPulse {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+/* ── Milestone Modal Overlay ── */
+.warehouse-milestone-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 18, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.warehouse-milestone-card {
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid #f59e0b;
+  box-shadow:
+    0 0 30px rgba(245, 158, 11, 0.4),
+    0 0 80px rgba(0, 0, 0, 0.85);
+  border-radius: 20px;
+  padding: 2rem 2.2rem;
+  max-width: 550px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  position: relative;
+  animation: cardSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cardSlideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.warehouse-milestone-card--complete {
+  border-color: #10b981;
+  box-shadow:
+    0 0 40px rgba(16, 185, 129, 0.5),
+    0 0 100px rgba(0, 0, 0, 0.9);
+}
+
+.warehouse-milestone-card__header {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.warehouse-milestone-card__icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
+}
+
+.warehouse-milestone-card__badge {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #38bdf8;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.warehouse-milestone-card__title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 2px;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.1;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+}
+
+.warehouse-milestone-card__stat {
+  background: rgba(30, 41, 59, 0.8);
+  border-left: 4px solid #f59e0b;
+  border-radius: 6px;
+  padding: 0.65rem 1rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.warehouse-milestone-card--complete .warehouse-milestone-card__stat {
+  border-left-color: #10b981;
+}
+
+.warehouse-milestone-card__stat strong {
+  color: #fbbf24;
+  font-size: 1.05rem;
+}
+
+.warehouse-milestone-card__reveal-box {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-left: 4px solid #f59e0b;
+  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.warehouse-milestone-card__reveal-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+}
+
+.warehouse-milestone-card__reveal-quote {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #ffffff;
+  font-weight: 500;
+  margin: 0;
+}
+
+.warehouse-milestone-card__story {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.warehouse-milestone-card__tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.warehouse-milestone-card__tag {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  border-radius: 12px;
+  padding: 0.25rem 0.65rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.warehouse-milestone-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 1rem;
+}
+
+.warehouse-milestone-card__points {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 1.5px;
+  color: #34d399;
+  text-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+}
+
+.warehouse-milestone-card__btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: none;
+  color: #ffffff;
+  padding: 0.7rem 1.6rem;
+  border-radius: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+}
+
+.warehouse-milestone-card__btn:hover {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+}
+
+.warehouse-milestone-card__btn--portfolio {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+}
+
+.warehouse-milestone-card__btn--portfolio:hover {
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+}
+
+/* ─── Real-Time GPS Waypoint Navigation Banner ─── */
+/* ─── Compact GPS Compass & Distance Pill ─── */
+.warehouse-gps-pill {
+  position: fixed;
+  top: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.94);
+  border: 1.5px solid #fbbf24;
+  border-radius: 24px;
+  padding: 0.35rem 0.75rem 0.35rem 0.45rem;
+  display: none;
+  align-items: center;
+  gap: 0.55rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.65), 0 0 16px rgba(251, 191, 36, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100;
+  pointer-events: none;
+  animation: gpsPillFloat 2.5s ease-in-out infinite alternate;
+  box-sizing: border-box;
+}
+
+@keyframes gpsPillFloat {
+  0% { transform: translateX(-50%) translateY(0); }
+  100% { transform: translateX(-50%) translateY(-2px); }
+}
+
+.warehouse-gps-pill__compass {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(2, 6, 23, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.warehouse-gps-pill__arrow {
+  display: block;
+  fill: #fbbf24;
+  transform-box: fill-box;
+  transform-origin: center;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.warehouse-gps-pill__icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.warehouse-gps-pill__dist {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #38bdf8;
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  padding: 0.2rem 0.55rem;
+  border-radius: 8px;
+  white-space: nowrap;
+  min-width: 42px;
+  text-align: center;
+}
+
+/* ─── Interactive Warehouse Radar Minimap ─── */
+.warehouse-minimap-container {
+  position: fixed;
+  top: 5.8rem;
+  right: 2rem;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
+  border-radius: 14px;
+  padding: 0.55rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  pointer-events: none;
+}
+
+.warehouse-minimap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 1.2px;
+  color: #38bdf8;
+  padding: 0 0.25rem;
+}
+
+.warehouse-minimap-coords {
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.warehouse-radar-canvas {
+  width: 190px;
+  height: 130px;
+  border-radius: 6px;
+  background: #020617;
+  display: block;
+}
+
+.warehouse-minimap-legend {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  padding: 0 0.2rem;
+}
+
+/* ============================================
+   CYBERNETIC LOGISTICS LOADING SCREEN
+   ============================================ */
+
+.warehouse-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: #060913;
+  background-image:
+    radial-gradient(circle at 50% 45%, rgba(56, 189, 248, 0.15) 0%, rgba(2, 6, 23, 0.98) 75%),
+    linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+  background-size: 100% 100%, 36px 36px, 36px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.warehouse-loader--fade-out {
+  opacity: 0;
+  transform: scale(1.025);
+  pointer-events: none;
+}
+
+.warehouse-loader__card {
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(245, 158, 11, 0.4);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.75),
+    0 0 35px rgba(245, 158, 11, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 2rem 2.2rem;
+  max-width: 440px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+  box-sizing: border-box;
+  animation: loader-card-enter 0.4s ease-out;
+}
+
+@keyframes loader-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Emblem / Forklift Icon */
+.warehouse-loader__emblem-container {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.warehouse-loader__radar-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px dashed rgba(56, 189, 248, 0.5);
+  animation: loader-spin 10s linear infinite;
+}
+
+.warehouse-loader__emblem-icon {
+  font-size: 2.4rem;
+  z-index: 2;
+  filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.7));
+  animation: loader-emblem-float 2.2s ease-in-out infinite;
+  user-select: none;
+}
+
+@keyframes loader-emblem-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.05);
+  }
+}
+
+/* Header branding */
+.warehouse-loader__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.warehouse-loader__badge {
+  font-family: monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  padding: 0.2rem 0.75rem;
+  border-radius: 12px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+
+.warehouse-loader__title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem;
+  letter-spacing: 3px;
+  color: #f8fafc;
+  margin: 0;
+  text-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+}
+
+/* Progress Section */
+.warehouse-loader__progress-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.warehouse-loader__status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.warehouse-loader__status-text {
+  font-family: 'Space Grotesk', monospace;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 82%;
+  font-size: 0.82rem;
+  font-weight: 600;
+  animation: loader-msg-swap 0.35s ease-out;
+}
+
+@keyframes loader-msg-swap {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.warehouse-loader__status-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: loader-status-blink 1.2s ease-in-out infinite alternate;
+  flex-shrink: 0;
+}
+
+@keyframes loader-status-blink {
+  from {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+.warehouse-loader__percent {
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+}
+
+.warehouse-loader__progress-bar {
+  width: 100%;
+  height: 9px;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 9px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.warehouse-loader__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b 0%, #06b6d4 50%, #3b82f6 100%);
+  border-radius: 9px;
+  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+}
+
+.warehouse-loader__progress-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.7) 50%,
+    transparent 100%
+  );
+  animation: loader-shimmer 1.8s infinite linear;
+}
+
+@keyframes loader-shimmer {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+
+/* Quick Controls Hint */
+.warehouse-loader__quick-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 0.45rem 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.warehouse-loader__quick-hint kbd {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  margin: 0 1px;
+}
+
+@keyframes loader-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader-spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+/* Mobile Responsiveness for Loading Screen */
+@media (max-width: 600px) {
+  .warehouse-loader {
+    padding: 1rem;
+  }
+  .warehouse-loader__card {
+    padding: 1.6rem 1.2rem;
+    gap: 1.1rem;
+  }
+  .warehouse-loader__title {
+    font-size: 1.75rem;
+  }
+  .warehouse-loader__subtitle {
+    font-size: 0.78rem;
+  }
+  .warehouse-loader__briefing-grid {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+  .warehouse-loader__briefing-item {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0.4rem 0.8rem;
+  }
+  .warehouse-loader__briefing-desc {
+    text-align: right;
+  }
+  .warehouse-loader__specs {
+    flex-direction: column;
+    gap: 0.3rem;
+    align-items: center;
+  }
+}
+
+/* ─── On-Screen Toast Notification Popup ─── */
+.warehouse-toast {
+  position: fixed;
+  top: 4.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid #38bdf8;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.4), 0 8px 32px rgba(0, 0, 0, 0.65);
+  border-radius: 24px;
+  padding: 0.75rem 1.6rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  z-index: 150;
+  pointer-events: none;
+  letter-spacing: 0.5px;
+  animation: toastSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+@keyframes toastSlideDown {
+  from { opacity: 0; transform: translate(-50%, -15px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ─── Floating Carried Container Indicator ─── */
+.warehouse-carried {
+  position: fixed;
+  bottom: 5.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 2px solid #8b5cf6;
+  border-radius: 20px;
+  padding: 0.65rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.65), 0 0 15px rgba(139, 92, 246, 0.3);
+  z-index: 10;
+  pointer-events: none;
+  font-family: 'Space Grotesk', sans-serif;
+  white-space: nowrap;
+}
+
+.warehouse-carried span {
+  font-size: 1.0rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.warehouse-carried small {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* ─── Laptop Screen (1366px - 1536px, or height <= 900px) Optimizations ─── */
+@media (max-width: 1536px), (max-height: 900px) {
+  .warehouse-objective {
+    bottom: 1.25rem;
+    padding: 0.7rem 1.4rem;
+  }
+  .warehouse-objective__text {
+    font-size: 0.95rem;
+  }
+  .warehouse-carried {
+    bottom: 4.8rem;
+    padding: 0.55rem 1.3rem;
+  }
+  .warehouse-drop-prompt {
+    top: 28%;
+    padding: 0.85rem 1.6rem;
+  }
+  .warehouse-drop-prompt__text {
+    font-size: 1.05rem;
+  }
+  .warehouse-shift-card {
+    padding: 0.75rem 0.95rem;
+    width: 290px;
+  }
+  .warehouse-minimap-container {
+    width: 180px;
+  }
+  .warehouse-radar-canvas {
+    width: 170px !important;
+    height: 115px !important;
+  }
+  .warehouse-milestone-card {
+    max-width: 520px;
+    padding: 1.6rem 1.8rem;
+    gap: 1.0rem;
+  }
+}
+
+

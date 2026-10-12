@@ -13,17 +13,30 @@ import Publications from './components/Publications';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import Warehouse from './components/Warehouse';
+import WarehouseBanner from './components/WarehouseBanner';
 import { initGA, trackPageView } from './utils/analytics';
 
 function HomePage() {
-  const [bannerVisible, setBannerVisible] = useState(true);
-  const handleBannerVisibility = useCallback((isVisible) => {
-    setBannerVisible(isVisible);
+  const [renovationBannerVisible, setRenovationBannerVisible] = useState(true);
+  const [warehouseBannerVisible, setWarehouseBannerVisible] = useState(true);
+
+  const handleRenovationBannerVisibility = useCallback((isVisible) => {
+    setRenovationBannerVisible(isVisible);
   }, []);
 
+  const handleWarehouseBannerVisibility = useCallback((isVisible) => {
+    setWarehouseBannerVisible(isVisible);
+  }, []);
+
+  const totalBannerHeight = (renovationBannerVisible ? 36 : 0) + (warehouseBannerVisible ? 36 : 0);
+
   return (
-    <div className="App" style={{ '--banner-height': bannerVisible ? '38px' : '0px' }}>
-      <RenovationBanner onVisibilityChange={handleBannerVisibility} />
+    <div className="App" style={{ '--banner-height': `${totalBannerHeight}px` }}>
+      <RenovationBanner onVisibilityChange={handleRenovationBannerVisibility} />
+      <WarehouseBanner
+        top={renovationBannerVisible ? 36 : 0}
+        onVisibilityChange={handleWarehouseBannerVisibility}
+      />
       <Navbar />
       <Hero />
       <div className="section-divider"></div>
