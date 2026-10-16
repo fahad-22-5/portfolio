@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import './Hero.css';
 import TypeAni from './TypeAni';
 
@@ -9,43 +9,66 @@ function Hero() {
     const card = cardRef.current;
     if (!card) return;
 
+    let rect = null;
+    let rafId = null;
+
+    const handleMouseEnter = () => {
+      rect = card.getBoundingClientRect();
+    };
+
     const handleMouseMove = (e) => {
-      const rect = card.getBoundingClientRect();
+      if (!rect) rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
       const rotateX = (centerY - y) / 15;
       const rotateY = (x - centerX) / 15;
-      card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+      });
     };
 
     const handleMouseLeave = () => {
+      rect = null;
+      if (rafId) cancelAnimationFrame(rafId);
       card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) scale(1)';
     };
 
-    card.addEventListener('mousemove', handleMouseMove);
-    card.addEventListener('mouseleave', handleMouseLeave);
+    card.addEventListener('mouseenter', handleMouseEnter, { passive: true });
+    card.addEventListener('mousemove', handleMouseMove, { passive: true });
+    card.addEventListener('mouseleave', handleMouseLeave, { passive: true });
 
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      card.removeEventListener('mouseenter', handleMouseEnter);
       card.removeEventListener('mousemove', handleMouseMove);
       card.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
-
+  const particles = useMemo(() => (
+    [...Array(20)].map((_, i) => ({
+      delay: `${(i * 0.25) % 5}s`,
+      x: `${(i * 19) % 100}%`,
+      duration: `${3 + (i % 4)}s`,
+      size: `${2 + (i % 5)}px`,
+    }))
+  ), []);
 
   return (
     <section className="hero" id="hero">
 
       {/* Animated background particles */}
       <div className="hero__particles">
-        {[...Array(20)].map((_, i) => (
+        {particles.map((p, i) => (
           <div key={i} className="hero__particle" style={{
-            '--delay': `${Math.random() * 5}s`,
-            '--x': `${Math.random() * 100}%`,
-            '--duration': `${3 + Math.random() * 4}s`,
-            '--size': `${2 + Math.random() * 4}px`,
+            '--delay': p.delay,
+            '--x': p.x,
+            '--duration': p.duration,
+            '--size': p.size,
           }} />
         ))}
       </div>

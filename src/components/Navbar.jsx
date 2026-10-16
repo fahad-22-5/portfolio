@@ -11,18 +11,18 @@ function Navbar() {
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
+    let ticking = false;
 
-    const handleScroll = () => {
+    const updateScroll = () => {
       const currentScrollY = window.scrollY;
 
       // Hide on scroll down, show on scroll up
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setHidden(true);
-      } else {
-        setHidden(false);
-      }
+      const shouldHide = currentScrollY > lastScrollY && currentScrollY > 100;
+      setHidden(prev => (prev !== shouldHide ? shouldHide : prev));
 
-      setScrolled(currentScrollY > 50);
+      const isScrolled = currentScrollY > 50;
+      setScrolled(prev => (prev !== isScrolled ? isScrolled : prev));
+
       lastScrollY = currentScrollY;
 
       // Determine active section
@@ -30,13 +30,21 @@ function Navbar() {
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = document.getElementById(sections[i]);
         if (el && el.getBoundingClientRect().top <= 150) {
-          setActiveSection(sections[i]);
+          setActiveSection(prev => (prev !== sections[i] ? sections[i] : prev));
           break;
         }
       }
+      ticking = false;
     };
 
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateScroll);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

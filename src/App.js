@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import RenovationBanner from './components/RenovationBanner';
@@ -12,9 +12,10 @@ import FunFacts from './components/FunFacts';
 import Publications from './components/Publications';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import Warehouse from './components/Warehouse';
 import WarehouseBanner from './components/WarehouseBanner';
 import { initGA, trackPageView } from './utils/analytics';
+
+const Warehouse = lazy(() => import('./components/Warehouse'));
 
 function HomePage() {
   const [renovationBannerVisible, setRenovationBannerVisible] = useState(true);
@@ -74,7 +75,14 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/warehouse" element={<Warehouse />} />
+      <Route
+        path="/warehouse"
+        element={
+          <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0a0e17' }} />}>
+            <Warehouse />
+          </Suspense>
+        }
+      />
     </Routes>
   );
 }

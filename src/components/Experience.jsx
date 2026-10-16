@@ -15,6 +15,7 @@ const experiences = [
       'Implemented cron-based job schedulers for automated report generation, data syncing, and system health monitoring.',
       'Writing optimized stored procedures and managing SQL data flows aligned with high-volume sortation system requirements.',
       'Managed a 2.5-month on-site deployment in Madrid, Spain to integrate critical sorting and warehouse automation software for a major European last-mile e-commerce logistics provider.',
+      'Deployed and remotely tested high-throughput Put-to-Light (PTL) and conveyor automation systems supporting B2B and B2C fulfillment operations for a leading Middle Eastern apparel brand in Riyadh.',
     ],
     tech: ['.NET', 'C#', 'RabbitMQ', 'Windows Services', 'SQL Server', 'MySQL', 'RESTful APIs', 'PLC', 'Cron Jobs'],
   },
