@@ -2665,6 +2665,10 @@ export default function Warehouse() {
   const [activeMilestone, setActiveMilestone] = useState(null);
   const [shiftCompleted, setShiftCompleted] = useState(false);
   const [showShiftCard, setShowShiftCard] = useState(true);
+  const [isMinimapCollapsed, setIsMinimapCollapsed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth <= 768 || ('ontouchstart' in window);
+  });
 
   const shiftIndexRef = useRef(0);
   const completedOrdersRef = useRef([]);
@@ -2679,6 +2683,154 @@ export default function Warehouse() {
   const messageTimerRef = useRef(null);
   const canDropRef = useRef(false);
   const mismatchedZoneRef = useRef(null);
+
+  // ─── Touch / Mobile Joystick & Action Controls State ───
+  const [showTouchControls, setShowTouchControls] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
+  });
+  const [isPortrait, setIsPortrait] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerHeight > window.innerWidth;
+  });
+
+  const joystickBaseRef = useRef(null);
+  const joystickKnobRef = useRef(null);
+  const joystickTouchIdRef = useRef(null);
+  const isMouseDownRef = useRef(false);
+  const joystickStateRef = useRef({ x: 0, y: 0, active: false });
+  const interactRequestedRef = useRef(false);
+
+  const updateJoystickPosition = useCallback((clientX, clientY) => {
+    if (!joystickBaseRef.current || !joystickKnobRef.current) return;
+    const rect = joystickBaseRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const dx = clientX - centerX;
+    const dy = clientY - centerY;
+    const dist = Math.hypot(dx, dy);
+    const maxRadius = Math.min(rect.width, rect.height) * 0.36;
+    const angle = Math.atan2(dy, dx);
+    const clampedDist = Math.min(dist, maxRadius);
+    const clampedX = Math.cos(angle) * clampedDist;
+    const clampedY = Math.sin(angle) * clampedDist;
+
+    joystickKnobRef.current.style.transform = `translate3d(${clampedX}px, ${clampedY}px, 0)`;
+
+    const deadzone = 4;
+    if (dist > deadzone) {
+      const normX = clampedX / maxRadius;
+      const normY = -clampedY / maxRadius; // inverted: up is positive
+      joystickStateRef.current = { x: normX, y: normY, active: true };
+    } else {
+      joystickStateRef.current = { x: 0, y: 0, active: false };
+    }
+  }, []);
+
+  const resetJoystick = useCallback(() => {
+    if (joystickKnobRef.current) {
+      joystickKnobRef.current.style.transform = 'translate3d(0px, 0px, 0)';
+    }
+    if (joystickBaseRef.current) {
+      joystickBaseRef.current.classList.remove('warehouse-joystick-base--active');
+    }
+    joystickStateRef.current = { x: 0, y: 0, active: false };
+    joystickTouchIdRef.current = null;
+    isMouseDownRef.current = false;
+  }, []);
+
+  const handleJoyTouchStart = useCallback((e) => {
+    if (joystickTouchIdRef.current !== null) return;
+    const touch = e.changedTouches[0];
+    joystickTouchIdRef.current = touch.identifier;
+    if (joystickBaseRef.current) {
+      joystickBaseRef.current.classList.add('warehouse-joystick-base--active');
+    }
+    updateJoystickPosition(touch.clientX, touch.clientY);
+  }, [updateJoystickPosition]);
+
+  const handleJoyMouseDown = useCallback((e) => {
+    isMouseDownRef.current = true;
+    if (joystickBaseRef.current) {
+      joystickBaseRef.current.classList.add('warehouse-joystick-base--active');
+    }
+    updateJoystickPosition(e.clientX, e.clientY);
+  }, [updateJoystickPosition]);
+
+  // Global listeners for touch & mouse movement so player's thumb can slide slightly outside the base
+  useEffect(() => {
+    const onGlobalTouchMove = (e) => {
+      if (joystickTouchIdRef.current === null) return;
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i];
+        if (touch.identifier === joystickTouchIdRef.current) {
+          if (e.cancelable) e.preventDefault();
+          updateJoystickPosition(touch.clientX, touch.clientY);
+          break;
+        }
+      }
+    };
+
+    const onGlobalTouchEnd = (e) => {
+      if (joystickTouchIdRef.current === null) return;
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i];
+        if (touch.identifier === joystickTouchIdRef.current) {
+          resetJoystick();
+          break;
+        }
+      }
+    };
+
+    const onGlobalMouseMove = (e) => {
+      if (isMouseDownRef.current) {
+        updateJoystickPosition(e.clientX, e.clientY);
+      }
+    };
+
+    const onGlobalMouseUp = () => {
+      if (isMouseDownRef.current) {
+        resetJoystick();
+      }
+    };
+
+    const checkAutoTouch = () => {
+      const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+      const isSmall = window.innerWidth <= 1024;
+      if (isTouch || isSmall) {
+        setShowTouchControls(true);
+      }
+      setIsPortrait(window.innerHeight > window.innerWidth);
+    };
+
+    window.addEventListener('touchmove', onGlobalTouchMove, { passive: false });
+    window.addEventListener('touchend', onGlobalTouchEnd);
+    window.addEventListener('touchcancel', onGlobalTouchEnd);
+    window.addEventListener('mousemove', onGlobalMouseMove);
+    window.addEventListener('mouseup', onGlobalMouseUp);
+    window.addEventListener('resize', checkAutoTouch);
+    window.addEventListener('orientationchange', checkAutoTouch);
+
+    return () => {
+      window.removeEventListener('touchmove', onGlobalTouchMove);
+      window.removeEventListener('touchend', onGlobalTouchEnd);
+      window.removeEventListener('touchcancel', onGlobalTouchEnd);
+      window.removeEventListener('mousemove', onGlobalMouseMove);
+      window.removeEventListener('mouseup', onGlobalMouseUp);
+      window.removeEventListener('resize', checkAutoTouch);
+      window.removeEventListener('orientationchange', checkAutoTouch);
+    };
+  }, [updateJoystickPosition, resetJoystick]);
+
+  const handleTouchInteract = useCallback(() => {
+    if (navigator.vibrate) {
+      try { navigator.vibrate(25); } catch (e) {}
+    }
+    interactRequestedRef.current = true;
+    setTimeout(() => {
+      interactRequestedRef.current = false;
+    }, 250);
+  }, []);
 
   const wrongKeyCountRef = useRef(0);
   const autoHideControlsTimerRef = useRef(null);
@@ -2753,30 +2905,34 @@ export default function Warehouse() {
     let isFirstFrame = true;
 
     const LOADING_MESSAGES = [
+      "💻 Works better on PC / Laptop / Tablet for full keyboard & wide-screen view",
+      "📱 On phone: Change orientation to Landscape for dual-stick steering",
+      "🎮 Desktop Controls: WASD to Drive • E to Pick/Deliver • C to Toggle Camera",
+      "🕹️ Touch Controls: Virtual Joystick on left • Action Button on right",
+      "📦 Deliver branded tech crates to their matching architecture zones",
+      "📊 Elevated Mezzanine Control Room available for live telemetry & stats",
       "Spinning up conveyor belts & sortation lines...",
-      "Calibrating electric forklift kinematics...",
-      "Synthesizing high-bay storage racks...",
-      "Configuring Put-to-Light (PTL) sortation...",
+      "Calibrating electric forklift kinematics & steering...",
       "Connecting ASRS automated shuttle matrices...",
-      "Stacking .NET & RabbitMQ tech crates...",
-      "Powering overhead warehouse lights...",
+      "Synthesizing high-bay racking systems...",
       "Establishing PLC telemetry connection...",
       "Preparing warehouse floor • Launching simulation...",
     ];
 
-    let currentProgress = 15;
     let messageIdx = 0;
     setLoadingStage(LOADING_MESSAGES[0]);
 
     const progressTimer = setInterval(() => {
-      currentProgress = Math.min(currentProgress + Math.floor(Math.random() * 5 + 3), 95);
-      setLoadingProgress(currentProgress);
-    }, 90);
+      const elapsed = Date.now() - startTime;
+      const progressRatio = Math.min(1.0, elapsed / 4800);
+      const targetPercent = Math.min(96, Math.floor(15 + progressRatio * 81));
+      setLoadingProgress(targetPercent);
+    }, 50);
 
     const messageTimer = setInterval(() => {
       messageIdx = (messageIdx + 1) % (LOADING_MESSAGES.length - 1);
       setLoadingStage(LOADING_MESSAGES[messageIdx]);
-    }, 550);
+    }, 750);
 
     let animId = null;
     let onKeyDown = null;
@@ -2844,14 +3000,14 @@ export default function Warehouse() {
         map: wallTexLong,
         roughness: 0.45,
         metalness: 0.35,
-        side: THREE.DoubleSide,
+        side: THREE.FrontSide,
       });
 
       const wallMatShort = new THREE.MeshStandardMaterial({
         map: wallTexShort,
         roughness: 0.45,
         metalness: 0.35,
-        side: THREE.DoubleSide,
+        side: THREE.FrontSide,
       });
 
       const trimMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6, metalness: 0.4 });
@@ -2907,7 +3063,7 @@ export default function Warehouse() {
           map: dockDoorTex,
           roughness: 0.4,
           metalness: 0.35,
-          side: THREE.DoubleSide,
+          side: THREE.FrontSide,
         });
 
         const doorMesh = new THREE.Mesh(dockDoorGeo, dockDoorMat);
@@ -3033,7 +3189,7 @@ export default function Warehouse() {
             map: trailerWallTex,
             roughness: 0.45,
             metalness: 0.25,
-            side: THREE.DoubleSide,
+            side: THREE.FrontSide,
           });
 
           const trailerWallL = new THREE.Mesh(new THREE.PlaneGeometry(22.0, 7.8), trailerWallMat);
@@ -3090,7 +3246,7 @@ export default function Warehouse() {
 
           // Swung-Open Dual Rear Trailer Doors pinned back flat against exterior walls
           const doorTex = getTrailerDoorTexture();
-          const openDoorMat = new THREE.MeshStandardMaterial({ map: doorTex, roughness: 0.4, side: THREE.DoubleSide });
+          const openDoorMat = new THREE.MeshStandardMaterial({ map: doorTex, roughness: 0.4, side: THREE.FrontSide });
 
           const leftDoorOpen = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 7.4), openDoorMat);
           leftDoorOpen.position.set(dockX - 4.65, 4.0, 73.2);
@@ -3285,7 +3441,7 @@ export default function Warehouse() {
             map: trailerWallTex,
             roughness: 0.45,
             metalness: 0.25,
-            side: THREE.DoubleSide,
+            side: THREE.FrontSide,
           });
 
           const trailerWallL = new THREE.Mesh(new THREE.PlaneGeometry(22.0, 7.8), trailerWallMat);
@@ -3339,7 +3495,7 @@ export default function Warehouse() {
 
           // Swung-Open Dual Rear Trailer Doors
           const doorTex = getRiyadhTrailerDoorTexture();
-          const openDoorMat = new THREE.MeshStandardMaterial({ map: doorTex, roughness: 0.4, side: THREE.DoubleSide });
+          const openDoorMat = new THREE.MeshStandardMaterial({ map: doorTex, roughness: 0.4, side: THREE.FrontSide });
 
           const leftDoorOpen = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 7.4), openDoorMat);
           leftDoorOpen.position.set(dockX - 4.65, 4.0, 73.2);
@@ -3448,7 +3604,7 @@ export default function Warehouse() {
         color: 0x141d28,
         roughness: 0.7,
         metalness: 0.4,
-        side: THREE.DoubleSide,
+        side: THREE.FrontSide,
       });
       const warehouseRoofDeck = new THREE.Mesh(roofGeo, roofMat);
       warehouseRoofDeck.position.set(0, 25, 0);
@@ -5777,7 +5933,19 @@ export default function Warehouse() {
           }
         }
 
-        // Accelerate / Decelerate
+        // Accelerate / Decelerate (Joystick & Keyboard)
+        const joy = joystickStateRef.current;
+        const joyActive = joy && joy.active;
+        const joyY = joyActive ? joy.y : 0;
+        const joyX = joyActive ? joy.x : 0;
+
+        if (joyActive && Math.abs(joyY) > 0.05) {
+          if (joyY > 0) {
+            forkliftState.speed = Math.min(forkliftState.maxSpeed, forkliftState.speed + (0.95 * delta * Math.min(1, joyY * 1.35)));
+          } else {
+            forkliftState.speed = Math.max(-forkliftState.maxSpeed * 0.7, forkliftState.speed + (0.95 * delta * Math.max(-1, joyY * 1.35)));
+          }
+        } else
         if (keys['w'] || keys['arrowup']) {
           forkliftState.speed = Math.min(forkliftState.maxSpeed, forkliftState.speed + 0.9 * delta);
         } else if (keys['s'] || keys['arrowdown']) {
@@ -5786,9 +5954,11 @@ export default function Warehouse() {
           forkliftState.speed *= 0.90;
         }
 
-        // Responsive Steering
         const turnRate = 2.4 * delta;
-        if (keys['a'] || keys['arrowleft']) {
+        if (joyActive && Math.abs(joyX) > 0.05) {
+          const steerAmount = Math.max(-1, Math.min(1, joyX * 1.25));
+          forkliftState.rotSpeed = -steerAmount * (2.4 * delta);
+        } else if (keys['a'] || keys['arrowleft']) {
           forkliftState.rotSpeed = turnRate;
         } else if (keys['d'] || keys['arrowright']) {
           forkliftState.rotSpeed = -turnRate;
@@ -5796,9 +5966,12 @@ export default function Warehouse() {
           forkliftState.rotSpeed = 0;
         }
 
+
         // Interacting with box or Mezzanine Portal (E key)
         interactCooldown -= delta;
-        if (keys['e'] && interactCooldown <= 0) {
+        const isInteractTriggered = keys['e'] || interactRequestedRef.current;
+        if (isInteractTriggered && interactCooldown <= 0) {
+          interactRequestedRef.current = false;
           interactCooldown = 0.5;
           const game = gameRef.current;
 
@@ -6537,37 +6710,98 @@ export default function Warehouse() {
           roof.visible = true;
           windshield.visible = true;
           beacon.visible = true;
-          _camOffset.set(0, 14, -22).applyAxisAngle(_upAxis, forklift.rotation.y);
-          _targetPos.copy(forklift.position).add(_camOffset);
-          camera.position.lerp(_targetPos, 0.08);
+          body.visible = true;
+          mastL.visible = true;
+          mastR.visible = true;
+          headL.visible = true;
+          headR.visible = true;
+          tailL.visible = true;
+          tailR.visible = true;
+
           _lookTarget.copy(forklift.position);
           _lookTarget.y += 3;
+
+          _camOffset.set(0, 14, -22).applyAxisAngle(_upAxis, forklift.rotation.y);
+          _targetPos.copy(forklift.position).add(_camOffset);
+
+          // Spring Arm: Clamp camera ray to stay safely inside warehouse interior
+          const minX = -104, maxX = 104;
+          const minZ = -69, maxZ = 69;
+          const minY = 2.0, maxY = 22.0;
+
+          let t = 1.0;
+          if (_targetPos.x < minX && _targetPos.x !== _lookTarget.x) {
+            t = Math.min(t, (minX - _lookTarget.x) / (_targetPos.x - _lookTarget.x));
+          }
+          if (_targetPos.x > maxX && _targetPos.x !== _lookTarget.x) {
+            t = Math.min(t, (maxX - _lookTarget.x) / (_targetPos.x - _lookTarget.x));
+          }
+          if (_targetPos.z < minZ && _targetPos.z !== _lookTarget.z) {
+            t = Math.min(t, (minZ - _lookTarget.z) / (_targetPos.z - _lookTarget.z));
+          }
+          if (_targetPos.z > maxZ && _targetPos.z !== _lookTarget.z) {
+            t = Math.min(t, (maxZ - _lookTarget.z) / (_targetPos.z - _lookTarget.z));
+          }
+          if (_targetPos.y > maxY && _targetPos.y !== _lookTarget.y) {
+            t = Math.min(t, (maxY - _lookTarget.y) / (_targetPos.y - _lookTarget.y));
+          }
+          if (_targetPos.y < minY && _targetPos.y !== _lookTarget.y) {
+            t = Math.min(t, (minY - _lookTarget.y) / (_targetPos.y - _lookTarget.y));
+          }
+
+          t = Math.max(0.25, Math.min(1.0, isNaN(t) ? 1.0 : t));
+          _targetPos.lerpVectors(_lookTarget, _targetPos, t);
+
+          camera.position.lerp(_targetPos, 0.12);
           camera.lookAt(_lookTarget);
         } else if (mode === 'command') {
           cabin.visible = true;
           roof.visible = true;
           windshield.visible = true;
           beacon.visible = true;
+          body.visible = true;
+          mastL.visible = true;
+          mastR.visible = true;
+          headL.visible = true;
+          headR.visible = true;
+          tailL.visible = true;
+          tailR.visible = true;
           const cView = commandViewRef.current;
+          const isNarrowScreen = camera.aspect < 1.0;
           if (cView === 'window') {
             // Looking out panoramic window over the warehouse floor
-            _targetPos.set(0, 11.2, -61.0);
+            _targetPos.set(0, 11.2, isNarrowScreen ? -59.5 : -61.0);
             camera.position.lerp(_targetPos, 0.06);
             _lookTarget.set(0, 3.5, 15);
             camera.lookAt(_lookTarget);
           } else {
             // Default: Look directly at the Giant LED Telemetry Wall inside the Command Center
-            _targetPos.set(0, 11.0, -60.2);
+            _targetPos.set(0, isNarrowScreen ? 11.2 : 11.0, isNarrowScreen ? -58.8 : -60.2);
             camera.position.lerp(_targetPos, 0.06);
             _lookTarget.set(0, 11.2, -74.2);
             camera.lookAt(_lookTarget);
           }
+
+          // Smooth wide-angle FOV expansion on portrait screens so the whole 26m LED dashboard fits
+          const targetFov = isNarrowScreen ? Math.min(84, 60 / Math.max(0.68, camera.aspect)) : 60;
+          if (Math.abs(camera.fov - targetFov) > 0.2) {
+            camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.08);
+            camera.updateProjectionMatrix();
+          }
         } else {
-          // First-person POV: Hide cabin & roof to ensure zero occlusion
+          // First-person POV: Hide all forklift body, cabin, mast & lights to guarantee 100% unobstructed view
           cabin.visible = false;
           roof.visible = false;
           windshield.visible = false;
           beacon.visible = false;
+          body.visible = false;
+          mastL.visible = false;
+          mastR.visible = false;
+          headL.visible = false;
+          headR.visible = false;
+          tailL.visible = false;
+          tailR.visible = false;
+
           // Rigidly sync camera position without lag so full speed cannot drag camera backwards into meshes
           _fpOffset.set(0, 3.2, 0.9).applyAxisAngle(_upAxis, forklift.rotation.y);
           _targetPos.copy(forklift.position).add(_fpOffset);
@@ -6575,6 +6809,10 @@ export default function Warehouse() {
           _lookDir.set(0, 2.7, 10).applyAxisAngle(_upAxis, forklift.rotation.y);
           _lookTarget.copy(forklift.position).add(_lookDir);
           camera.lookAt(_lookTarget);
+        }
+        if (mode !== 'command' && Math.abs(camera.fov - 60) > 0.2) {
+          camera.fov = THREE.MathUtils.lerp(camera.fov, 60, 0.08);
+          camera.updateProjectionMatrix();
         }
         camera.updateMatrixWorld();
 
@@ -6650,7 +6888,7 @@ export default function Warehouse() {
         if (isFirstFrame) {
           isFirstFrame = false;
           const elapsedLoad = Date.now() - startTime;
-          const minDisplayTime = 700;
+          const minDisplayTime = 5000;
           const remaining = Math.max(0, minDisplayTime - elapsedLoad);
 
           setTimeout(() => {
@@ -6665,7 +6903,7 @@ export default function Warehouse() {
                   if (!isDisposed) setIsLoaderMounted(false);
                 }, 600);
               }
-            }, 260);
+            }, 450);
           }, remaining);
         }
       };
@@ -6719,6 +6957,21 @@ export default function Warehouse() {
   const toggleCamera = () => setCameraMode((p) => (p === 'third' ? 'first' : p === 'first' ? 'command' : 'third'));
   const toggleDayNight = () => setIsNight((p) => !p);
 
+  const handleHorn = useCallback(() => {
+    if (navigator.vibrate) {
+      try { navigator.vibrate(30); } catch (e) {}
+    }
+    playForkliftHorn();
+    showMessage('📯 Honk Honk!');
+  }, [showMessage]);
+
+  const handleCameraToggle = useCallback(() => {
+    if (navigator.vibrate) {
+      try { navigator.vibrate(15); } catch (e) {}
+    }
+    toggleCamera();
+  }, []);
+
   const resetGame = () => {
     const { forklift, forkliftState, scene } = sceneRef.current;
     if (forklift) {
@@ -6756,8 +7009,35 @@ export default function Warehouse() {
   const currentOrder = SHIFT_ORDERS[shiftIndex] || null;
 
   return (
-    <div className={`warehouse-page ${cameraMode === 'command' ? 'warehouse-page--command' : ''}`}>
+    <div className={`warehouse-page ${cameraMode === 'command' ? 'warehouse-page--command' : ''} ${showTouchControls ? 'warehouse-page--touch' : ''} ${isPortrait ? 'warehouse-page--portrait' : ''}`}>
       <div className="warehouse-canvas" ref={mountRef} />
+
+      {/* ── Portrait Screen Orientation Lock Overlay (Shown only after loading completes) ── */}
+      {!isLoading && !isLoaderMounted && (
+        <div className="warehouse-rotate-prompt">
+          <div className="warehouse-rotate-prompt__card">
+            <div className="warehouse-rotate-prompt__device-icon">
+              <svg viewBox="0 0 48 48" className="warehouse-rotate-prompt__phone-svg" width="68" height="68" fill="none">
+                <rect x="14" y="6" width="20" height="36" rx="4" stroke="#fbbf24" strokeWidth="2.5" fill="rgba(15, 23, 42, 0.85)" />
+                <circle cx="24" cy="37" r="1.5" fill="#fbbf24" />
+                <line x1="20" y1="10" x2="28" y2="10" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M 38 16 A 17 17 0 0 1 30 38" stroke="#38bdf8" strokeWidth="2.2" strokeDasharray="3 3" fill="none" />
+                <polygon points="26,38 32,38 30,33" fill="#38bdf8" />
+              </svg>
+            </div>
+            <span className="warehouse-rotate-prompt__badge">⚡ LANDSCAPE MODE REQUIRED</span>
+            <h2 className="warehouse-rotate-prompt__title">ROTATE YOUR SCREEN</h2>
+            <p className="warehouse-rotate-prompt__desc">
+              Please rotate your device to landscape orientation. Warehouse Simulator requires landscape mode for dual-stick steering and radar telemetry.
+            </p>
+            <div className="warehouse-rotate-prompt__actions">
+              <a href="/" className="warehouse-rotate-prompt__btn">
+                ← Back to Portfolio
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Simplified Fast Loading Screen with Rotating Messages ── */}
       {isLoaderMounted && (
@@ -6773,6 +7053,18 @@ export default function Warehouse() {
             <div className="warehouse-loader__header">
               <span className="warehouse-loader__badge">⚡ 3D DIGITAL TWIN</span>
               <h2 className="warehouse-loader__title">WAREHOUSE SIMULATOR</h2>
+            </div>
+
+            {/* Device & Orientation Recommendations */}
+            <div className="warehouse-loader__device-tips">
+              <div className="warehouse-loader__tip-row">
+                <span className="warehouse-loader__tip-icon">💻</span>
+                <span>Works better on <strong>PC, Laptop, or Tablet</strong></span>
+              </div>
+              <div className="warehouse-loader__tip-row">
+                <span className="warehouse-loader__tip-icon">📱</span>
+                <span>On phone: <strong>Change orientation to Landscape</strong></span>
+              </div>
             </div>
 
             {/* Live Progress Bar & Rotating Status Message */}
@@ -6796,40 +7088,89 @@ export default function Warehouse() {
 
             {/* Simple one-liner controls hint */}
             <div className="warehouse-loader__quick-hint">
-              <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Drive</span>
-              <span>•</span>
-              <span><kbd>E</kbd> Pick / Deliver</span>
-              <span>•</span>
-              <span><kbd>H</kbd> Horn</span>
-              <span>•</span>
-              <span><kbd>C</kbd> Camera</span>
+              {showTouchControls ? (
+                <>
+                  <span>🕹️ Virtual Joystick to Drive</span>
+                  <span>•</span>
+                  <span>🚜 Action Button to Pick / Deliver</span>
+                </>
+              ) : (
+                <>
+                  <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Drive</span>
+                  <span>•</span>
+                  <span><kbd>E</kbd> Pick / Deliver</span>
+                  <span>•</span>
+                  <span><kbd>H</kbd> Horn</span>
+                  <span>•</span>
+                  <span><kbd>C</kbd> Camera</span>
+                </>
+              )}
             </div>
           </div>
         </div>
       )}
 
       {/* Notification Toast */}
-      {message && cameraMode !== 'command' && <div className="warehouse-toast">{message}</div>}
+      {message && cameraMode !== 'command' && !activeMilestone && !shiftCompleted && (
+        <div className="warehouse-toast">{message}</div>
+      )}
 
-      {/* Top-Right Header Bar (Score & Back to Portfolio) */}
-      <div className="warehouse-top-right">
-        {/* Score Counter Badge */}
-        {cameraMode !== 'command' && (
-          <div className="warehouse-score">
-            <span className="warehouse-score__icon">⭐</span>
-            <div className="warehouse-score__details">
-              <span className="warehouse-score__value">{score}</span>
-              <span className="warehouse-score__label">POINTS</span>
-            </div>
+      {/* ── Unified Top Navigation Bar (Active during Forklift Simulation) ── */}
+      {cameraMode !== 'command' && (
+        <header className="warehouse-topbar">
+          <div className="warehouse-topbar__left">
+            <span className="warehouse-topbar__icon">🏭</span>
+            <h1 className="warehouse-topbar__title">
+              <span className="warehouse-topbar__title-full">Warehouse Simulator</span>
+              <span className="warehouse-topbar__title-short">ROVER</span>
+            </h1>
+
+            {!showTouchControls && (
+              <button
+                type="button"
+                className="warehouse-hud__help-btn warehouse-hud__help-btn--controls"
+                onClick={() => revealControlsBriefly(6000)}
+                title="Toggle Controls Panel"
+              >
+                ⌨️ Controls
+              </button>
+            )}
+
+            {!showTouchControls && (
+              <button
+                type="button"
+                className="warehouse-hud__help-btn warehouse-hud__help-btn--shift"
+                onClick={() => setShowShiftCard((p) => !p)}
+                title="Toggle 100k Shift Quest Card"
+                style={{
+                  borderColor: showShiftCard ? 'rgba(245, 158, 11, 0.6)' : 'rgba(100, 116, 139, 0.4)',
+                  color: showShiftCard ? '#fbbf24' : '#94a3b8'
+                }}
+              >
+                ⚡ Shift
+              </button>
+            )}
           </div>
-        )}
 
-        {/* Back to Portfolio Link */}
-        <a href="/" className="warehouse-back-btn">
-          ← Back to Portfolio
-        </a>
-      </div>
+          <div className="warehouse-topbar__right">
+            <div className="warehouse-score">
+              <span className="warehouse-score__icon">⭐</span>
+              <div className="warehouse-score__details">
+                <span className="warehouse-score__value">{score}</span>
+                <span className="warehouse-score__label">
+                  <span className="warehouse-score__label-full">POINTS</span>
+                  <span className="warehouse-score__label-short">PTS</span>
+                </span>
+              </div>
+            </div>
 
+            <a href="/" className="warehouse-back-btn" title="Back to Portfolio">
+              <span className="warehouse-back-btn__full">← Back to Portfolio</span>
+              <span className="warehouse-back-btn__short">← Back</span>
+            </a>
+          </div>
+        </header>
+      )}
       {/* Real-Time Compact GPS Compass & Distance Pill */}
       {cameraMode !== 'command' && (
         <div id="wh-gps-nav" className="warehouse-gps-pill">
@@ -6851,12 +7192,22 @@ export default function Warehouse() {
 
       {/* Warehouse Radar Minimap */}
       {cameraMode !== 'command' && (
-        <div className="warehouse-minimap-container">
+        <div className={`warehouse-minimap-container ${isMinimapCollapsed ? 'warehouse-minimap-container--collapsed' : ''}`}>
           <div className="warehouse-minimap-header">
-            <span>📡 FACILITY RADAR</span>
+            <div
+              className="warehouse-minimap-header__left"
+              onClick={() => setIsMinimapCollapsed((p) => !p)}
+              title={isMinimapCollapsed ? 'Expand Radar' : 'Collapse Radar'}
+            >
+              <span>📡 RADAR</span>
+              <span className="warehouse-minimap-toggle-icon">
+                {isMinimapCollapsed ? '▶' : '▼'}
+              </span>
+            </div>
             <span className="warehouse-minimap-coords" id="wh-radar-coords">X:0 Z:0</span>
           </div>
-          <canvas id="wh-radar-canvas" width="190" height="130" className="warehouse-radar-canvas" />
+          <div className="warehouse-minimap-body" style={{ display: isMinimapCollapsed ? 'none' : 'flex' }}>
+            <canvas id="wh-radar-canvas" width="190" height="130" className="warehouse-radar-canvas" />
           <div className="warehouse-minimap-legend">
             <span>🟣 .NET</span>
             <span style={{ color: '#f59e0b' }}>✈️ MAD</span>
@@ -6865,32 +7216,13 @@ export default function Warehouse() {
             <span style={{ color: '#10b981' }}>📦 PTL</span>
             <span style={{ color: '#34d399' }}>✈️ RUH</span>
           </div>
+          </div>
         </div>
       )}
 
       {/* HUD Overlay */}
       {cameraMode !== 'command' && (
         <div className="warehouse-hud">
-          <div className="warehouse-hud__title">
-            <span className="warehouse-hud__icon">🏭</span>
-            <h1>Warehouse Simulator</h1>
-            <button
-              className="warehouse-hud__help-btn"
-              onClick={() => revealControlsBriefly(6000)}
-              title="Toggle Controls Panel"
-            >
-              ⌨️ Controls
-            </button>
-            <button
-              className="warehouse-hud__help-btn"
-              onClick={() => setShowShiftCard((p) => !p)}
-              title="Toggle 100k Shift Quest Card"
-              style={{ borderColor: showShiftCard ? 'rgba(245, 158, 11, 0.6)' : 'rgba(100, 116, 139, 0.4)', color: showShiftCard ? '#fbbf24' : '#94a3b8' }}
-            >
-              ⚡ Shift
-            </button>
-          </div>
-
           <div className={`warehouse-hud__controls ${showControls ? 'warehouse-hud__controls--visible' : 'warehouse-hud__controls--hidden'}`}>
             <div className="warehouse-hud__key-group">
               <span className="warehouse-hud__label">Move</span>
@@ -6932,7 +7264,7 @@ export default function Warehouse() {
           </div>
 
           {/* ── The 100k Shift Mission Card ── */}
-          {currentOrder && !shiftCompleted && showShiftCard && (
+          {currentOrder && !shiftCompleted && showShiftCard && !showTouchControls && (
             <div className="warehouse-shift-card">
               <div className="warehouse-shift-card__top">
                 <span className="warehouse-shift-card__badge">⚡ THE 100K SHIFT</span>
@@ -7104,15 +7436,40 @@ export default function Warehouse() {
       {cameraMode === 'command' && (
         <div className="warehouse-command-terminal">
           <div className="warehouse-command-terminal__header">
-            <div className="warehouse-command-terminal__title-row">
-              <span className="warehouse-command-terminal__badge">
-                <span className="warehouse-command-terminal__pulse" />
-                SIMULATED LIVE TELEMETRY
-              </span>
-              <span className="warehouse-command-terminal__sub">ELEVATED MEZZANINE CONTROL ROOM</span>
+            <div className="warehouse-command-terminal__header-main">
+              <div className="warehouse-command-terminal__title-row">
+                <span className="warehouse-command-terminal__badge">
+                  <span className="warehouse-command-terminal__pulse" />
+                  LIVE TELEMETRY
+                </span>
+                <span className="warehouse-command-terminal__sub">MEZZANINE CONTROL DECK</span>
+              </div>
+              <div className="warehouse-command-terminal__controls">
+                <button
+                  type="button"
+                  className="warehouse-command-terminal__view-btn"
+                  onClick={() => setCommandView((v) => (v === 'screen' ? 'window' : 'screen'))}
+                  title={commandView === 'screen' ? 'Look Out Panoramic Window (V)' : 'Look at Telemetry LED Wall (V)'}
+                >
+                  {commandView === 'screen'
+                    ? (showTouchControls ? '🪟 View Floor' : '🪟 View Floor [V]')
+                    : (showTouchControls ? '📊 Telemetry' : '📊 Telemetry [V]')}
+                </button>
+                <button
+                  type="button"
+                  className="warehouse-command-terminal__close-btn"
+                  onClick={() => setCameraMode('third')}
+                  title="Return to Forklift Rover (ESC)"
+                >
+                  {showTouchControls ? '✕ Exit' : '✕ Exit [ESC]'}
+                </button>
+              </div>
             </div>
-            <div className="warehouse-command-terminal__status">
-              <span className="warehouse-command-terminal__stat-pill">PARCELS: <strong>{liveParcels.toLocaleString()}</strong></span>
+
+            <div className="warehouse-command-terminal__ticker">
+              <span className="warehouse-command-terminal__stat-pill">
+                PARCELS: <strong>{liveParcels.toLocaleString()}</strong>
+              </span>
               <span className="warehouse-command-terminal__stat-pill">
                 <span
                   style={{
@@ -7128,61 +7485,142 @@ export default function Warehouse() {
                 />
                 PLC: <strong style={{ color: plcLatency > 0 ? '#10b981' : '#ef4444' }}>{plcLatency} ms</strong>
               </span>
-              <button
-                className="warehouse-command-terminal__view-btn"
-                onClick={() => setCommandView((v) => (v === 'screen' ? 'window' : 'screen'))}
-                title="Toggle View (V)"
-              >
-                {commandView === 'screen' ? '🪟 Look Out Window [V]' : '🖥️ Look at Screen [V]'}
-              </button>
-              <button
-                className="warehouse-command-terminal__close-btn"
-                onClick={() => setCameraMode('third')}
-                title="Return to Forklift Rover (ESC)"
-              >
-                ✕ Exit [ESC]
-              </button>
             </div>
           </div>
 
           {/* Interactive Actions Dock */}
           <div className="warehouse-command-actions">
-            <a
-              href={RESUME_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="warehouse-command-btn warehouse-command-btn--resume"
-              onClick={() => trackEvent('command_terminal_resume_clicked')}
-            >
-              <span className="warehouse-command-btn__icon">📄</span>
-              <div className="warehouse-command-btn__text">
-                <strong>Download Resume (PDF)</strong>
-                <small>View Lead Systems Architect Credentials</small>
-              </div>
-            </a>
+            <div className="warehouse-command-actions__grid">
+              <a
+                href={RESUME_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="warehouse-command-btn warehouse-command-btn--resume"
+                onClick={() => trackEvent('command_terminal_resume_clicked')}
+              >
+                <span className="warehouse-command-btn__icon">📄</span>
+                <div className="warehouse-command-btn__text">
+                  <strong>Resume (PDF)</strong>
+                  <small className="warehouse-command-btn__subtext">Download Architect CV</small>
+                </div>
+              </a>
 
-            <a
-              href={LINKEDIN_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="warehouse-command-btn warehouse-command-btn--linkedin"
-              onClick={() => trackEvent('command_terminal_linkedin_clicked')}
-            >
-              <span className="warehouse-command-btn__icon">💼</span>
-              <div className="warehouse-command-btn__text">
-                <strong>Visit LinkedIn Profile</strong>
-                <small>Connect with Fahad Eqbal Hashmi</small>
-              </div>
-            </a>
+              <a
+                href={LINKEDIN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="warehouse-command-btn warehouse-command-btn--linkedin"
+                onClick={() => trackEvent('command_terminal_linkedin_clicked')}
+              >
+                <span className="warehouse-command-btn__icon">💼</span>
+                <div className="warehouse-command-btn__text">
+                  <strong>LinkedIn</strong>
+                  <small className="warehouse-command-btn__subtext">Connect Profile</small>
+                </div>
+              </a>
+            </div>
 
             <button
+              type="button"
               className="warehouse-command-btn warehouse-command-btn--return"
               onClick={() => setCameraMode('third')}
             >
               <span className="warehouse-command-btn__icon">🚜</span>
               <div className="warehouse-command-btn__text">
                 <strong>Return to Rover</strong>
-                <small>Resume Forklift Driving [ESC]</small>
+                {!showTouchControls && <small className="warehouse-command-btn__subtext">Resume Forklift Driving [ESC]</small>}
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Virtual Joystick & Mobile Action Buttons Layer ── */}
+      {showTouchControls && !isLoading && cameraMode !== 'command' && (
+        <div className="warehouse-touch-layer">
+          {/* Virtual Joystick (Bottom Left) */}
+          <div className="warehouse-touch-zone warehouse-touch-zone--left">
+            <div
+              className="warehouse-joystick-base"
+              ref={joystickBaseRef}
+              onTouchStart={handleJoyTouchStart}
+              onMouseDown={handleJoyMouseDown}
+            >
+              <div className="warehouse-joystick-arrows">
+                <span className="warehouse-joystick-arrow warehouse-joystick-arrow--up">▲</span>
+                <span className="warehouse-joystick-arrow warehouse-joystick-arrow--down">▼</span>
+                <span className="warehouse-joystick-arrow warehouse-joystick-arrow--left">◄</span>
+                <span className="warehouse-joystick-arrow warehouse-joystick-arrow--right">►</span>
+              </div>
+              <div className="warehouse-joystick-knob" ref={joystickKnobRef}>
+                <div className="warehouse-joystick-knob-core" />
+              </div>
+            </div>
+            <span className="warehouse-touch-label">STEER / DRIVE</span>
+          </div>
+
+          {/* Action Buttons Cluster (Bottom Right) */}
+          <div className="warehouse-touch-zone warehouse-touch-zone--right">
+            {/* Secondary Controls Bar */}
+            <div className="warehouse-touch-secondary">
+              <button
+                type="button"
+                className="warehouse-touch-btn warehouse-touch-btn--cam"
+                onTouchStart={(e) => { e.preventDefault(); handleCameraToggle(); }}
+                onClick={handleCameraToggle}
+                title="Change Camera View (C)"
+              >
+                <span className="warehouse-touch-btn__icon">📷</span>
+                <span className="warehouse-touch-btn__label">{cameraMode === 'third' ? '3RD' : '1ST'}</span>
+              </button>
+
+              <button
+                type="button"
+                className="warehouse-touch-btn warehouse-touch-btn--horn"
+                onTouchStart={(e) => { e.preventDefault(); handleHorn(); }}
+                onClick={handleHorn}
+                title="Honk Forklift Horn (H)"
+              >
+                <span className="warehouse-touch-btn__icon">📯</span>
+                <span className="warehouse-touch-btn__label">HORN</span>
+              </button>
+
+              <button
+                type="button"
+                className={`warehouse-touch-btn warehouse-touch-btn--light ${isNight ? 'warehouse-touch-btn--active' : ''}`}
+                onTouchStart={(e) => { e.preventDefault(); toggleDayNight(); }}
+                onClick={toggleDayNight}
+                title="Toggle Facility Lighting"
+              >
+                <span className="warehouse-touch-btn__icon">{isNight ? '🌙' : '☀️'}</span>
+                <span className="warehouse-touch-btn__label">{isNight ? 'NIGHT' : 'DAY'}</span>
+              </button>
+            </div>
+
+            {/* Primary Action Button: Lift / Deliver / Mezzanine */}
+            <button
+              type="button"
+              className={`warehouse-touch-btn warehouse-touch-btn--action ${
+                carried
+                  ? 'warehouse-touch-btn--action-drop'
+                  : isNearMezzanine
+                  ? 'warehouse-touch-btn--action-mez'
+                  : ''
+              }`}
+              onTouchStart={(e) => { e.preventDefault(); handleTouchInteract(); }}
+              onClick={handleTouchInteract}
+              title="Perform Action [E]"
+            >
+              <span className="warehouse-touch-btn__action-icon">
+                {carried ? '📦' : isNearMezzanine ? '⚡' : '🚜'}
+              </span>
+              <div className="warehouse-touch-btn__action-col">
+                <span className="warehouse-touch-btn__action-text">
+                  {carried ? 'DROP CRATE' : isNearMezzanine ? 'ENTER LIFT' : 'LIFT CRATE'}
+                </span>
+                <span className="warehouse-touch-btn__action-sub">
+                  {carried ? '[DELIVER]' : isNearMezzanine ? '[MEZZANINE]' : '[ACTION]'}
+                </span>
               </div>
             </button>
           </div>
