@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import {
   SIGNAL_TOWERS, DATA_CACHES, SKILL_MODULES, RAMP_SIZE, GRAPPLE_POSTS, LOOSE_PROPS,
-  PIZZA_RUN, VIP_TERMINAL, BUG_HOME, SFX, DEV_QUOTES,
+  PIZZA_RUN, VIP_TERMINAL, SHIFT_TERMINAL, BUG_HOME, SFX, DEV_QUOTES, ZONES, WORLD,
 } from './roverContent';
 
 const ROVER_RADIUS = 1.9;
@@ -103,11 +103,14 @@ export function createRoverWorld({ scene, colliders, forklift, chassis, state, f
     }
     return false;
   };
-  const isFree = (x, z, r) => Math.abs(x) < 96 && Math.abs(z) < 60
+  const isFree = (x, z, r) => Math.abs(x) < WORLD.driveX - 8 && Math.abs(z) < WORLD.driveZ - 8
     && !hitsStatic(x, z, r + 1)
     && !reserved.some((o) => Math.hypot(x - o.x, z - o.z) < o.r + r);
 
-  /** Spiral outward from the authored spot until nothing overlaps. */
+  /**
+   * Layout positions are authored (see roverContent.js) and used as-is.
+   * The outward spiral is only a safety net if a spot is ever blocked.
+   */
   function findFree(x, z, r) {
     for (let ring = 0; ring < 16; ring++) {
       const steps = ring === 0 ? 1 : 10;
@@ -123,6 +126,55 @@ export function createRoverWorld({ scene, colliders, forklift, chassis, state, f
     }
     return { x, z };
   }
+
+  /* ════════ Zones: painted outline, tinted floor, floor lettering and a sign ════════ */
+  function addZone(zone) {
+    const w = zone.x1 - zone.x0, d = zone.z1 - zone.z0;
+    const cx = (zone.x0 + zone.x1) / 2, cz = (zone.z0 + zone.z1) / 2;
+    const flat = (geo, mat, x, y, z) => {
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.position.set(x, y, z);
+      root.add(mesh);
+      return mesh;
+    };
+
+    // Subtle colour wash so the zone reads from a distance
+    flat(new THREE.PlaneGeometry(w, d),
+      new THREE.MeshBasicMaterial({ color: zone.hex, transparent: true, opacity: 0.07, depthWrite: false }), cx, 0.03, cz);
+
+    const lineMat = new THREE.MeshBasicMaterial({ color: zone.hex, transparent: true, opacity: 0.85, depthWrite: false });
+    const t = 0.45;
+    flat(new THREE.PlaneGeometry(w, t), lineMat, cx, 0.05, zone.z0);
+    flat(new THREE.PlaneGeometry(w, t), lineMat, cx, 0.05, zone.z1);
+    flat(new THREE.PlaneGeometry(t, d), lineMat, zone.x0, 0.05, cz);
+    flat(new THREE.PlaneGeometry(t, d), lineMat, zone.x1, 0.05, cz);
+
+    // Floor lettering along the edge that faces the centre cross lane
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024; canvas.height = 112;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = zone.css;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = "92px 'Bebas Neue', 'Arial Narrow', sans-serif";
+    ctx.fillText(zone.name, 512, 60, 1000);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    const letterW = Math.min(w - 6, 22);
+    const facesNorth = cz < 0; // back-half zones are approached heading -z
+    const lettering = flat(
+      new THREE.PlaneGeometry(letterW, letterW * (112 / 1024)),
+      new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.9, depthWrite: false }),
+      cx, 0.06, facesNorth ? zone.z1 - 2.6 : zone.z0 + 2.6,
+    );
+    if (!facesNorth) lettering.rotation.z = Math.PI;
+
+    const sign = makeLabel(zone.name, zone.css, 11);
+    sign.position.set(cx, 10.5, facesNorth ? zone.z1 : zone.z0);
+    root.add(sign);
+  }
+  ZONES.forEach(addZone);
 
   /* ════════ Ramps ════════ */
   const ramps = [];
@@ -243,7 +295,7 @@ export function createRoverWorld({ scene, colliders, forklift, chassis, state, f
       // Slide with friction
       if (Math.abs(p.vx) + Math.abs(p.vz) > 0.05) {
         const nx = p.x + p.vx * dt, nz = p.z + p.vz * dt;
-        if (Math.abs(nx) > 100 || Math.abs(nz) > 64 || hitsStatic(nx, nz, PROP_RADIUS * 0.8)) {
+        if (Math.abs(nx) > WORLD.driveX - 4 || Math.abs(nz) > WORLD.driveZ - 4 || hitsStatic(nx, nz, PROP_RADIUS * 0.8)) {
           p.vx = 0; p.vz = 0;
         } else {
           p.x = nx; p.z = nz;
@@ -574,7 +626,7 @@ export function createRoverWorld({ scene, colliders, forklift, chassis, state, f
     bug.pulled = false;
 
     const nx = bug.x + bug.vx * dt, nz = bug.z + bug.vz * dt;
-    if (Math.abs(nx) > 96 || Math.abs(nz) > 60 || hitsStatic(nx, nz, 1)) {
+    if (Math.abs(nx) > WORLD.driveX - 8 || Math.abs(nz) > WORLD.driveZ - 8 || hitsStatic(nx, nz, 1)) {
       // Blocked: scurry somewhere else
       bug.tx = bug.x + (Math.random() - 0.5) * 40;
       bug.tz = bug.z + (Math.random() - 0.5) * 40;
@@ -587,6 +639,45 @@ export function createRoverWorld({ scene, colliders, forklift, chassis, state, f
     bugGroup.rotation.y = Math.atan2(bug.vx, bug.vz);
     for (let i = 0; i < bugLegs.length; i++) bugLegs[i].rotation.y = Math.sin(elapsed * 22 + i * 2) * 0.5;
     bugHalo.scale.setScalar(1 + Math.sin(elapsed * 4) * 0.15);
+  }
+
+  /* ════════ Shift Terminal: opt-in trigger for the 100k Shift ════════ */
+  const shiftSpot = findFree(SHIFT_TERMINAL.x, SHIFT_TERMINAL.z, 3);
+  const shiftKiosk = new THREE.Group();
+  const shiftScreenMat = new THREE.MeshBasicMaterial({ color: 0x2f6fe0 });
+  const shiftRing = makeFloorRing(0x2f6fe0, SHIFT_TERMINAL.radius - 0.5, SHIFT_TERMINAL.radius);
+  const shiftBeam = makeBeam(0x2f6fe0, 0.7, 30, 0.16);
+  const shiftLabel = makeLabel('⚡ SHIFT TERMINAL — START 100K SHIFT', '#93c5fd', 10);
+  {
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.8, 3.2, 1.1), baseMat);
+    body.position.y = 1.6; body.castShadow = true;
+    const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.1), shiftScreenMat);
+    screen.position.set(0, 2.3, -0.56); screen.rotation.y = Math.PI; // faces the start position
+    shiftLabel.position.y = 5;
+    shiftKiosk.add(body, screen, shiftLabel, shiftBeam, shiftRing);
+  }
+  shiftKiosk.position.set(shiftSpot.x, 0, shiftSpot.z);
+  root.add(shiftKiosk);
+  let nearShiftTerminal = false;
+
+  function setShiftActive(active) {
+    const hex = active ? 0xfbbf24 : 0x2f6fe0;
+    shiftScreenMat.color.setHex(hex);
+    shiftRing.material.color.setHex(hex);
+    shiftBeam.material.color.setHex(hex);
+    shiftLabel.userData.draw(
+      active ? '✕ SHIFT TERMINAL — ABORT SHIFT' : '⚡ SHIFT TERMINAL — START 100K SHIFT',
+      active ? '#fbbf24' : '#93c5fd',
+    );
+  }
+
+  function updateShiftTerminal(elapsed, rx, rz) {
+    shiftRing.material.opacity = 0.55 + Math.sin(elapsed * 3) * 0.25;
+    const near = Math.hypot(rx - shiftSpot.x, rz - shiftSpot.z) < SHIFT_TERMINAL.radius;
+    if (near !== nearShiftTerminal) {
+      nearShiftTerminal = near;
+      bus.emit('shift-near', near);
+    }
   }
 
   /* ════════ Pizza Time (15-second delivery) ════════ */
@@ -699,6 +790,16 @@ export function createRoverWorld({ scene, colliders, forklift, chassis, state, f
 
   /* ════════ Radar overlay ════════ */
   function drawRadar(ctx, toX, toY, elapsed) {
+    ctx.lineWidth = 1;
+    ZONES.forEach((zone) => {
+      ctx.strokeStyle = zone.css;
+      ctx.globalAlpha = 0.55;
+      ctx.strokeRect(toX(zone.x0), toY(zone.z0), toX(zone.x1) - toX(zone.x0), toY(zone.z1) - toY(zone.z0));
+    });
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#93c5fd'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('⚡', toX(shiftSpot.x), toY(shiftSpot.z) + 3);
+
     towers.forEach((t) => {
       const x = toX(t.x), y = toY(t.z);
       ctx.fillStyle = t.repaired ? '#22c55e' : (Math.sin(elapsed * 6) > 0 ? '#ef4444' : '#7f1d1d');
@@ -737,6 +838,7 @@ export function createRoverWorld({ scene, colliders, forklift, chassis, state, f
     updateModules(elapsed, rx, rz);
     updateBug(dt, elapsed, rx, rz);
     updatePizza(dt, elapsed, rx, rz);
+    updateShiftTerminal(elapsed, rx, rz);
   }
 
   /** Resolved entity positions (after free-spot placement) — handy for debugging. */
@@ -748,11 +850,11 @@ export function createRoverWorld({ scene, colliders, forklift, chassis, state, f
     posts: posts.map((p) => ({ x: p.x, z: p.z })),
     props: props.filter((p) => p.alive).map((p) => ({ type: p.type, x: p.x, z: p.z })),
     bug: { x: bug.x, z: bug.z, alive: bug.alive },
-    terminal: terminalSpot, pizzaFrom, pizzaTo,
+    terminal: terminalSpot, shiftTerminal: shiftSpot, pizzaFrom, pizzaTo,
   });
 
   return {
-    layout,
+    layout, setShiftActive,
     update, groundAt, nearestTarget, pull, drawRadar,
     totals: { towers: towers.length, caches: caches.length, modules: modules.length },
   };

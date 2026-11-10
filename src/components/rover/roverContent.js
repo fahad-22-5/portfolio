@@ -1,11 +1,27 @@
 /**
- * Rover mission content.
+ * Rover mission content and world layout.
  * Résumé data is imported from the portfolio sections so the game and the
  * home page can never drift apart.
+ *
+ * World footprint: x ∈ [-190, 190], z ∈ [-75, 75].
+ *   · Core hall  (|x| < 110): open driving space + four mixed districts
+ *   · West wing  (x < -110) : ASRS matrix, plus a tower and a module to find
+ *   · East wing  (x >  110) : racking + Put-to-Light, plus a tower and a module
+ * Every district mixes activities (repair, jump, smash, collect) on purpose;
+ * only the ramps are fixed points the rest is arranged around.
+ * The centre spine (|x| < 30) and the cross lane (z ≈ 4…28) stay clear.
  */
 import { experiences } from '../Experience';
 import { skillCategories } from '../Skills';
 import { publications } from '../Publications';
+
+export const WORLD = {
+  halfW: 190,
+  halfD: 75,
+  /** How far the rover's centre may travel */
+  driveX: 184,
+  driveZ: 68,
+};
 
 const PALETTE = {
   crimson: { hex: 0xdc143c, css: '#dc143c' },
@@ -16,11 +32,20 @@ const PALETTE = {
   green: { hex: 0x4ade80, css: '#4ade80' },
 };
 
-/* ── Work Experience → Signal Towers ── */
+/* ── Districts: painted outline + sign. Place names only — contents are mixed. ── */
+export const ZONES = [
+  { id: 'server-bay', name: 'SERVER BAY', x0: -108, x1: -40, z0: -60, z1: -24, ...PALETTE.crimson },
+  { id: 'rnd-zone', name: 'R&D ZONE', x0: 40, x1: 108, z0: -60, z1: -24, ...PALETTE.cyan },
+  { id: 'trophy-lane-w', name: 'TROPHY LANE', x0: -108, x1: -32, z0: 32, z1: 50, ...PALETTE.gold },
+  { id: 'trophy-lane-e', name: 'TROPHY LANE', x0: 32, x1: 108, z0: 32, z1: 50, ...PALETTE.gold },
+  { id: 'smash-yard', name: 'SMASH YARD', x0: -104, x1: -62, z0: -18, z1: -2, ...PALETTE.magenta },
+];
+
+/* ── Work Experience → Signal Towers: one per region, so each is a trip ── */
 const TOWER_SPOTS = [
-  { x: -22, z: -36, callSign: 'TOWER ALPHA', ...PALETTE.crimson },
-  { x: 40, z: 6, callSign: 'TOWER BRAVO', ...PALETTE.cyan },
-  { x: -34, z: 36, callSign: 'TOWER CHARLIE', ...PALETTE.magenta },
+  { x: -90, z: -42, callSign: 'TOWER ALPHA', ...PALETTE.crimson },   // Server Bay
+  { x: -170, z: -40, callSign: 'TOWER BRAVO', ...PALETTE.cyan },     // far end of the west wing
+  { x: 90, z: -42, callSign: 'TOWER CHARLIE', ...PALETTE.magenta },  // R&D Zone
 ];
 
 export const SIGNAL_TOWERS = experiences.slice(0, TOWER_SPOTS.length).map((job, i) => ({
@@ -36,41 +61,43 @@ export const SIGNAL_TOWERS = experiences.slice(0, TOWER_SPOTS.length).map((job, 
 }));
 
 /* ── Achievements → Data Caches ── */
-// guard: 'ramp' (needs a jump), 'crates' / 'cocoons' (fenced in by breakable props)
+// guard: 'ramp' (needs a jump; x/z is the ramp, the cache floats past its lip),
+//        'crates' / 'cocoons' (fenced in by breakable props)
+const LANE_Z = 41;
 export const DATA_CACHES = [
   {
     id: 'cache-throughput',
-    x: 52, z: 24, guard: 'crates',
+    x: -58, z: -32, guard: 'crates',                       // Server Bay
     icon: '📦',
     title: '100,000+ Parcels a Day',
     detail: 'Architected core sortation services that process 100,000+ parcels daily and sustain peaks of 10,000+ per hour.',
   },
   {
     id: 'cache-madrid',
-    x: 8, z: 44, guard: 'ramp', rampYaw: Math.PI / 2,
+    x: -78, z: LANE_Z, guard: 'ramp', rampYaw: Math.PI / 2, // Trophy Lane west ramp
     icon: '🇪🇸',
     title: 'Madrid On-Site Deployment',
     detail: 'Led a 2.5-month on-site rollout in Spain, integrating sortation software for a major European last-mile logistics provider.',
   },
   {
     id: 'cache-riyadh',
-    x: -52, z: 28, guard: 'cocoons',
+    x: -40, z: LANE_Z, guard: 'cocoons',                    // landing zone of the west ramp
     icon: '🇸🇦',
     title: 'Riyadh PTL Rollout',
     detail: 'Deployed and remotely tested Put-to-Light and conveyor automation for a leading Middle Eastern apparel brand.',
   },
   {
     id: 'cache-frontend',
-    x: 62, z: -14, guard: 'ramp', rampYaw: Math.PI,
+    x: 78, z: LANE_Z, guard: 'ramp', rampYaw: -Math.PI / 2, // Trophy Lane east ramp
     icon: '⚡',
     title: '20% Faster Page Loads',
     detail: 'Cut page-load times by 20% and sped up delivery by 25% on a React ticketing platform.',
   },
   ...publications.map((pub, i) => ({
     id: `cache-pub-${i}`,
-    x: i === 0 ? -8 : 30,
-    z: i === 0 ? -22 : -34,
-    guard: i === 0 ? 'cocoons' : 'crates',
+    x: i === 0 ? 40 : 58,                                   // east ramp landing zone / R&D Zone
+    z: i === 0 ? LANE_Z : -32,
+    guard: i === 0 ? 'crates' : 'cocoons',
     icon: '📜',
     title: `Published · ${pub.journal}`,
     detail: pub.title,
@@ -78,22 +105,22 @@ export const DATA_CACHES = [
   })),
 ].map((c) => ({ points: 150, ...c }));
 
-/* ── Skills → Power-Up Modules ── */
+/* ── Skills → Power-Up Modules: spread across every district and both wings ── */
 // `upgrade` keys are consumed by roverPhysics / roverGrapple / roverWorld.
 const MODULE_BLUEPRINTS = [
-  { x: 0, z: 30, name: '.NET Engine', perk: '+12% top speed', upgrade: { speedMul: 1.12 }, ...PALETTE.crimson },
-  { x: 24, z: -8, name: 'SQL Traction Control', perk: 'Tighter grip, cleaner drifts', upgrade: { gripMul: 1.4 }, ...PALETTE.cyan },
-  { x: -26, z: 8, name: 'Cloud Turbo', perk: 'Boost recharges 60% faster', upgrade: { regenMul: 1.6 }, ...PALETTE.gold },
-  { x: 14, z: -46, name: 'AI Agent Radar', perk: 'Reveals caches & the bug on radar', upgrade: { radar: true }, ...PALETTE.magenta },
+  { x: 56, z: -50, name: '.NET Engine', perk: '+12% top speed', upgrade: { speedMul: 1.12 }, ...PALETTE.crimson },           // R&D Zone
+  { x: -56, z: -52, name: 'SQL Traction Control', perk: 'Tighter grip, cleaner drifts', upgrade: { gripMul: 1.4 }, ...PALETTE.cyan }, // Server Bay
+  { x: -102, z: 41, name: 'Cloud Turbo', perk: 'Boost recharges 60% faster', upgrade: { regenMul: 1.6 }, ...PALETTE.gold },   // run-up to the west ramp
+  { x: 102, z: 41, name: 'AI Agent Radar', perk: 'Reveals caches & the bug on radar', upgrade: { radar: true }, ...PALETTE.magenta }, // run-up to the east ramp
 ];
 
 const BONUS_MODULES = [
   {
-    x: 70, z: 40, name: 'React Booster', perk: 'Boost burns 30% less energy', upgrade: { drainMul: 0.7 }, ...PALETTE.cobalt,
+    x: 174, z: 46, name: 'React Booster', perk: 'Boost burns 30% less energy', upgrade: { drainMul: 0.7 }, ...PALETTE.cobalt, // east wing, past the racking
     title: 'Frontend', skills: ['React.js', 'Tailwind CSS', 'Performance Optimization'],
   },
   {
-    x: -70, z: -40, name: 'Python Grapple', perk: '+40% web-tether range', upgrade: { grappleMul: 1.4 }, ...PALETTE.green,
+    x: -136, z: 34, name: 'Python Grapple', perk: '+40% web-tether range', upgrade: { grappleMul: 1.4 }, ...PALETTE.green,   // west wing, in front of the ASRS
     title: 'ML & Research', skills: ['Python', 'TensorFlow', 'CNN', 'NLP', 'Computer Vision'],
   },
 ];
@@ -110,29 +137,45 @@ export const SKILL_MODULES = [
 /* ── World dressing ── */
 export const RAMP_SIZE = { width: 6, length: 10, height: 2.6 };
 
+// Swing posts sit on lane corners, never in the middle of a lane
 export const GRAPPLE_POSTS = [
-  { x: -12, z: -8 }, { x: 16, z: 26 }, { x: -40, z: 0 }, { x: 44, z: -22 }, { x: 0, z: 52 }, { x: 80, z: 10 },
+  { x: -34, z: -20 }, { x: 34, z: -20 }, { x: -34, z: 30 }, { x: 34, z: 30 }, { x: -116, z: 30 }, { x: 116, z: -22 },
 ];
 
+// Loose breakables: the Smash Yard pile, plus small piles guarding modules and towers
 export const LOOSE_PROPS = [
-  { kind: 'crate', x: -6, z: 22 }, { kind: 'crate', x: 20, z: 4 }, { kind: 'cocoon', x: -18, z: 16 },
-  { kind: 'cocoon', x: 34, z: 40 }, { kind: 'crate', x: -44, z: -22 }, { kind: 'cocoon', x: 56, z: 2 },
+  // Smash Yard
+  { kind: 'crate', x: -96, z: -11 }, { kind: 'cocoon', x: -88, z: -11 }, { kind: 'crate', x: -80, z: -11 },
+  { kind: 'cocoon', x: -72, z: -11 }, { kind: 'crate', x: -92, z: -15 }, { kind: 'crate', x: -76, z: -15 },
+  // Gates in front of the two Trophy Lane modules
+  { kind: 'crate', x: -96, z: 38 }, { kind: 'crate', x: -96, z: 44 },
+  { kind: 'cocoon', x: 96, z: 38 }, { kind: 'cocoon', x: 96, z: 44 },
+  // R&D Zone clutter around the .NET Engine
+  { kind: 'crate', x: 62, z: -47 }, { kind: 'cocoon', x: 50, z: -46 },
+  // Server Bay: cocoons webbed around the SQL module
+  { kind: 'cocoon', x: -62, z: -49 }, { kind: 'cocoon', x: -50, z: -50 },
+  // Wings
+  { kind: 'crate', x: -166, z: -30 }, { kind: 'crate', x: 168, z: 42 }, { kind: 'cocoon', x: -130, z: 30 },
 ];
 
+// A full-width sprint: east side of the core hall to the far end of the west wing
 export const PIZZA_RUN = {
   seconds: 15,
-  from: { x: -62, z: 42 },
-  to: { x: 28, z: -20 },
+  from: { x: 84, z: -11 },
+  to: { x: -176, z: 32 },
   storageKey: 'rover.pizzaBest',
 };
 
 export const VIP_TERMINAL = {
-  x: 10, z: 18,
+  x: 16, z: 30,
   email: 'eqbalfahad@gmail.com',
   linkedin: 'https://www.linkedin.com/in/fahadeqbalhashmi/',
 };
 
-export const BUG_HOME = { x: 30, z: 30 };
+/** Drive in and press E (or use the HUD button) to start / abort the 100k Shift. */
+export const SHIFT_TERMINAL = { x: -16, z: 30, radius: 6 };
+
+export const BUG_HOME = { x: 0, z: -46 };
 
 /* ── Comic onomatopoeia (one place to retune wording) ── */
 export const SFX = {
@@ -170,4 +213,3 @@ export const DEV_QUOTES = [
   'Any sufficiently advanced retry policy is indistinguishable from a DDoS.',
   'Real warehouse wisdom: if the light is blinking, somebody already knows. Nobody has told you.',
 ];
-

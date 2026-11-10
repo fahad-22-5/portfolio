@@ -5,6 +5,8 @@ import './WarehouseComic.css';
 import { trackEvent } from '../utils/analytics';
 import { createRoverGame } from './rover/createRoverGame';
 import { createRoverBus } from './rover/roverBus';
+import { createAsrsSystem } from './warehouse/asrsSystem';
+import { WORLD } from './rover/roverContent';
 import RoverHud from './rover/RoverHud';
 import { isStealth, onStealthChange, toggleStealth, useStealth } from '../hooks/useStealthMode';
 
@@ -2409,6 +2411,17 @@ function updateHeaderProximity(sprite, isNear, delta, baseScale = { x: 7.5, y: 1
 }
 
 /* ──────────────────────────────────────
+   WORLD FOOTPRINT
+   The original 220-wide hall is the "core"; two 80-wide wings were added
+   either side (380 x 150 total) and now hold the heavy machinery so the
+   core stays open for driving.
+   ────────────────────────────────────── */
+const HALF_W = WORLD.halfW;   // 190
+const CORE_HALF_W = 110;
+const WING_W = HALF_W - CORE_HALF_W;
+const WING_X = CORE_HALF_W + WING_W / 2; // 150: centre line of each wing
+
+/* ──────────────────────────────────────
    COLLISION — AABB helpers
    ────────────────────────────────────── */
 function makeAABB(cx, cz, hw, hd) {
@@ -2680,6 +2693,13 @@ export default function Warehouse() {
     return window.innerWidth <= 768 || ('ontouchstart' in window);
   });
 
+  // 100k Shift is opt-in: the game boots into Free Roam
+  const [shiftActive, setShiftActive] = useState(false);
+  const shiftActiveRef = useRef(false);
+  const [nearShiftTerminal, setNearShiftTerminal] = useState(false);
+  const nearShiftTerminalRef = useRef(false);
+  const toggleShiftRef = useRef(() => {});
+
   const shiftIndexRef = useRef(0);
   const completedOrdersRef = useRef([]);
   const shiftCompletedRef = useRef(false);
@@ -2890,6 +2910,50 @@ export default function Warehouse() {
     showMessage('⚡ New Shift Started: Order #1 Active!');
   }, [showMessage]);
 
+  const startShift = useCallback(() => {
+    shiftActiveRef.current = true;
+    setShiftActive(true);
+    setShiftIndex(0);
+    setCompletedOrders([]);
+    setActiveMilestone(null);
+    setShiftCompleted(false);
+    setShowShiftCard(true);
+    sceneRef.current.shiftCrates?.spawn();
+    sceneRef.current.rover?.setShiftActive(true);
+    trackEvent('warehouse_shift_started');
+    showMessage('⚡ 100K Shift started! Crates are staged behind the start line.', 4000);
+  }, [showMessage]);
+
+  /** reason: 'abort' (user cancelled) | 'complete' (all orders delivered) */
+  const endShift = useCallback((reason) => {
+    shiftActiveRef.current = false;
+    setShiftActive(false);
+    setCanDrop(false);
+    setMismatchedZone(null);
+    canDropRef.current = false;
+    mismatchedZoneRef.current = null;
+    sceneRef.current.shiftCrates?.despawn();
+    sceneRef.current.rover?.setShiftActive(false);
+    if (reason === 'abort') showMessage('🛑 Shift aborted — crates cleared. Back to Free Roam.', 3500);
+  }, [showMessage]);
+
+  const toggleShift = useCallback(() => {
+    if (shiftActiveRef.current) endShift('abort');
+    else startShift();
+  }, [startShift, endShift]);
+  useEffect(() => { toggleShiftRef.current = toggleShift; }, [toggleShift]);
+
+  // Shift finished: clear the floor again (the celebration card stays up)
+  useEffect(() => {
+    if (shiftCompleted && shiftActiveRef.current) endShift('complete');
+  }, [shiftCompleted, endShift]);
+
+  // Proximity to the Shift Terminal is reported by the rover world
+  useEffect(() => roverBus.on('shift-near', (near) => {
+    nearShiftTerminalRef.current = near;
+    setNearShiftTerminal(near);
+  }), [roverBus]);
+
   // Reveal controls when loading completes
   useEffect(() => {
     if (!isLoading) {
@@ -2987,9 +3051,15 @@ export default function Warehouse() {
       // Shared matrix helper for InstancedMesh setups
       const _instDummy = new THREE.Object3D();
 
-      // ─── 1. Authentic Polished Epoxy Concrete Warehouse Floor (220 x 150 Footprint) ───
-      const floorGeo = new THREE.PlaneGeometry(220, 150);
-      const floorTex = getWarehouseFloorTexture();
+      // ─── 1. Authentic Polished Epoxy Concrete Warehouse Floor (380 x 150 Footprint) ───
+      // One slab for the core hall and both wings. The tile density matches the original
+      // 220-wide floor (7 tiles), and the offset keeps the pattern in the core where it was.
+      const floorGeo = new THREE.PlaneGeometry(HALF_W * 2, 150);
+      const floorTex = getWarehouseFloorTexture().clone();
+      const tilesPerUnit = 7 / (CORE_HALF_W * 2);
+      floorTex.repeat.set(tilesPerUnit * HALF_W * 2, 5);
+      floorTex.offset.x = 1 - ((tilesPerUnit * WING_W) % 1);
+      floorTex.needsUpdate = true;
       const floorMat = new THREE.MeshStandardMaterial({
         map: floorTex,
         roughness: 0.28,
@@ -3003,7 +3073,7 @@ export default function Warehouse() {
       // ─── 2. Industrial Architectural Cladding Building Structure ───
       const wallTexLong = getWarehouseWallTexture().clone();
       wallTexLong.wrapS = THREE.RepeatWrapping;
-      wallTexLong.repeat.set(5.5, 1);
+      wallTexLong.repeat.set(9.5, 1);
       wallTexLong.needsUpdate = true;
 
       const wallTexShort = getWarehouseWallTexture().clone();
@@ -3025,31 +3095,41 @@ export default function Warehouse() {
         side: THREE.FrontSide,
       });
 
+      // Front-wall panels are 155 wide now: own texture repeat so the cladding isn't stretched
+      const wallTexFront = getWarehouseWallTexture().clone();
+      wallTexFront.wrapS = THREE.RepeatWrapping;
+      wallTexFront.repeat.set(3.9, 1);
+      wallTexFront.needsUpdate = true;
+      const wallMatFront = new THREE.MeshStandardMaterial({
+        map: wallTexFront, roughness: 0.45, metalness: 0.35, side: THREE.FrontSide,
+      });
+
       const trimMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6, metalness: 0.4 });
       const safetyYellowMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.35, metalness: 0.3 });
 
       // Back Wall (Z = -75)
-      const backWall = new THREE.Mesh(new THREE.PlaneGeometry(220, 25), wallMatLong);
+      const backWall = new THREE.Mesh(new THREE.PlaneGeometry(HALF_W * 2, 25), wallMatLong);
       backWall.position.set(0, 12.5, -75); backWall.receiveShadow = true; scene.add(backWall);
-      const trimBack = new THREE.Mesh(new THREE.BoxGeometry(220, 1.2, 0.4), trimMat);
+      const trimBack = new THREE.Mesh(new THREE.BoxGeometry(HALF_W * 2, 1.2, 0.4), trimMat);
       trimBack.position.set(0, 0.6, -74.8); scene.add(trimBack);
 
       // Left and Right Corrugated Walls
       const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(150, 25), wallMatShort);
-      leftWall.position.set(-110, 12.5, 0); leftWall.rotation.y = Math.PI / 2; scene.add(leftWall);
+      leftWall.position.set(-HALF_W, 12.5, 0); leftWall.rotation.y = Math.PI / 2; scene.add(leftWall);
       const trimLeft = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 150), trimMat);
-      trimLeft.position.set(-109.8, 0.6, 0); scene.add(trimLeft);
+      trimLeft.position.set(-HALF_W + 0.2, 0.6, 0); scene.add(trimLeft);
 
       const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(150, 25), wallMatShort);
-      rightWall.position.set(110, 12.5, 0); rightWall.rotation.y = -Math.PI / 2; scene.add(rightWall);
+      rightWall.position.set(HALF_W, 12.5, 0); rightWall.rotation.y = -Math.PI / 2; scene.add(rightWall);
       const trimRight = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 150), trimMat);
-      trimRight.position.set(109.8, 0.6, 0); scene.add(trimRight);
+      trimRight.position.set(HALF_W - 0.2, 0.6, 0); scene.add(trimRight);
 
       // Front Wall with Commercial Loading Docks (Z = 75)
-      const frontLeft = new THREE.Mesh(new THREE.PlaneGeometry(75, 25), wallMatShort);
-      frontLeft.position.set(-72.5, 12.5, 75); frontLeft.rotation.y = Math.PI; scene.add(frontLeft);
-      const frontRight = new THREE.Mesh(new THREE.PlaneGeometry(75, 25), wallMatShort);
-      frontRight.position.set(72.5, 12.5, 75); frontRight.rotation.y = Math.PI; scene.add(frontRight);
+      const frontPanelW = HALF_W - 35;
+      const frontLeft = new THREE.Mesh(new THREE.PlaneGeometry(frontPanelW, 25), wallMatFront);
+      frontLeft.position.set(-(35 + frontPanelW / 2), 12.5, 75); frontLeft.rotation.y = Math.PI; scene.add(frontLeft);
+      const frontRight = new THREE.Mesh(new THREE.PlaneGeometry(frontPanelW, 25), wallMatFront);
+      frontRight.position.set(35 + frontPanelW / 2, 12.5, 75); frontRight.rotation.y = Math.PI; scene.add(frontRight);
 
       // Overhead Header Wall above loading bays
       const dockHeaderWall = new THREE.Mesh(new THREE.PlaneGeometry(70, 7), wallMatShort);
@@ -3614,7 +3694,7 @@ export default function Warehouse() {
       });
 
       // ─── 3. Roof Deck, Instanced Steel Trusses & Air Ducts ───
-      const roofGeo = new THREE.PlaneGeometry(220, 150);
+      const roofGeo = new THREE.PlaneGeometry(HALF_W * 2, 150);
       const roofMat = new THREE.MeshStandardMaterial({
         color: 0x141d28,
         roughness: 0.7,
@@ -3628,12 +3708,13 @@ export default function Warehouse() {
 
       // Structural Open-Web Steel Lattice Trusses (Instanced diagonal struts: 252 meshes -> 1 draw call)
       const trussMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.65, roughness: 0.35 });
-      const trussTopGeo = new THREE.BoxGeometry(220, 0.5, 0.5);
-      const trussBotGeo = new THREE.BoxGeometry(220, 0.4, 0.4);
+      const trussTopGeo = new THREE.BoxGeometry(HALF_W * 2, 0.5, 0.5);
+      const trussBotGeo = new THREE.BoxGeometry(HALF_W * 2, 0.4, 0.4);
       const strutGeo = new THREE.BoxGeometry(0.2, 3.6, 0.2);
 
       const trussZs = [-60, -35, -10, 15, 40, 65];
-      const strutInstanced = new THREE.InstancedMesh(strutGeo, trussMat, trussZs.length * 21 * 2);
+      const strutBays = Math.floor((HALF_W * 2 - 10) / 10); // one bay every 10 units
+      const strutInstanced = new THREE.InstancedMesh(strutGeo, trussMat, trussZs.length * strutBays * 2);
       let strutIdx = 0;
 
       trussZs.forEach((tz) => {
@@ -3642,7 +3723,8 @@ export default function Warehouse() {
         const botChord = new THREE.Mesh(trussBotGeo, trussMat);
         botChord.position.set(0, 21.2, tz); scene.add(botChord);
 
-        for (let tx = -105; tx < 105; tx += 10) {
+        for (let bay = 0; bay < strutBays; bay++) {
+          const tx = -HALF_W + 5 + bay * 10;
           _instDummy.position.set(tx + 2.5, 22.9, tz);
           _instDummy.rotation.set(0, 0, Math.PI / 4);
           _instDummy.updateMatrix();
@@ -3660,13 +3742,15 @@ export default function Warehouse() {
       // Overhead Galvanized Air Conditioning Ventilation Ducts (Instanced rings & hangers)
       const ductMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.75, roughness: 0.25 });
       const ductHangerMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.7 });
-      const ductGeo = new THREE.CylinderGeometry(0.85, 0.85, 210, 16);
+      const ductGeo = new THREE.CylinderGeometry(0.85, 0.85, HALF_W * 2 - 10, 16);
       const ringGeo = new THREE.TorusGeometry(0.92, 0.08, 6, 16);
       const hangerGeo = new THREE.CylinderGeometry(0.04, 0.04, 2.8, 6);
       const diffuserGeo = new THREE.BoxGeometry(1.2, 0.3, 1.2);
 
-      const ringInstanced = new THREE.InstancedMesh(ringGeo, ductMat, 26);
-      const hangerInstanced = new THREE.InstancedMesh(hangerGeo, ductHangerMat, 26);
+      const ductSpan = 180; // rings/hangers every 15 units across ±180
+      const ductRingCount = (Math.floor((ductSpan * 2) / 15) + 1) * 2;
+      const ringInstanced = new THREE.InstancedMesh(ringGeo, ductMat, ductRingCount);
+      const hangerInstanced = new THREE.InstancedMesh(hangerGeo, ductHangerMat, ductRingCount);
       let rhIdx = 0;
 
       [-45, 45].forEach((dx) => {
@@ -3675,7 +3759,7 @@ export default function Warehouse() {
         duct.position.set(0, 22.2, dx);
         scene.add(duct);
 
-        for (let dz = -90; dz <= 90; dz += 15) {
+        for (let dz = -ductSpan; dz <= ductSpan; dz += 15) {
           _instDummy.position.set(dz, 22.2, dx);
           _instDummy.rotation.set(0, Math.PI / 2, 0);
           _instDummy.updateMatrix();
@@ -3711,9 +3795,10 @@ export default function Warehouse() {
       const bollardBandGeo = new THREE.CylinderGeometry(0.21, 0.21, 0.2, 12);
 
       [
-        [-108, -73], [108, -73], [-108, 73], [108, 73],
+        [-HALF_W + 2, -73], [HALF_W - 2, -73], [-HALF_W + 2, 73], [HALF_W - 2, 73],
         [-50, -73], [50, -73], [-50, 73], [50, 73],
-        [-50, 0], [50, 0],
+        [-CORE_HALF_W, -73], [CORE_HALF_W, -73], [-CORE_HALF_W, 73], [CORE_HALF_W, 73],
+        [-CORE_HALF_W, 0], [CORE_HALF_W, 0],
       ].forEach(([x, z]) => {
         const colUpper = new THREE.Mesh(colUpperGeo, colUpperMat);
         colUpper.position.set(x, 14, z); colUpper.castShadow = true; scene.add(colUpper);
@@ -3737,7 +3822,7 @@ export default function Warehouse() {
       const skylightMat = new THREE.MeshStandardMaterial({
         color: 0x93c5fd, transparent: true, opacity: 0.35, roughness: 0.1, metalness: 0.8, side: THREE.DoubleSide,
       });
-      [[-55, -25], [55, -25], [-55, 25], [55, 25]].forEach(([x, z]) => {
+      [[-55, -25], [55, -25], [-55, 25], [55, 25], [-WING_X, 0], [WING_X, 0]].forEach(([x, z]) => {
         const skylight = new THREE.Mesh(skylightGeo, skylightMat);
         skylight.position.set(x, 25.1, z); skylight.rotation.x = Math.PI / 2; scene.add(skylight);
       });
@@ -3792,306 +3877,16 @@ export default function Warehouse() {
         colliders.push(makeAABB(startX, startZ, width / 2 + 0.5, depth / 2 + 0.5));
       };
 
-      createRackRow(75, -22, 36, 4, 12, 3);
-      createRackRow(75, 12, 36, 4, 12, 3);
-      createRackRow(75, 45, 36, 4, 12, 3);
+      // East wing storage block (was mid-hall at x = 75)
+      createRackRow(WING_X, -18, 36, 4, 12, 3);
+      createRackRow(WING_X, 6, 36, 4, 12, 3);
+      createRackRow(WING_X, 30, 36, 4, 12, 3);
 
       // ─── 4. High-Tech 4-Aisle 3D ASRS Matrix with Instanced Structural Framing & 4 Bots ───
-      const createASRS = () => {
-        const asrsGroup = new THREE.Group();
-
-        const railMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.85, roughness: 0.2 });
-        const gearTrackMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9, roughness: 0.3 });
-        const asrsBeamMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.6, roughness: 0.4 });
-        const baseRailMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.3 });
-
-        const rackW = 32;
-        const rackH = 22;
-        const numCols = 7;
-        const numRows = 6;
-        const aisleZs = [10.5, 3.5, -3.5, -10.5];
-
-        const colPostsX = [];
-        for (let c = 0; c <= numCols; c++) {
-          colPostsX.push(-rackW / 2 + c * (rackW / numCols));
-        }
-
-        const slotXs = [];
-        for (let c = 0; c < numCols; c++) {
-          slotXs.push(-rackW / 2 + c * (rackW / numCols) + (rackW / numCols) / 2);
-        }
-
-        // 1. Instanced Double-Sided Vertical Structural Posts & Central Climbing Columns
-        const rackFrameMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.3 });
-        const shelfPlateMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.7, roughness: 0.3 });
-
-        const postInstancesCount = colPostsX.length * aisleZs.length; // 32
-        const centerPostInst = new THREE.InstancedMesh(new THREE.BoxGeometry(0.35, rackH, 0.35), railMat, postInstancesCount);
-        const trackInst = new THREE.InstancedMesh(new THREE.BoxGeometry(0.15, rackH, 0.15), gearTrackMat, postInstancesCount);
-        const sidePostInst = new THREE.InstancedMesh(new THREE.BoxGeometry(0.3, rackH, 0.3), rackFrameMat, postInstancesCount * 2);
-        const topBraceInst = new THREE.InstancedMesh(new THREE.BoxGeometry(0.2, 0.2, 3.2), rackFrameMat, postInstancesCount);
-        centerPostInst.castShadow = true;
-        sidePostInst.castShadow = true;
-
-        let pIdx = 0;
-        let spIdx = 0;
-        colPostsX.forEach((rx) => {
-          aisleZs.forEach((az) => {
-            _instDummy.rotation.set(0, 0, 0);
-
-            _instDummy.position.set(rx, rackH / 2, az);
-            _instDummy.updateMatrix();
-            centerPostInst.setMatrixAt(pIdx, _instDummy.matrix);
-
-            _instDummy.position.set(rx, rackH / 2, az + 0.2);
-            _instDummy.updateMatrix();
-            trackInst.setMatrixAt(pIdx, _instDummy.matrix);
-
-            _instDummy.position.set(rx, rackH + 0.1, az);
-            _instDummy.updateMatrix();
-            topBraceInst.setMatrixAt(pIdx, _instDummy.matrix);
-            pIdx++;
-
-            _instDummy.position.set(rx, rackH / 2, az - 1.5);
-            _instDummy.updateMatrix();
-            sidePostInst.setMatrixAt(spIdx++, _instDummy.matrix);
-
-            _instDummy.position.set(rx, rackH / 2, az + 1.5);
-            _instDummy.updateMatrix();
-            sidePostInst.setMatrixAt(spIdx++, _instDummy.matrix);
-          });
-        });
-        centerPostInst.instanceMatrix.needsUpdate = true;
-        trackInst.instanceMatrix.needsUpdate = true;
-        sidePostInst.instanceMatrix.needsUpdate = true;
-        topBraceInst.instanceMatrix.needsUpdate = true;
-        asrsGroup.add(centerPostInst, trackInst, sidePostInst, topBraceInst);
-
-        // 2. Base Longitudinal Floor Rails for all 4 Aisles
-        const baseRailGeo = new THREE.BoxGeometry(58, 0.14, 0.15);
-        const magTrackGeo = new THREE.BoxGeometry(58, 0.18, 0.25);
-        aisleZs.forEach((az) => {
-          const baseRailOuterL = new THREE.Mesh(baseRailGeo, baseRailMat);
-          baseRailOuterL.position.set(9, 0.07, az - 0.4); asrsGroup.add(baseRailOuterL);
-
-          const baseRailOuterR = new THREE.Mesh(baseRailGeo, baseRailMat);
-          baseRailOuterR.position.set(9, 0.07, az + 0.4); asrsGroup.add(baseRailOuterR);
-
-          const magTrack = new THREE.Mesh(magTrackGeo, gearTrackMat);
-          magTrack.position.set(9, 0.09, az); asrsGroup.add(magTrack);
-        });
-
-        // 3. Complete 2D Grid Floor Rail Track Network
-        const crossRailXs = [...colPostsX, -20, 16, 36];
-        const gridJunctionMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.9, roughness: 0.2 });
-        const ledDotMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-        const crossRailGeo = new THREE.BoxGeometry(0.3, 0.15, 26);
-        const junctionGeo = new THREE.BoxGeometry(0.95, 0.06, 0.95);
-        const ledDotGeo = new THREE.BoxGeometry(0.2, 0.02, 0.2);
-
-        crossRailXs.forEach((rx) => {
-          const crossRail = new THREE.Mesh(crossRailGeo, baseRailMat);
-          crossRail.position.set(rx, 0.08, 0); asrsGroup.add(crossRail);
-
-          aisleZs.forEach((az) => {
-            const junction = new THREE.Mesh(junctionGeo, gridJunctionMat);
-            junction.position.set(rx, 0.11, az); asrsGroup.add(junction);
-
-            const ledDot = new THREE.Mesh(ledDotGeo, ledDotMat);
-            ledDot.position.set(rx, 0.15, az); asrsGroup.add(ledDot);
-          });
-        });
-
-        // 4. Double-Sided Rack Shelf Levels & Storage Tote Grid
-        const gridTotes = {};
-        const rowYs = [];
-        const sides = [-1, 1];
-        const blueToteMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3, metalness: 0.2 });
-        const asrsToteGeo = createRoundedBox(1.9, 1.1, 1.6, 0.05, 1);
-        const asrsShelfBeamGeo = new THREE.BoxGeometry(rackW, 0.18, 0.18);
-        const asrsShelfPlateGeo = new THREE.BoxGeometry(rackW, 0.05, 1.4);
-
-        for (let r = 1; r <= numRows; r++) {
-          const ry = r * (rackH / (numRows + 1));
-          rowYs.push(ry);
-
-          aisleZs.forEach((az, aIdx) => {
-            sides.forEach((side) => {
-              const shelfZ = az + side * 1.5;
-
-              const beam = new THREE.Mesh(asrsShelfBeamGeo, asrsBeamMat);
-              beam.position.set(0, ry, shelfZ); asrsGroup.add(beam);
-
-              const shelfPlate = new THREE.Mesh(asrsShelfPlateGeo, shelfPlateMat);
-              shelfPlate.position.set(0, ry + 0.08, shelfZ); asrsGroup.add(shelfPlate);
-
-              for (let c = 0; c < numCols; c++) {
-                const slotX = slotXs[c];
-                const isFilled = (c + r * 2 + (side > 0 ? 1 : 0) + aIdx) % 4 !== 0;
-                if (isFilled) {
-                  const tote = new THREE.Mesh(asrsToteGeo, blueToteMat);
-                  tote.position.set(slotX, ry + 0.65, shelfZ); asrsGroup.add(tote);
-
-                  const toteKey = `aisle_${aIdx}_side_${side}_col_${c}_row_${r}`;
-                  gridTotes[toteKey] = tote;
-                }
-              }
-            });
-          });
-        }
-
-        // Workstation & Middle Station Conveyor System
-        const stationGroup = new THREE.Group();
-
-        const conveyorFrameMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.2 });
-        const conveyorBed = new THREE.Mesh(new THREE.BoxGeometry(22, 0.35, 2.2), conveyorFrameMat);
-        conveyorBed.position.set(0, 1.0, 0); conveyorBed.castShadow = true; stationGroup.add(conveyorBed);
-
-        const rollerGeo = new THREE.CylinderGeometry(0.12, 0.12, 2.1, 12);
-        const rollerMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 });
-        for (let rx = -10; rx <= 10; rx += 1.2) {
-          const roller = new THREE.Mesh(rollerGeo, rollerMat);
-          roller.rotation.x = Math.PI / 2; roller.position.set(rx, 1.2, 0); stationGroup.add(roller);
-        }
-
-        const deskMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.7, roughness: 0.3 });
-        const desk = new THREE.Mesh(new THREE.BoxGeometry(5.5, 1.3, 2.2), deskMat);
-        desk.position.set(0, 0.65, -1.8); desk.castShadow = true; stationGroup.add(desk);
-
-        const monitor = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.0, 0.1), new THREE.MeshStandardMaterial({ color: 0x1e293b, emissive: 0x38bdf8, emissiveIntensity: 0.6 }));
-        monitor.position.set(-1.5, 1.8, -1.8); monitor.rotation.y = 0.25; stationGroup.add(monitor);
-
-        const lightBarMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
-        const lightBar = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.15, 0.15), lightBarMat);
-        lightBar.position.set(0, 2.5, -1.8); stationGroup.add(lightBar);
-
-        const asrsStationSign = createLabelSprite('🤖 ASRS PICK STATION', '#38bdf8', '#0284c7');
-        asrsStationSign.position.set(0, 4.8, -1.8);
-        asrsStationSign.scale.set(0, 0, 0);
-        asrsStationSign.visible = false;
-        stationGroup.add(asrsStationSign);
-
-        // Human Operator Worker
-        const workerGroup = new THREE.Group();
-        const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 });
-        const vestMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.4 });
-        const skinMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.8 });
-        const helmetMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.2 });
-
-        const legs = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.2, 0.5), pantsMat);
-        legs.position.set(0, 0.6, 0); workerGroup.add(legs);
-        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.3, 0.55), vestMat);
-        torso.position.set(0, 1.85, 0); workerGroup.add(torso);
-        const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), skinMat);
-        head.position.set(0, 2.7, 0); workerGroup.add(head);
-        const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.34, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2), helmetMat);
-        helmet.position.set(0, 2.72, 0); workerGroup.add(helmet);
-
-        const armL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 0.2), vestMat);
-        armL.position.set(-0.55, 1.8, 0.3); armL.rotation.x = -Math.PI / 4; workerGroup.add(armL);
-        const armR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 0.2), vestMat);
-        armR.position.set(0.55, 1.8, 0.3); armR.rotation.x = -Math.PI / 4; workerGroup.add(armR);
-
-        workerGroup.position.set(0, 0, -2.8); stationGroup.add(workerGroup);
-
-        const stationLight = new THREE.PointLight(0x10b981, 1.8, 10);
-        stationLight.position.set(0, 3.5, 0); stationGroup.add(stationLight);
-
-        const stationToteMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3 });
-        const stationTote = new THREE.Mesh(createRoundedBox(1.8, 0.95, 1.9, 0.04, 2), stationToteMat);
-        stationTote.position.set(-10, 1.80, 0); stationTote.castShadow = true; stationGroup.add(stationTote);
-
-        stationGroup.position.set(26, 0, 0); asrsGroup.add(stationGroup);
-
-        // Helper function to build 3D Rack Climbing Bot
-        const createClimbingBot = (mainColorHex, ledColorHex) => {
-          const botGroup = new THREE.Group();
-          const chassisMat = new THREE.MeshStandardMaterial({ color: mainColorHex, metalness: 0.7, roughness: 0.3 });
-          const body = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.55, 2.0), chassisMat);
-          body.position.set(0, 0.28, 0); body.castShadow = true; botGroup.add(body);
-
-          const gearMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9 });
-          const gearGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.15, 12);
-          const gearL1 = new THREE.Mesh(gearGeo, gearMat);
-          gearL1.rotation.z = Math.PI / 2; gearL1.position.set(-1.25, 0.28, -0.7); botGroup.add(gearL1);
-          const gearL2 = new THREE.Mesh(gearGeo, gearMat);
-          gearL2.rotation.z = Math.PI / 2; gearL2.position.set(-1.25, 0.28, 0.7); botGroup.add(gearL2);
-          const gearR1 = new THREE.Mesh(gearGeo, gearMat);
-          gearR1.rotation.z = Math.PI / 2; gearR1.position.set(1.25, 0.28, -0.7); botGroup.add(gearR1);
-          const gearR2 = new THREE.Mesh(gearGeo, gearMat);
-          gearR2.rotation.z = Math.PI / 2; gearR2.position.set(1.25, 0.28, 0.7); botGroup.add(gearR2);
-
-          const ledMat = new THREE.MeshBasicMaterial({ color: ledColorHex });
-          const ledStrip = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.08, 0.08), ledMat);
-          ledStrip.position.set(0, 0.45, 1.01); botGroup.add(ledStrip);
-
-          const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), ledMat);
-          beacon.position.set(-0.9, 0.65, -0.7); botGroup.add(beacon);
-
-          const armGroup = new THREE.Group();
-          const forkMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8 });
-          const fork1 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 1.8), forkMat);
-          fork1.position.set(-0.6, 0.62, 0); armGroup.add(fork1);
-          const fork2 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 1.8), forkMat);
-          fork2.position.set(0.6, 0.62, 0); armGroup.add(fork2);
-          botGroup.add(armGroup);
-
-          const toteMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3 });
-          const botTote = new THREE.Mesh(createRoundedBox(1.8, 0.95, 1.9, 0.04, 2), toteMat);
-          botTote.position.set(0, 1.10, 0); botTote.castShadow = true;
-          armGroup.add(botTote);
-
-          return { botGroup, armGroup, botTote, beacon, gearL1, gearL2, gearR1, gearR2 };
-        };
-
-        const bot1 = createClimbingBot(0xeab308, 0xfef08a);
-        bot1.botGroup.position.set(-9.14, 0, aisleZs[1]); asrsGroup.add(bot1.botGroup);
-
-        const bot2 = createClimbingBot(0xf97316, 0xffedd5);
-        bot2.botGroup.position.set(36, 0, aisleZs[1]); asrsGroup.add(bot2.botGroup);
-
-        const bot3 = createClimbingBot(0x10b981, 0xa7f3d0);
-        bot3.botGroup.position.set(-4.57, 0, aisleZs[2]); asrsGroup.add(bot3.botGroup);
-
-        const bot4 = createClimbingBot(0x8b5cf6, 0xddd6fe);
-        bot4.botGroup.position.set(4.57, 0, aisleZs[3]); asrsGroup.add(bot4.botGroup);
-
-        const asrsState = {
-          stage: 0,
-          timer: 0,
-          srcAisleIdx: 0,
-          srcAisleZ: aisleZs[0],
-          srcSide: -1,
-          srcColIdx: 1,
-          srcRowIdx: 4,
-          srcColX: slotXs[1],
-          srcRowY: rowYs[3],
-
-          dstAisleIdx: 3,
-          dstAisleZ: aisleZs[3],
-          dstSide: 1,
-          dstColIdx: 5,
-          dstRowIdx: 5,
-          dstColX: slotXs[5],
-          dstRowY: rowYs[4],
-
-          toteHex: 0x0284c7,
-        };
-
-        const asrsSign = createLabelSprite('🤖 ASRS MATRIX SYSTEM', '#38bdf8', '#0284c7');
-        asrsSign.position.set(0, rackH + 2.5, 0);
-        asrsSign.scale.set(0, 0, 0);
-        asrsSign.visible = false;
-        asrsGroup.add(asrsSign);
-
-        asrsGroup.position.set(-75, 0, 0);
-        scene.add(asrsGroup);
-        colliders.push(makeAABB(-75, 0, 24, 15));
-
-        return { asrsGroup, bot1, bot2, bot3, bot4, stationTote, armL, armR, stationLight, lightBarMat, asrsState, gridTotes, slotXs, rowYs, asrsSign, asrsStationSign };
-      };
-
-      const asrsData = createASRS();
+      // Racking, shuttle bots, conveyor pick station and their animation live in ./warehouse/asrsSystem.js
+      const asrsData = createAsrsSystem({
+        scene, colliders, x: -WING_X, createLabelSprite, createRoundedBox, makeAABB,
+      });
 
       // ─── 4.5 PTL (Put-to-Light) Station — Back-Right Corner (1 Shared Dynamic PointLight) ───
       const createPTL = () => {
@@ -4371,10 +4166,10 @@ export default function Warehouse() {
         flBorderR.position.set(9.0, 0.04, -1.5);
         ptlGroup.add(flBorderR);
 
-        ptlGroup.position.set(75, 0, -50);
+        ptlGroup.position.set(WING_X, 0, -50);
         ptlGroup.rotation.y = Math.atan2(-75, 50);
         scene.add(ptlGroup);
-        colliders.push(makeAABB(75, -50, 9.5, 9.5));
+        colliders.push(makeAABB(WING_X, -50, 9.5, 9.5));
 
         const ptlState = {
           stage: 0,
@@ -4398,24 +4193,17 @@ export default function Warehouse() {
 
       // ─── 5. Branded "Tech Stack" Interactable Containers ───
       const interactableBoxes = [];
-      const boxDefinitions = [
-        { x: -30, z: -35, colorType: TECH_CRATES.DOTNET },
-        { x: 30, z: -35, colorType: TECH_CRATES.MADRID },
-        { x: -30, z: 35, colorType: TECH_CRATES.PLC },
-        { x: 30, z: 35, colorType: TECH_CRATES.RABBITMQ },
-        { x: 0, z: -15, colorType: TECH_CRATES.PTL },
-        { x: 0, z: 15, colorType: TECH_CRATES.PTL },
-        { x: -20, z: -35, colorType: TECH_CRATES.DOTNET },
-        { x: 20, z: -35, colorType: TECH_CRATES.MADRID },
-        { x: -20, z: 35, colorType: TECH_CRATES.PLC },
-        { x: 20, z: 35, colorType: TECH_CRATES.RABBITMQ },
-        { x: -35, z: -15, colorType: TECH_CRATES.RIYADH },
-        { x: -25, z: -15, colorType: TECH_CRATES.RIYADH },
-        { x: -35, z: 20, colorType: TECH_CRATES.RIYADH },
-        { x: -15, z: 25, colorType: TECH_CRATES.RIYADH },
-        { x: -45, z: 0, colorType: TECH_CRATES.RIYADH },
-        { x: -10, z: -40, colorType: TECH_CRATES.RIYADH },
+      // Two of each crate type, parked in a staging grid behind the start line.
+      // They are built once and pooled: startShift() adds them to the scene,
+      // endShift() removes them again (see shiftCrates below).
+      const SHIFT_CRATE_TYPES = [
+        TECH_CRATES.DOTNET, TECH_CRATES.MADRID, TECH_CRATES.PLC,
+        TECH_CRATES.RABBITMQ, TECH_CRATES.PTL, TECH_CRATES.RIYADH,
       ];
+      const boxDefinitions = SHIFT_CRATE_TYPES.flatMap((colorType, col) => [
+        { x: -17.5 + col * 7, z: -22, colorType },
+        { x: -17.5 + col * 7, z: -30, colorType },
+      ]);
 
       const sharedBoxGeo = new THREE.BoxGeometry(1.9, 1.4, 1.9);
       const sharedSkidGeo = new THREE.BoxGeometry(0.2, 0.15, 1.9);
@@ -4498,7 +4286,8 @@ export default function Warehouse() {
         containerGroup.position.set(x, 0, z);
         containerGroup.userData = {
           interactable: true,
-          pickedUp: false,
+          pickedUp: true, // pooled: not on the floor until a shift starts
+          home: { x, z },
           id: idx,
           height: 1.5,
           colorType: colorType,
@@ -4507,9 +4296,21 @@ export default function Warehouse() {
           ledMat,
           boxMesh: boxCarrier
         };
-        scene.add(containerGroup);
         interactableBoxes.push(containerGroup);
       });
+
+      /** After a delivery: back to its staging slot, or out of the world if the shift has ended. */
+      const returnCrateHome = (group) => {
+        const { home } = group.userData;
+        group.position.set(home.x, 0, home.z);
+        if (shiftActiveRef.current) {
+          group.userData.pickedUp = false;
+          scene.add(group);
+        } else {
+          group.userData.pickedUp = true;
+          scene.remove(group);
+        }
+      };
 
       // ─── 6. Side Conveyors ───
       const conveyors = [];
@@ -4551,8 +4352,8 @@ export default function Warehouse() {
         }
       };
 
-      createSideConveyor(-100, 0, 24, Math.PI / 2);
-      createSideConveyor(100, 0, 24, Math.PI / 2);
+      createSideConveyor(-HALF_W + 10, 0, 24, Math.PI / 2);
+      createSideConveyor(HALF_W - 10, 0, 24, Math.PI / 2);
 
       // ─── 6.5 Autonomous Ground AMR Mini-Bots with Obstacle Proximity Safety Stop ───
       const miniBots = [];
@@ -4600,10 +4401,11 @@ export default function Warehouse() {
         return botData;
       };
 
-      createMiniBot(30, -50, [[30, -50], [30, 50], [30, -50]], 0xeab308);
-      createMiniBot(-25, 30, [[-25, 30], [45, 30], [-25, 30]], 0xf97316);
-      createMiniBot(45, -30, [[45, -30], [-25, -30], [45, -30]], 0x10b981);
-      createMiniBot(35, 30, [[35, 30], [35, -30], [-25, -30], [-25, 30], [35, 30]], 0x8b5cf6);
+      // AMRs patrol the wing aisles and the dock apron, clear of the driving lanes and zones
+      createMiniBot(-182, -64, [[-182, -64], [-116, -64], [-182, -64]], 0xeab308);
+      createMiniBot(122, 60, [[122, 60], [122, -32], [122, 60]], 0xf97316);
+      createMiniBot(-100, 56, [[-100, 56], [-40, 56], [-100, 56]], 0x10b981);
+      createMiniBot(100, 56, [[100, 56], [40, 56], [100, 56]], 0x8b5cf6);
 
       // ─── 7. Forklift Vehicle ───
       const forklift = new THREE.Group();
@@ -4683,12 +4485,12 @@ export default function Warehouse() {
       // ─── 8. Tech Stack Delivery Drop Zones ───
       const deliveryZones = [];
       const zoneDefinitions = [
-        { x: -50, z: -55, colorType: TECH_CRATES.DOTNET },
-        { x: -24, z: 62, colorType: TECH_CRATES.RIYADH },
-        { x: 24, z: 62, colorType: TECH_CRATES.MADRID },
-        { x: -50, z: 55, colorType: TECH_CRATES.PLC },
-        { x: 50, z: 55, colorType: TECH_CRATES.RABBITMQ },
-        { x: 60, z: -40, colorType: TECH_CRATES.PTL },
+        { x: -WING_X, z: -50, colorType: TECH_CRATES.DOTNET },   // west wing, behind the ASRS
+        { x: -24, z: 62, colorType: TECH_CRATES.RIYADH },        // dock gate (fixed)
+        { x: 24, z: 62, colorType: TECH_CRATES.MADRID },         // dock gate (fixed)
+        { x: -WING_X, z: 50, colorType: TECH_CRATES.PLC },       // west wing, in front of the ASRS
+        { x: WING_X, z: 56, colorType: TECH_CRATES.RABBITMQ },   // east wing, in front of the racking
+        { x: WING_X - 26, z: -50, colorType: TECH_CRATES.PTL },  // beside the Put-to-Light station
       ];
 
       const padGeo = new THREE.PlaneGeometry(12, 12);
@@ -5116,8 +4918,8 @@ export default function Warehouse() {
       const orbRingMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.6 });
 
       [
-        [-40, 2, -20], [40, 2, -20], [-40, 2, 20], [40, 2, 20],
-        [0, 2, -40], [0, 2, 40], [-80, 2, 0], [80, 2, 0]
+        [-150, 2, 24], [-110, 2, 16], [-70, 2, 16], [-35, 2, 16],
+        [35, 2, 16], [70, 2, 16], [110, 2, 16], [150, 2, 44]
       ].forEach(([x, y, z], i) => {
         const group = new THREE.Group();
         const orb = new THREE.Mesh(orbGeo, orbMat); group.add(orb);
@@ -5142,10 +4944,10 @@ export default function Warehouse() {
       const sunLight = new THREE.DirectionalLight(0xfffaed, 2.8);
       sunLight.position.set(40, 60, 30); sunLight.target.position.set(0, 0, 0);
       sunLight.castShadow = true;
-      sunLight.shadow.mapSize.width = 1024; sunLight.shadow.mapSize.height = 1024;
+      sunLight.shadow.mapSize.width = 2048; sunLight.shadow.mapSize.height = 1024;
       sunLight.shadow.bias = -0.0005;
       sunLight.shadow.camera.near = 5; sunLight.shadow.camera.far = 160;
-      sunLight.shadow.camera.left = -110; sunLight.shadow.camera.right = 110;
+      sunLight.shadow.camera.left = -HALF_W; sunLight.shadow.camera.right = HALF_W;
       sunLight.shadow.camera.top = 80; sunLight.shadow.camera.bottom = -80;
       scene.add(sunLight); scene.add(sunLight.target);
 
@@ -5155,6 +4957,8 @@ export default function Warehouse() {
         [-60, 22, -30], [0, 22, -30], [60, 22, -30],
         [-60, 22, 0], [0, 22, 0], [60, 22, 0],
         [-60, 22, 30], [0, 22, 30], [60, 22, 30],
+        [-WING_X, 22, -30], [-WING_X, 22, 0], [-WING_X, 22, 30],
+        [WING_X, 22, -30], [WING_X, 22, 0], [WING_X, 22, 30],
       ];
 
       const ufoBodyMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5, metalness: 0.8 });
@@ -5188,7 +4992,7 @@ export default function Warehouse() {
       doorLight.position.set(0, 18, 80); doorLight.target.position.set(0, 0, 30);
       scene.add(doorLight); scene.add(doorLight.target);
 
-      const skyGeo = new THREE.SphereGeometry(180, 32, 32);
+      const skyGeo = new THREE.SphereGeometry(280, 32, 32);
       const skyMat = new THREE.MeshBasicMaterial({ color: 0x131a26, side: THREE.BackSide });
       const sky = new THREE.Mesh(skyGeo, skyMat); scene.add(sky);
 
@@ -5216,10 +5020,44 @@ export default function Warehouse() {
         reservedZones: [
           { x: 0, z: 10, r: 9 },
           ...deliveryZones.map((zone) => ({ x: zone.x, z: zone.z, r: 10 })),
-          ...interactableBoxes.map((box) => ({ x: box.position.x, z: box.position.z, r: 4 })),
         ],
       });
       sceneRef.current.rover = rover;
+
+      // ─── 100k Shift crate pool: nothing shift-related is on the floor in Free Roam ───
+      const shiftCrates = {
+        spawn() {
+          interactableBoxes.forEach((group) => {
+            const { home, boxMesh } = group.userData;
+            if (boxMesh.parent !== group) { boxMesh.position.set(0, 0, 0); boxMesh.rotation.set(0, 0, 0); group.add(boxMesh); }
+            group.position.set(home.x, 0, home.z);
+            group.userData.pickedUp = false;
+            scene.add(group);
+          });
+          deliveryZones.forEach((zone) => { zone.padGroup.visible = true; });
+        },
+        despawn() {
+          const game = gameRef.current;
+          if (game.carried && game.carriedGroup) {
+            game.carried.position.set(0, 0, 0);
+            game.carried.rotation.set(0, 0, 0);
+            game.carriedGroup.add(game.carried); // also detaches it from the forks
+          }
+          game.carried = null;
+          game.carriedGroup = null;
+          setCarried(false);
+          setCarriedColor(null);
+          if (madridGateDataRef.current) madridGateDataRef.current.departingCrateGroup = null;
+          if (riyadhGateDataRef.current) riyadhGateDataRef.current.departingCrateGroup = null;
+          interactableBoxes.forEach((group) => {
+            group.userData.pickedUp = true;
+            scene.remove(group);
+          });
+          deliveryZones.forEach((zone) => { zone.padGroup.visible = false; });
+        },
+      };
+      sceneRef.current.shiftCrates = shiftCrates;
+      shiftCrates.despawn(); // default: clean Free Roam
       rover.setStealth(isStealth(), false);
       offStealth = onStealthChange((on) => rover.setStealth(on));
       offScore = roverBus.on('score', (points) => {
@@ -5280,9 +5118,9 @@ export default function Warehouse() {
       let speedFillEl = null;
 
       // Pre-allocated math objects for animate loop (Zero per-frame GC allocations)
-      const _asrsStationPos = new THREE.Vector3(-49, 0, 0);
-      const _asrsMatrixPos = new THREE.Vector3(-75, 0, 0);
-      const _ptlPos = new THREE.Vector3(75, 0, -50);
+      const _asrsStationPos = new THREE.Vector3(asrsData.stationX, 0, 0);
+      const _asrsMatrixPos = new THREE.Vector3(asrsData.matrixX, 0, 0);
+      const _ptlPos = new THREE.Vector3(WING_X, 0, -50);
       const _trolleyLocalPos = new THREE.Vector3(0, 0, 1.8);
       const _scanLocalPos = new THREE.Vector3(3.0, 0, 1.8);
       const _tempVec1 = new THREE.Vector3();
@@ -5311,13 +5149,6 @@ export default function Warehouse() {
       let lastCoordZ = null;
       let lastGpsUpdate = 0;
 
-      const lerpAngle = (a, b, t) => {
-        let diff = (b - a) % (Math.PI * 2);
-        if (diff < -Math.PI) diff += Math.PI * 2;
-        if (diff > Math.PI) diff -= Math.PI * 2;
-        return a + diff * Math.max(0, Math.min(1, t));
-      };
-
       // ─── Animation Loop ───
       const animate = () => {
         animId = requestAnimationFrame(animate);
@@ -5327,416 +5158,8 @@ export default function Warehouse() {
         const keys = keysRef.current;
         const night = nightRef.current;
 
-        // ─── Autonomous 4-Aisle 5D Multi-Bot ASRS System State Machine ───
-        if (asrsData) {
-          const { bot1, bot2, bot3, bot4, stationTote, armL, armR, stationLight, lightBarMat, asrsState, gridTotes, slotXs, rowYs } = asrsData;
-          asrsState.timer += delta;
-
-          const aisleZs = [10.5, 3.5, -3.5, -10.5];
-
-          const SPEED_X = 14.0;
-          const SPEED_Z = 14.0;
-          const SPEED_CLIMB = 8.0;
-          const TURN_TIME = 0.25;
-
-          const trackLen3 = 27.42;
-          const b3Time = (elapsed * 10.0) % (trackLen3 * 2);
-          const b3X = -13.71 + (b3Time <= trackLen3 ? b3Time : trackLen3 * 2 - b3Time);
-          const b3Rot = b3Time <= trackLen3 ? 0 : Math.PI;
-          bot3.botGroup.position.set(b3X, 0, aisleZs[2]);
-          bot3.botGroup.rotation.y = lerpAngle(bot3.botGroup.rotation.y, b3Rot, delta * 10);
-          bot3.botTote.visible = false;
-
-          const trackLen4 = 22.85;
-          const b4Time = ((elapsed * 10.0) + trackLen4) % (trackLen4 * 2);
-          const b4X = -9.14 + (b4Time <= trackLen4 ? b4Time : trackLen4 * 2 - b4Time);
-          const b4Rot = b4Time <= trackLen4 ? 0 : Math.PI;
-          bot4.botGroup.position.set(b4X, 0, aisleZs[3]);
-          bot4.botGroup.rotation.y = lerpAngle(bot4.botGroup.rotation.y, b4Rot, delta * 10);
-          bot4.botTote.visible = false;
-
-          const stationZ = aisleZs[1];
-
-          switch (asrsState.stage) {
-            case 0: {
-              const d1 = Math.abs(16 - (-9.14));
-              const t1 = d1 / SPEED_X;
-              const t2 = TURN_TIME;
-              const dz = Math.abs(asrsState.srcAisleZ - stationZ);
-              const t3 = dz > 0.01 ? dz / SPEED_Z : 0;
-              const t4 = dz > 0.01 ? TURN_TIME : 0;
-              const dx = Math.abs(asrsState.srcColX - 16);
-              const t5 = dx / SPEED_X;
-
-              const timer = asrsState.timer;
-
-              if (timer < t1) {
-                const p = timer / t1;
-                bot1.botGroup.position.set(THREE.MathUtils.lerp(-9.14, 16, p), 0, stationZ);
-                bot1.botGroup.rotation.y = 0;
-              } else if (timer < t1 + t2) {
-                const p = (timer - t1) / t2;
-                const targetZAngle = asrsState.srcAisleZ < stationZ ? -Math.PI / 2 : Math.PI / 2;
-                bot1.botGroup.position.set(16, 0, stationZ);
-                bot1.botGroup.rotation.y = lerpAngle(0, targetZAngle, p);
-              } else if (timer < t1 + t2 + t3) {
-                const p = (timer - t1 - t2) / t3;
-                const targetZAngle = asrsState.srcAisleZ < stationZ ? -Math.PI / 2 : Math.PI / 2;
-                bot1.botGroup.position.set(16, 0, THREE.MathUtils.lerp(stationZ, asrsState.srcAisleZ, p));
-                bot1.botGroup.rotation.y = targetZAngle;
-              } else if (timer < t1 + t2 + t3 + t4) {
-                const p = (timer - t1 - t2 - t3) / t4;
-                const targetZAngle = asrsState.srcAisleZ < stationZ ? -Math.PI / 2 : Math.PI / 2;
-                bot1.botGroup.position.set(16, 0, asrsState.srcAisleZ);
-                bot1.botGroup.rotation.y = lerpAngle(targetZAngle, Math.PI, p);
-              } else if (timer < t1 + t2 + t3 + t4 + t5) {
-                const p = (timer - t1 - t2 - t3 - t4) / t5;
-                bot1.botGroup.position.set(THREE.MathUtils.lerp(16, asrsState.srcColX, p), 0, asrsState.srcAisleZ);
-                bot1.botGroup.rotation.y = Math.PI;
-              } else {
-                asrsState.stage = 1;
-                asrsState.timer = 0;
-              }
-
-              bot1.armGroup.position.z = 0;
-              bot1.botTote.visible = false;
-              stationTote.visible = false;
-
-              bot2.botGroup.position.set(36, 0, stationZ);
-              bot2.botGroup.rotation.y = -Math.PI / 2;
-              bot2.botTote.visible = false;
-              break;
-            }
-
-            case 1: {
-              const side = asrsState.srcSide || -1;
-              const srcToteKey = `aisle_${asrsState.srcAisleIdx}_side_${side}_col_${asrsState.srcColIdx}_row_${asrsState.srcRowIdx}`;
-              const targetSlotTote = gridTotes[srcToteKey];
-
-              const t1 = asrsState.srcRowY / SPEED_CLIMB;
-              const t2 = 0.4;
-              const t3 = TURN_TIME;
-              const t4 = asrsState.srcRowY / SPEED_CLIMB;
-
-              const timer = asrsState.timer;
-
-              if (timer < t1) {
-                const p = timer / t1;
-                bot1.botGroup.position.set(asrsState.srcColX, p * asrsState.srcRowY, asrsState.srcAisleZ);
-                bot1.gearL1.rotation.x = elapsed * 15;
-                bot1.gearR1.rotation.x = elapsed * 15;
-                bot1.botTote.visible = false;
-              } else if (timer < t1 + t2) {
-                const p = (timer - t1) / t2;
-                bot1.botGroup.position.set(asrsState.srcColX, asrsState.srcRowY, asrsState.srcAisleZ);
-                bot1.armGroup.position.z = Math.sin(p * Math.PI) * (side * 1.5);
-                if (p >= 0.5) {
-                  if (targetSlotTote) targetSlotTote.visible = false;
-                  bot1.botTote.visible = true;
-                  bot1.botTote.material.color.setHex(asrsState.toteHex);
-                }
-              } else if (timer < t1 + t2 + t3) {
-                const p = (timer - t1 - t2) / t3;
-                bot1.botGroup.position.set(asrsState.srcColX, asrsState.srcRowY, asrsState.srcAisleZ);
-                bot1.armGroup.position.z = 0;
-                bot1.botTote.visible = true;
-                bot1.botGroup.rotation.y = lerpAngle(Math.PI, 0, p);
-              } else if (timer < t1 + t2 + t3 + t4) {
-                const p = (timer - t1 - t2 - t3) / t4;
-                bot1.botGroup.position.set(asrsState.srcColX, asrsState.srcRowY * (1 - p), asrsState.srcAisleZ);
-                bot1.gearL1.rotation.x = -elapsed * 15;
-                bot1.gearR1.rotation.x = -elapsed * 15;
-                bot1.armGroup.position.z = 0;
-                bot1.botTote.visible = true;
-              } else {
-                asrsState.stage = 2;
-                asrsState.timer = 0;
-              }
-
-              bot2.botGroup.position.set(36, 0, stationZ);
-              bot2.botGroup.rotation.y = -Math.PI / 2;
-              break;
-            }
-
-            case 2: {
-              const dx = Math.abs(16 - asrsState.srcColX);
-              const t1 = dx / SPEED_X;
-              const dz = Math.abs(stationZ - asrsState.srcAisleZ);
-              const t2 = dz > 0.01 ? TURN_TIME : 0;
-              const t3 = dz > 0.01 ? dz / SPEED_Z : 0;
-              const t4 = 0.4;
-
-              const timer = asrsState.timer;
-
-              if (timer < t1) {
-                const p = timer / t1;
-                bot1.botGroup.position.set(THREE.MathUtils.lerp(asrsState.srcColX, 16, p), 0, asrsState.srcAisleZ);
-                bot1.botGroup.rotation.y = 0;
-              } else if (timer < t1 + t2) {
-                const p = (timer - t1) / t2;
-                const targetZAngle = stationZ < asrsState.srcAisleZ ? -Math.PI / 2 : Math.PI / 2;
-                bot1.botGroup.position.set(16, 0, asrsState.srcAisleZ);
-                bot1.botGroup.rotation.y = lerpAngle(0, targetZAngle, p);
-              } else if (timer < t1 + t2 + t3) {
-                const p = (timer - t1 - t2) / t3;
-                const targetZAngle = stationZ < asrsState.srcAisleZ ? -Math.PI / 2 : Math.PI / 2;
-                bot1.botGroup.position.set(16, 0, THREE.MathUtils.lerp(asrsState.srcAisleZ, stationZ, p));
-                bot1.botGroup.rotation.y = targetZAngle;
-              } else if (timer < t1 + t2 + t3 + t4) {
-                const p = (timer - t1 - t2 - t3) / t4;
-                bot1.botGroup.position.set(16, 0, stationZ);
-                bot1.botGroup.rotation.y = -Math.PI / 2;
-                bot1.armGroup.position.z = Math.sin(p * Math.PI) * 1.0;
-                if (p >= 0.5) {
-                  bot1.botTote.visible = false;
-                  stationTote.material.color.setHex(asrsState.toteHex);
-                  stationTote.position.set(-10, 1.80, 0);
-                  stationTote.visible = true;
-                }
-              } else {
-                asrsState.stage = 3;
-                asrsState.timer = 0;
-              }
-
-              bot2.botGroup.position.set(36, 0, stationZ);
-              bot2.botGroup.rotation.y = -Math.PI / 2;
-              break;
-            }
-
-            case 3: {
-              const t1 = Math.abs(16 - (-9.14)) / SPEED_X;
-              const timer = asrsState.timer;
-
-              const slideP = Math.min(1, timer / 1.2);
-              stationTote.position.set(THREE.MathUtils.lerp(-10, 0, slideP), 1.80, 0);
-              stationTote.visible = true;
-              bot1.botTote.visible = false;
-              bot1.armGroup.position.z = 0;
-
-              const b1P = Math.min(1, timer / t1);
-              bot1.botGroup.position.set(THREE.MathUtils.lerp(16, -9.14, b1P), 0, stationZ);
-              bot1.botGroup.rotation.y = Math.PI;
-
-              bot2.botGroup.position.set(36, 0, stationZ);
-              bot2.botGroup.rotation.y = -Math.PI / 2;
-
-              if (timer >= Math.max(t1, 1.2)) {
-                asrsState.stage = 4;
-                asrsState.timer = 0;
-              }
-              break;
-            }
-
-            case 4: {
-              stationTote.position.set(0, 1.80, 0);
-              stationTote.visible = true;
-
-              armL.rotation.x = -Math.PI / 4 + Math.sin(elapsed * 6) * 0.45;
-              armR.rotation.x = -Math.PI / 4 - Math.sin(elapsed * 6) * 0.45;
-              stationLight.intensity = 2.8;
-              lightBarMat.color.setHex(0x10b981);
-
-              bot1.botGroup.position.set(-9.14, 0, stationZ);
-              bot1.botGroup.rotation.y = Math.PI;
-
-              bot2.botGroup.position.set(36, 0, stationZ);
-              bot2.botGroup.rotation.y = -Math.PI / 2;
-
-              if (asrsState.timer >= 2.0) {
-                asrsState.stage = 5;
-                asrsState.timer = 0;
-              }
-              break;
-            }
-
-            case 5: {
-              const p = Math.min(1, asrsState.timer / 1.0);
-              stationTote.position.set(THREE.MathUtils.lerp(0, 10, p), 1.80, 0);
-              stationTote.visible = true;
-
-              stationLight.intensity = 0.8;
-              lightBarMat.color.setHex(0x0284c7);
-
-              bot1.botGroup.position.set(-9.14, 0, stationZ);
-              bot1.botGroup.rotation.y = Math.PI;
-
-              bot2.botGroup.position.set(36, 0, stationZ);
-              bot2.botGroup.rotation.y = -Math.PI / 2;
-
-              if (p >= 1) {
-                asrsState.stage = 6;
-                asrsState.timer = 0;
-              }
-              break;
-            }
-
-            case 6: {
-              const t1 = 0.4;
-              const t2 = TURN_TIME;
-              const timer = asrsState.timer;
-
-              bot1.botGroup.position.set(-9.14, 0, stationZ);
-              bot2.botGroup.position.set(36, 0, stationZ);
-
-              if (timer < t1) {
-                const p = timer / t1;
-                bot2.armGroup.position.z = Math.sin(p * Math.PI) * 1.0;
-                bot2.botGroup.rotation.y = -Math.PI / 2;
-                if (p >= 0.5) {
-                  stationTote.visible = false;
-                  bot2.botTote.visible = true;
-                  bot2.botTote.material.color.setHex(asrsState.toteHex);
-                }
-              } else if (timer < t1 + t2) {
-                const p = (timer - t1) / t2;
-                bot2.armGroup.position.z = 0;
-                bot2.botTote.visible = true;
-                const targetZAngle = asrsState.dstAisleZ < stationZ ? -Math.PI / 2 : Math.PI / 2;
-                bot2.botGroup.rotation.y = lerpAngle(-Math.PI / 2, targetZAngle, p);
-              } else {
-                asrsState.stage = 7;
-                asrsState.timer = 0;
-              }
-              break;
-            }
-
-            case 7: {
-              bot1.botGroup.position.set(-9.14, 0, stationZ);
-
-              const dz = Math.abs(asrsState.dstAisleZ - stationZ);
-              const t1 = dz > 0.01 ? dz / SPEED_Z : 0;
-              const t2 = dz > 0.01 ? TURN_TIME : 0;
-              const dx = Math.abs(asrsState.dstColX - 36);
-              const t3 = dx / SPEED_X;
-
-              const timer = asrsState.timer;
-
-              if (timer < t1) {
-                const p = timer / t1;
-                const targetZAngle = asrsState.dstAisleZ < stationZ ? -Math.PI / 2 : Math.PI / 2;
-                bot2.botGroup.position.set(36, 0, THREE.MathUtils.lerp(stationZ, asrsState.dstAisleZ, p));
-                bot2.botGroup.rotation.y = targetZAngle;
-              } else if (timer < t1 + t2) {
-                const p = (timer - t1) / t2;
-                const targetZAngle = asrsState.dstAisleZ < stationZ ? -Math.PI / 2 : Math.PI / 2;
-                bot2.botGroup.position.set(36, 0, asrsState.dstAisleZ);
-                bot2.botGroup.rotation.y = lerpAngle(targetZAngle, Math.PI, p);
-              } else if (timer < t1 + t2 + t3) {
-                const p = (timer - t1 - t2) / t3;
-                bot2.botGroup.position.set(THREE.MathUtils.lerp(36, asrsState.dstColX, p), 0, asrsState.dstAisleZ);
-                bot2.botGroup.rotation.y = Math.PI;
-              } else {
-                asrsState.stage = 8;
-                asrsState.timer = 0;
-              }
-
-              bot2.armGroup.position.z = 0;
-              bot2.botTote.visible = true;
-              break;
-            }
-
-            case 8: {
-              bot1.botGroup.position.set(-9.14, 0, stationZ);
-
-              const side = asrsState.dstSide || 1;
-              const dstToteKey = `aisle_${asrsState.dstAisleIdx}_side_${side}_col_${asrsState.dstColIdx}_row_${asrsState.dstRowIdx}`;
-              const destSlotTote = gridTotes[dstToteKey];
-
-              const t1 = asrsState.dstRowY / SPEED_CLIMB;
-              const t2 = 0.4;
-              const t3 = TURN_TIME;
-              const t4 = asrsState.dstRowY / SPEED_CLIMB;
-              const dx = Math.abs(36 - asrsState.dstColX);
-              const t5 = dx / SPEED_X;
-              const dz = Math.abs(stationZ - asrsState.dstAisleZ);
-              const t6 = dz > 0.01 ? TURN_TIME : 0;
-              const t7 = dz > 0.01 ? dz / SPEED_Z : 0;
-
-              const timer = asrsState.timer;
-
-              if (timer < t1) {
-                const p = timer / t1;
-                bot2.botGroup.position.set(asrsState.dstColX, p * asrsState.dstRowY, asrsState.dstAisleZ);
-                bot2.gearL1.rotation.x = elapsed * 15;
-                bot2.gearR1.rotation.x = elapsed * 15;
-                bot2.botTote.visible = true;
-              } else if (timer < t1 + t2) {
-                const p = (timer - t1) / t2;
-                bot2.botGroup.position.set(asrsState.dstColX, asrsState.dstRowY, asrsState.dstAisleZ);
-                bot2.armGroup.position.z = Math.sin(p * Math.PI) * (side * 1.5);
-                if (p >= 0.5) {
-                  bot2.botTote.visible = false;
-                  if (destSlotTote) {
-                    destSlotTote.visible = true;
-                    destSlotTote.material.color.setHex(asrsState.toteHex);
-                  }
-                }
-              } else if (timer < t1 + t2 + t3) {
-                const p = (timer - t1 - t2) / t3;
-                bot2.botGroup.position.set(asrsState.dstColX, asrsState.dstRowY, asrsState.dstAisleZ);
-                bot2.armGroup.position.z = 0;
-                bot2.botTote.visible = false;
-                bot2.botGroup.rotation.y = lerpAngle(Math.PI, 0, p);
-              } else if (timer < t1 + t2 + t3 + t4) {
-                const p = (timer - t1 - t2 - t3) / t4;
-                bot2.botGroup.position.set(asrsState.dstColX, asrsState.dstRowY * (1 - p), asrsState.dstAisleZ);
-                bot2.gearL1.rotation.x = -elapsed * 15;
-                bot2.gearR1.rotation.x = -elapsed * 15;
-                bot2.armGroup.position.z = 0;
-                bot2.botTote.visible = false;
-              } else if (timer < t1 + t2 + t3 + t4 + t5) {
-                const p = (timer - t1 - t2 - t3 - t4) / t5;
-                bot2.botGroup.position.set(THREE.MathUtils.lerp(asrsState.dstColX, 36, p), 0, asrsState.dstAisleZ);
-                bot2.botGroup.rotation.y = 0;
-              } else if (timer < t1 + t2 + t3 + t4 + t5 + t6) {
-                const p = (timer - t1 - t2 - t3 - t4 - t5) / t6;
-                const targetZAngle = stationZ < asrsState.dstAisleZ ? -Math.PI / 2 : Math.PI / 2;
-                bot2.botGroup.position.set(36, 0, asrsState.dstAisleZ);
-                bot2.botGroup.rotation.y = lerpAngle(0, targetZAngle, p);
-              } else if (timer < t1 + t2 + t3 + t4 + t5 + t6 + t7) {
-                const p = (timer - t1 - t2 - t3 - t4 - t5 - t6) / t7;
-                const targetZAngle = stationZ < asrsState.dstAisleZ ? -Math.PI / 2 : Math.PI / 2;
-                bot2.botGroup.position.set(36, 0, THREE.MathUtils.lerp(asrsState.dstAisleZ, stationZ, p));
-                bot2.botGroup.rotation.y = targetZAngle;
-              } else {
-                const srcAisleIdx = Math.floor(Math.random() * 4);
-                const srcSide = Math.random() < 0.5 ? -1 : 1;
-                const srcColIdx = Math.floor(Math.random() * 7);
-                const srcRowIdx = Math.floor(Math.random() * 6) + 1;
-
-                const dstAisleIdx = Math.floor(Math.random() * 4);
-                const dstSide = Math.random() < 0.5 ? -1 : 1;
-                const dstColIdx = Math.floor(Math.random() * 7);
-                const dstRowIdx = Math.floor(Math.random() * 6) + 1;
-
-                asrsState.srcAisleIdx = srcAisleIdx;
-                asrsState.srcAisleZ = aisleZs[srcAisleIdx];
-                asrsState.srcSide = srcSide;
-                asrsState.srcColIdx = srcColIdx;
-                asrsState.srcRowIdx = srcRowIdx;
-                asrsState.srcColX = slotXs[srcColIdx];
-                asrsState.srcRowY = rowYs[srcRowIdx - 1];
-
-                asrsState.dstAisleIdx = dstAisleIdx;
-                asrsState.dstAisleZ = aisleZs[dstAisleIdx];
-                asrsState.dstSide = dstSide;
-                asrsState.dstColIdx = dstColIdx;
-                asrsState.dstRowIdx = dstRowIdx;
-                asrsState.dstColX = slotXs[dstColIdx];
-                asrsState.dstRowY = rowYs[dstRowIdx - 1];
-
-                asrsState.toteHex = 0x0284c7;
-
-                asrsState.stage = 0;
-                asrsState.timer = 0;
-              }
-              break;
-            }
-            default:
-              asrsState.stage = 0;
-              asrsState.timer = 0;
-          }
-        }
+        // ─── ASRS shuttles, conveyor and operator ───
+        asrsData.update(delta, elapsed);
 
         // ASRS Overhead Signs Proximity Popups
         if (asrsData) {
@@ -5988,6 +5411,12 @@ export default function Warehouse() {
           interactCooldown = 0.5;
           const game = gameRef.current;
 
+          // Shift Terminal: opt in to / abort the 100k Shift
+          if (nearShiftTerminalRef.current && !game.carried) {
+            toggleShiftRef.current();
+            return;
+          }
+
           // Check if near Mezzanine elevator portal without carrying a crate
           if (isNearMezzanineRef.current && !game.carried) {
             setCameraMode((p) => {
@@ -6150,7 +5579,7 @@ export default function Warehouse() {
                   setScore(game.score);
                   handleCompleteShiftOrder(currentOrder);
                   containerGroup.userData.pickedUp = false;
-                  containerGroup.position.set(-40 + Math.random() * 80, 0, -35 + Math.random() * 70);
+                  returnCrateHome(containerGroup);
                 } else {
                   game.score += 150;
                   setScore(game.score);
@@ -6165,7 +5594,7 @@ export default function Warehouse() {
                   });
                   showMessage(`🎉 TECH DELIVERED! Unlocked ${boxColor.title} (+150 PTS)!`);
                   containerGroup.userData.pickedUp = false;
-                  containerGroup.position.set(-40 + Math.random() * 80, 0, -35 + Math.random() * 70);
+                  returnCrateHome(containerGroup);
                 }
               }
             }
@@ -6233,7 +5662,7 @@ export default function Warehouse() {
               if (mg.departingCrateGroup.position.z > 84.0) {
                 // Safely loaded into truck! Respawn in warehouse
                 mg.departingCrateGroup.userData.pickedUp = false;
-                mg.departingCrateGroup.position.set(-40 + Math.random() * 80, 0, -35 + Math.random() * 70);
+                returnCrateHome(mg.departingCrateGroup);
                 mg.departingCrateGroup = null;
               }
             }
@@ -6283,7 +5712,7 @@ export default function Warehouse() {
               if (rg.departingCrateGroup.position.z > 84.0) {
                 // Safely loaded into truck! Respawn in warehouse
                 rg.departingCrateGroup.userData.pickedUp = false;
-                rg.departingCrateGroup.position.set(-40 + Math.random() * 80, 0, -35 + Math.random() * 70);
+                returnCrateHome(rg.departingCrateGroup);
                 rg.departingCrateGroup = null;
               }
             }
@@ -6430,10 +5859,20 @@ export default function Warehouse() {
             rCtx.strokeStyle = 'rgba(100, 116, 139, 0.5)';
             rCtx.strokeRect(6, 6, rw - 12, rh - 12);
 
-            const toRadarX = (wx) => ((wx + 105) / 210) * (rw - 24) + 12;
-            const toRadarY = (wz) => ((wz + 70) / 140) * (rh - 24) + 12;
+            // Uniform scale so headings and distances read true on the 380 x 150 footprint
+            const radarScale = Math.min((rw - 12) / (HALF_W * 2), (rh - 12) / 150);
+            const toRadarX = (wx) => rw / 2 + wx * radarScale;
+            const toRadarY = (wz) => rh / 2 + wz * radarScale;
 
-            deliveryZones.forEach((z) => {
+            // Wing thresholds
+            rCtx.strokeStyle = 'rgba(250, 204, 21, 0.35)';
+            rCtx.setLineDash([3, 3]);
+            [-CORE_HALF_W, CORE_HALF_W].forEach((wx) => {
+              rCtx.beginPath(); rCtx.moveTo(toRadarX(wx), toRadarY(-75)); rCtx.lineTo(toRadarX(wx), toRadarY(75)); rCtx.stroke();
+            });
+            rCtx.setLineDash([]);
+
+            (shiftActiveRef.current ? deliveryZones : []).forEach((z) => {
               const zx = toRadarX(z.x);
               const zy = toRadarY(z.z);
               const isTarget = carriedCrate && (z.colorType.id === carriedCrate.id);
@@ -6709,7 +6148,7 @@ export default function Warehouse() {
           _targetPos.copy(forklift.position).add(_camOffset);
 
           // Spring Arm: Clamp camera ray to stay safely inside warehouse interior
-          const minX = -104, maxX = 104;
+          const minX = -(HALF_W - 6), maxX = HALF_W - 6;
           const minZ = -69, maxZ = 69;
           const minY = 2.0, maxY = 22.0;
 
@@ -6999,8 +6438,13 @@ export default function Warehouse() {
     }
     game.score = 0;
     setScore(0);
-    restartShift();
-    showMessage('🔄 Position & Shift Reset!');
+    if (shiftActiveRef.current) {
+      restartShift();
+      sceneRef.current.shiftCrates?.spawn(); // back to the staging grid
+      showMessage('🔄 Position & Shift Reset!');
+    } else {
+      showMessage('🔄 Position Reset!');
+    }
   };
 
   const currentOrder = SHIFT_ORDERS[shiftIndex] || null;
@@ -7156,14 +6600,10 @@ export default function Warehouse() {
               <button
                 type="button"
                 className="warehouse-hud__help-btn warehouse-hud__help-btn--shift"
-                onClick={() => setShowShiftCard((p) => !p)}
-                title="Toggle 100k Shift Quest Card"
-                style={{
-                  borderColor: showShiftCard ? 'rgba(245, 158, 11, 0.6)' : 'rgba(100, 116, 139, 0.4)',
-                  color: showShiftCard ? '#fbbf24' : '#94a3b8'
-                }}
+                onClick={toggleShift}
+                title={shiftActive ? 'Abort the 100k Shift and clear its crates' : 'Start the 100k Shift challenge'}
               >
-                ⚡ Shift
+                {shiftActive ? '✕ Abort Shift' : '⚡ Start Shift'}
               </button>
             )}
           </div>
@@ -7223,7 +6663,7 @@ export default function Warehouse() {
             <span className="warehouse-minimap-coords" id="wh-radar-coords">X:0 Z:0</span>
           </div>
           <div className="warehouse-minimap-body" style={{ display: isMinimapCollapsed ? 'none' : 'flex' }}>
-            <canvas id="wh-radar-canvas" width="190" height="130" className="warehouse-radar-canvas" />
+            <canvas id="wh-radar-canvas" width="190" height="84" className="warehouse-radar-canvas" />
           <div className="warehouse-minimap-legend">
             <span>🟣 .NET</span>
             <span style={{ color: '#f59e0b' }}>✈️ MAD</span>
@@ -7292,7 +6732,7 @@ export default function Warehouse() {
           </div>
 
           {/* ── The 100k Shift Mission Card ── */}
-          {currentOrder && !shiftCompleted && showShiftCard && !showTouchControls && (
+          {shiftActive && currentOrder && !shiftCompleted && showShiftCard && !showTouchControls && (
             <div className="warehouse-shift-card">
               <div className="warehouse-shift-card__top">
                 <span className="warehouse-shift-card__badge">⚡ THE 100K SHIFT</span>
@@ -7360,10 +6800,10 @@ export default function Warehouse() {
               ) : (
                 <>OBJECTIVE: Deliver {carriedColor?.subIcon || carriedColor?.icon} <strong style={{ color: carriedColor?.css }}>{carriedColor?.title || carriedColor?.name}</strong> to {carriedColor?.zoneName}!</>
               )
-            ) : currentOrder ? (
+            ) : shiftActive && currentOrder ? (
               <>ORDER #{currentOrder.id}/{SHIFT_ORDERS.length}: Pick up {currentOrder.targetColor.subIcon || currentOrder.targetColor.icon} <strong style={{ color: currentOrder.targetColor.css }}>{currentOrder.targetColor.title}</strong> & deliver to {currentOrder.targetColor.zoneName}</>
             ) : (
-              <>TECH CRATES: Pick up any branded container (🟣 🟠 🔵 🟡 🟢) & deliver to matching zone to unlock Resume details!</>
+              <>FREE ROAM: repair 📡 towers, grab 💎 caches & 🧩 modules all over the floor — or start the 100K Shift at the ⚡ Shift Terminal</>
             )}
           </span>
         </div>
@@ -7434,15 +6874,31 @@ export default function Warehouse() {
               </a>
               <button
                 className="warehouse-milestone-card__btn"
-                onClick={restartShift}
+                onClick={startShift}
               >
                 🔄 Start Another Shift
+              </button>
+              <button
+                className="warehouse-milestone-card__btn"
+                onClick={() => setShiftCompleted(false)}
+              >
+                Free Roam →
               </button>
             </div>
           </div>
         </div>
       )}
 
+
+      {/* Shift Terminal Prompt */}
+      {nearShiftTerminal && cameraMode !== 'command' && !carried && (
+        <div className="warehouse-mezzanine-prompt" onClick={toggleShift}>
+          <span className="warehouse-mezzanine-prompt__icon">{shiftActive ? '🛑' : '⚡'}</span>
+          <span className="warehouse-mezzanine-prompt__text">
+            SHIFT TERMINAL • Press <kbd>E</kbd> to {shiftActive ? 'Abort the Shift' : 'Start the 100K Shift'}
+          </span>
+        </div>
+      )}
 
       {/* Mezzanine Ground Entrance Prompt */}
       {isNearMezzanine && cameraMode !== 'command' && (
@@ -7640,14 +7096,14 @@ export default function Warehouse() {
               title="Perform Action [E]"
             >
               <span className="warehouse-touch-btn__action-icon">
-                {carried ? '📦' : isNearMezzanine ? '⚡' : '🚜'}
+                {carried ? '📦' : nearShiftTerminal ? (shiftActive ? '🛑' : '⚡') : isNearMezzanine ? '⚡' : '🚜'}
               </span>
               <div className="warehouse-touch-btn__action-col">
                 <span className="warehouse-touch-btn__action-text">
-                  {carried ? 'DROP CRATE' : isNearMezzanine ? 'ENTER LIFT' : 'LIFT CRATE'}
+                  {carried ? 'DROP CRATE' : nearShiftTerminal ? (shiftActive ? 'ABORT SHIFT' : 'START SHIFT') : isNearMezzanine ? 'ENTER LIFT' : (shiftActive ? 'LIFT CRATE' : 'INTERACT')}
                 </span>
                 <span className="warehouse-touch-btn__action-sub">
-                  {carried ? '[DELIVER]' : isNearMezzanine ? '[MEZZANINE]' : '[ACTION]'}
+                  {carried ? '[DELIVER]' : nearShiftTerminal ? '[100K SHIFT]' : isNearMezzanine ? '[MEZZANINE]' : '[ACTION]'}
                 </span>
               </div>
             </button>

@@ -57,7 +57,7 @@
 /* Desktop: docked under the radar. Touch: top-left (see .rover-hud--touch). */
 .rover-tracker {
   position: fixed;
-  top: calc(5.8rem + 232px);
+  top: calc(5.8rem + 186px);
   right: 2rem;
   z-index: 89;
   display: flex;

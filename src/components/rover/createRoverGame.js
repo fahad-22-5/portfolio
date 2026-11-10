@@ -143,6 +143,7 @@ export function createRoverGame({
     update,
     setStealth,
     totals: world.totals,
+    setShiftActive: world.setShiftActive,
     drawRadar: world.drawRadar,
     preRender: fx.preRender,
     postRender: fx.postRender,

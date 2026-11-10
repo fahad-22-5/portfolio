@@ -319,7 +319,7 @@
   .warehouse-page .warehouse-hud__controls kbd { min-width: 28px !important; height: 28px !important; }
 }
 /* Hidden legend gives its space back so the shift card moves up */
-.warehouse-page .warehouse-hud__controls--hidden { position: absolute; }
+.warehouse-page .warehouse-hud__controls--hidden { position: absolute; width: max-content; } /* keep its shape while it fades out */
 .warehouse-page .warehouse-hud__label { color: var(--wc-gold) !important; letter-spacing: 2px !important; }
 
 /* Loader status line: wrap instead of truncating the rotating tip */
@@ -335,3 +335,6 @@
   line-height: 1.3;
 }
 .warehouse-page .warehouse-loader__status-pulse { flex-shrink: 0; margin-top: 0.3em; }
+
+/* Radar: the hall is 380 x 150 now, so the map is wide and short (aspect-true) */
+.warehouse-page .warehouse-radar-canvas { height: auto !important; aspect-ratio: 190 / 84; }

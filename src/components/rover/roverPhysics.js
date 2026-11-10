@@ -3,6 +3,8 @@
  * All units are world-units and seconds (frame-rate independent).
  */
 
+import { WORLD } from './roverContent';
+
 export const ROVER_TUNING = {
   maxSpeed: 27,
   reverseFactor: 0.6,
@@ -24,7 +26,7 @@ export const ROVER_TUNING = {
   gravity: 24,
   stepHeight: 0.9,
   stealthSpeedMul: 1.3,
-  bounds: { x: 104, z: 68 },
+  bounds: { x: WORLD.driveX, z: WORLD.driveZ },
 };
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
