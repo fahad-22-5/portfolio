@@ -264,3 +264,15 @@
     text-align: left;
   }
 }
+
+/* Magenta / yellow variants (were missing: card had no top strip or accents) */
+.experience__dot--magenta { background: var(--sv-magenta); }
+.experience__dot--yellow { background: var(--sv-yellow); }
+.experience__card--magenta .experience__card-content::before { background: var(--sv-magenta); }
+.experience__card--yellow .experience__card-content::before { background: var(--sv-yellow); }
+.experience__card--magenta .experience__company { color: var(--sv-magenta); }
+.experience__card--yellow .experience__company { color: var(--sv-yellow); }
+.experience__card--magenta .experience__bullet::before { color: var(--sv-magenta); }
+.experience__card--yellow .experience__bullet::before { color: var(--sv-yellow); }
+.experience__tech-tag--magenta { background: var(--sv-magenta); color: #fff; }
+.experience__tech-tag--yellow { background: var(--sv-yellow); color: #000; }

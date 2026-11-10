@@ -4,10 +4,10 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#e23636" />
+    <meta name="theme-color" content="#dc143c" />
     <meta
       name="description"
-      content="Fahad Eqbal Hashmi — Software Developer. .NET backend engineer building warehouse automation systems. Spider-Verse themed portfolio."
+      content="Fahad Eqbal Hashmi — Software Developer. .NET backend engineer building warehouse automation systems. Comic-book themed portfolio with a playable 3D warehouse rover."
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
@@ -18,9 +18,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Permanent+Marker&family=Kode+Mono:wght@400..700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
 
     <title>Fahad Eqbal Hashmi | Software Developer</title>
+    <!-- First-paint splash (replaced when React mounts). Mirrors src/components/PageLoader.css -->
+    <style>.page-loader { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background-color: #0a0a0f; background-image: radial-gradient(circle, rgba(220, 20, 60, 0.22) 1.2px, transparent 1.6px), linear-gradient(115deg, rgba(220, 20, 60, 0.16) 0 38%, transparent 38% 62%, rgba(47, 111, 224, 0.2) 62%); background-size: 9px 9px, 100% 100%; } .page-loader__card { width: min(380px, 100%); padding: 1.6rem 1.6rem 1.4rem; text-align: center; background: #1a1a2e; border: 3px solid #000; box-shadow: -6px 6px 0 #000, inset 0 5px 0 #dc143c; } .page-loader__tag { display: inline-block; padding: 0.12rem 0.55rem; font-family: 'Bebas Neue', 'Arial Narrow', sans-serif; font-size: 0.9rem; letter-spacing: 1.5px; text-transform: uppercase; color: #000; background: #ffd700; border: 2px solid #000; transform: rotate(-1.5deg); } .page-loader__title { margin: 0.8rem 0 1rem; font-family: 'Bebas Neue', 'Arial Narrow', sans-serif; font-size: clamp(1.8rem, 6vw, 2.6rem); font-weight: 400; line-height: 1; letter-spacing: 2px; text-transform: uppercase; color: #f5f5f5; text-shadow: 3px 3px 0 #dc143c, 5px 5px 0 #000; } .page-loader__bar { height: 14px; overflow: hidden; background: #0f172a; border: 2px solid #000; box-shadow: -2px 2px 0 #000; } .page-loader__fill { width: 100%; height: 100%; background: repeating-linear-gradient(-45deg, #dc143c 0 10px, #ffd700 10px 20px); background-size: 28.28px 100%; animation: page-loader-stripes 0.6s linear infinite; } @keyframes page-loader-stripes { to { background-position: 28.28px 0; } } @media (prefers-reduced-motion: reduce) { .page-loader__fill { animation: none; } }</style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div class="page-loader" role="status">
+        <div class="page-loader__card">
+          <span class="page-loader__tag">⚡ Stand by</span>
+          <h2 class="page-loader__title">Loading portfolio</h2>
+          <div class="page-loader__bar"><div class="page-loader__fill"></div></div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

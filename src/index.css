@@ -1,16 +1,16 @@
 /* ============================================
-   SPIDER-VERSE DESIGN SYSTEM
+   COMIC-VERSE DESIGN SYSTEM (original crimson / cobalt palette)
    ============================================ */
 
 :root {
-  /* --- Spider-Verse Palette --- */
+  /* --- Crimson / Cobalt Palette --- */
   --sv-dark: #0a0a0f;
   --sv-dark-surface: #12121a;
   --sv-dark-card: #1a1a2e;
-  --sv-red: #e23636;
-  --sv-red-glow: #ff4757;
-  --sv-blue: #2c5faa;
-  --sv-blue-glow: #3d7dd8;
+  --sv-red: #dc143c;
+  --sv-red-glow: #ff3b5c;
+  --sv-blue: #0047ab;
+  --sv-blue-glow: #2f6fe0;
   --sv-magenta: #ff2d95;
   --sv-cyan: #00d4ff;
   --sv-yellow: #ffd700;
@@ -88,7 +88,7 @@ body {
   padding: var(--section-padding);
 }
 
-/* Comic heading — bold stroke outline like Spider-Verse titles */
+/* Comic heading — bold stroke outline like classic comic titles */
 .comic-heading {
   font-family: var(--font-comic);
   letter-spacing: 2px;
@@ -233,9 +233,9 @@ a:hover {
 }
 
 /* ============================================
-   SPIDER-WEB CORNER DECORATION
+   WEB CORNER DECORATION
    ============================================ */
-.spider-web-corner {
+.web-corner {
   position: absolute;
   width: 200px;
   height: 200px;
@@ -244,12 +244,12 @@ a:hover {
   z-index: 0;
 }
 
-.spider-web-corner--tl {
+.web-corner--tl {
   top: 0;
   left: 0;
 }
 
-.spider-web-corner--br {
+.web-corner--br {
   bottom: 0;
   right: 0;
   transform: rotate(180deg);
@@ -283,4 +283,28 @@ a:hover {
   border: 3px solid #000;
   box-shadow: -5px 5px 0 #000;
   position: relative;
+}
+
+/* ============================================
+   STEALTH MODE (easter egg: ↑↑↓↓←→←→BA)
+   Dark monochrome take on the whole site.
+   ============================================ */
+html[data-theme='stealth'] {
+  filter: grayscale(1) contrast(1.15) brightness(0.88);
+}
+
+html[data-theme='stealth'] body::after {
+  content: '◼ STEALTH MODE';
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 9999;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: #fff;
+  background: #000;
+  border: 1px solid #fff;
+  pointer-events: none;
 }

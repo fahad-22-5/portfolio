@@ -14,6 +14,8 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import WarehouseBanner from './components/WarehouseBanner';
 import { initGA, trackPageView } from './utils/analytics';
+import { useKonamiStealth } from './hooks/useStealthMode';
+import PageLoader from './components/PageLoader';
 
 const Warehouse = lazy(() => import('./components/Warehouse'));
 
@@ -42,7 +44,7 @@ function HomePage() {
       <Hero />
       <div className="section-divider"></div>
 
-      <PersonaHeader id="spider-man-section" title="Spider-Man" subtitle="Swinging past bugs straight into production" color="red" />
+      <PersonaHeader id="web-weaver-section" title="Web-Weaver" subtitle="Swinging past bugs straight into production" color="red" />
       <Experience />
       <div className="section-divider"></div>
       <Skills />
@@ -51,7 +53,7 @@ function HomePage() {
 
       <div className="section-divider" style={{ margin: '4rem 0' }}></div>
 
-      <PersonaHeader id="peter-parker-section" title="Peter Parker" subtitle="The Guy Behind the Mask" color="blue" />
+      <PersonaHeader id="alter-ego-section" title="Alter Ego" subtitle="The Dev Behind the Mask" color="blue" />
       <About />
       <FunFacts />
       <div className="section-divider"></div>
@@ -63,6 +65,7 @@ function HomePage() {
 
 function App() {
   const location = useLocation();
+  useKonamiStealth();
 
   useEffect(() => {
     initGA();
@@ -78,7 +81,7 @@ function App() {
       <Route
         path="/warehouse"
         element={
-          <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0a0e17' }} />}>
+          <Suspense fallback={<PageLoader label="Opening the warehouse" />}>
             <Warehouse />
           </Suspense>
         }

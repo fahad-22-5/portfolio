@@ -10,9 +10,9 @@ const facts = [
   },
   {
     icon: '🕸️',
-    title: 'Web Slinger',
+    title: 'Web Weaver',
     color: 'red',
-    desc: "Massive Spider-Man nerd. I spend all day building the web, but I'm still extremely disappointed it doesn't let me swing between skyscrapers."
+    desc: "Massive comic-book nerd. I spend all day building the web, but I'm still extremely disappointed it doesn't let me swing between skyscrapers."
   },
   {
     icon: '✈️',

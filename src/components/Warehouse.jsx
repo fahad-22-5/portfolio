@@ -1,7 +1,12 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import * as THREE from 'three';
 import './Warehouse.css';
+import './WarehouseComic.css';
 import { trackEvent } from '../utils/analytics';
+import { createRoverGame } from './rover/createRoverGame';
+import { createRoverBus } from './rover/roverBus';
+import RoverHud from './rover/RoverHud';
+import { isStealth, onStealthChange, toggleStealth, useStealth } from '../hooks/useStealthMode';
 
 /* ──────────────────────────────────────
    HELPER — rounded-box geometry
@@ -2409,9 +2414,6 @@ function updateHeaderProximity(sprite, isNear, delta, baseScale = { x: 7.5, y: 1
 function makeAABB(cx, cz, hw, hd) {
   return { minX: cx - hw, maxX: cx + hw, minZ: cz - hd, maxZ: cz + hd };
 }
-function testAABB(a, b) {
-  return a.minX < b.maxX && a.maxX > b.minX && a.minZ < b.maxZ && a.maxZ > b.minZ;
-}
 
 /* ──────────────────────────────────────
    TECH STACK CRATES (Interactive Resume Deliveries)
@@ -2632,6 +2634,14 @@ export default function Warehouse() {
   const keysRef = useRef({});
   const gameRef = useRef({ score: 0, carried: null, totalCollected: 0 });
 
+  // Rover missions: event bus shared by the game loop and <RoverHud />
+  const roverBusRef = useRef(null);
+  if (!roverBusRef.current) roverBusRef.current = createRoverBus();
+  const roverBus = roverBusRef.current;
+  const popLayerRef = useRef(null);
+  const stealth = useStealth();
+  const secretTapsRef = useRef({ count: 0, at: 0 });
+
   const RESUME_URL = process.env.REACT_APP_RESUME_URL || `${process.env.PUBLIC_URL || ''}/FAHAD_NEW.pdf`;
   const LINKEDIN_URL = "https://www.linkedin.com/in/fahadeqbalhashmi/";
 
@@ -2655,8 +2665,8 @@ export default function Warehouse() {
 
   // Loading Screen State
   const [isLoading, setIsLoading] = useState(true);
-  const [loadingProgress, setLoadingProgress] = useState(15);
-  const [loadingStage, setLoadingStage] = useState('Initializing Digital Twin Telemetry...');
+  const [loadingProgress, setLoadingProgress] = useState(5);
+  const [loadingStage, setLoadingStage] = useState('💥 13.8 billion years ago — Igniting the Big Bang...');
   const [isLoaderMounted, setIsLoaderMounted] = useState(true);
 
   // The 100k Shift State
@@ -2904,41 +2914,46 @@ export default function Warehouse() {
     const startTime = Date.now();
     let isFirstFrame = true;
 
+    // Loading "history of the warehouse": each line is a real milestone, shown once in order
     const LOADING_MESSAGES = [
-      "💻 Works better on PC / Laptop / Tablet for full keyboard & wide-screen view",
-      "📱 On phone: Change orientation to Landscape for dual-stick steering",
-      "🎮 Desktop Controls: WASD to Drive • E to Pick/Deliver • C to Toggle Camera",
-      "🕹️ Touch Controls: Virtual Joystick on left • Action Button on right",
-      "📦 Deliver branded tech crates to their matching architecture zones",
-      "📊 Elevated Mezzanine Control Room available for live telemetry & stats",
-      "Spinning up conveyor belts & sortation lines...",
-      "Calibrating electric forklift kinematics & steering...",
-      "Connecting ASRS automated shuttle matrices...",
-      "Synthesizing high-bay racking systems...",
-      "Establishing PLC telemetry connection...",
-      "Preparing warehouse floor • Launching simulation...",
+      "💥 13.8 billion years ago — Igniting the Big Bang...",
+      "🌍 4.5 billion years ago — Cooling a planet to park a warehouse on...",
+      "⚒️ c. 1200 BC — Iron Age begins: smelting metal for the racking...",
+      "🇪🇸 1479 — Castile & Aragon unite: Spain comes online...",
+      "🏛️ 1561 — Madrid becomes the capital: reserving a dock bay...",
+      "🚜 1917 — The first forklift ancestor rolls out: calibrating steering...",
+      "🇸🇦 1932 — Kingdom of Saudi Arabia founded: connecting the Riyadh hub...",
+      "🚢 1956 — First container ship sails: nailing crates together...",
+      "🟣 2002 — .NET 1.0 ships: compiling the sortation engine...",
+      "🏭 Today — Pouring the warehouse floor • Launching simulation...",
     ];
+    const MESSAGE_INTERVAL_MS = 1300;
+    // Keep the loader up long enough for every line to be read
+    const LOADER_MIN_MS = (LOADING_MESSAGES.length + 1) * MESSAGE_INTERVAL_MS;
 
     let messageIdx = 0;
     setLoadingStage(LOADING_MESSAGES[0]);
 
     const progressTimer = setInterval(() => {
       const elapsed = Date.now() - startTime;
-      const progressRatio = Math.min(1.0, elapsed / 4800);
-      const targetPercent = Math.min(96, Math.floor(15 + progressRatio * 81));
+      const progressRatio = Math.min(1.0, elapsed / (LOADER_MIN_MS - 200));
+      const targetPercent = Math.min(96, Math.floor(5 + progressRatio * 91));
       setLoadingProgress(targetPercent);
     }, 50);
 
     const messageTimer = setInterval(() => {
-      messageIdx = (messageIdx + 1) % (LOADING_MESSAGES.length - 1);
+      if (messageIdx >= LOADING_MESSAGES.length - 1) return; // hold on the last line
+      messageIdx += 1;
       setLoadingStage(LOADING_MESSAGES[messageIdx]);
-    }, 750);
+    }, MESSAGE_INTERVAL_MS);
 
     let animId = null;
     let onKeyDown = null;
     let onKeyUp = null;
     let onResize = null;
     let renderer = null;
+    let offStealth = null;
+    let offScore = null;
 
     // Defer heavy Three.js construction to the next frame/tick
     const initTimer = setTimeout(() => {
@@ -4621,10 +4636,11 @@ export default function Warehouse() {
 
       const wheelGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.4, 16);
       const wheelMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
-      [[-1.1, 0.5, -1.2], [1.1, 0.5, -1.2], [-1.1, 0.5, 1.2], [1.1, 0.5, 1.2]].forEach(([x, y, z]) => {
+      const wheels = [[-1.1, 0.5, -1.2], [1.1, 0.5, -1.2], [-1.1, 0.5, 1.2], [1.1, 0.5, 1.2]].map(([x, y, z]) => {
         const wheel = new THREE.Mesh(wheelGeo, wheelMat);
         wheel.position.set(x, y, z); wheel.rotation.z = Math.PI / 2;
         forklift.add(wheel);
+        return wheel;
       });
 
       const beaconGeo = new THREE.CylinderGeometry(0.15, 0.2, 0.3, 8);
@@ -4655,6 +4671,11 @@ export default function Warehouse() {
       const tailMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xef4444, emissiveIntensity: 0.3 });
       const tailL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.15, 0.1), tailMat); tailL.position.set(-1.0, 1.5, -1.76); forklift.add(tailL);
       const tailR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.15, 0.1), tailMat); tailR.position.set(1.0, 1.5, -1.76); forklift.add(tailR);
+
+      // Sprung chassis: everything except the wheels leans & bounces on the suspension
+      const chassis = new THREE.Group();
+      forklift.children.filter((child) => !wheels.includes(child)).forEach((child) => chassis.add(child));
+      forklift.add(chassis);
 
       forklift.position.set(0, 0, 10);
       scene.add(forklift);
@@ -5171,7 +5192,8 @@ export default function Warehouse() {
       const skyMat = new THREE.MeshBasicMaterial({ color: 0x131a26, side: THREE.BackSide });
       const sky = new THREE.Mesh(skyGeo, skyMat); scene.add(sky);
 
-      const forkliftState = { speed: 0, rotSpeed: 0, maxSpeed: 0.45 };
+      // Driving state (world units / second) — owned by rover/roverPhysics.js
+      const forkliftState = { speed: 0, rotSpeed: 0, maxSpeed: 27 };
 
       sceneRef.current = {
         scene, camera, renderer, forklift, beacon, conveyors, miniBots,
@@ -5183,7 +5205,29 @@ export default function Warehouse() {
       const forkliftHalfW = 1.8;
       const forkliftHalfD = 2.5;
 
-      const validControlKeys = ['w', 'a', 's', 'd', 'e', 'c', 'v', 'h', 'escape', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
+      // ─── Rover missions, physics, grapple & FX (see ./rover) ───
+      const rover = createRoverGame({
+        scene, camera, forklift, chassis, bodyMat, colliders,
+        state: forkliftState,
+        bus: roverBus,
+        popLayer: popLayerRef.current,
+        halfW: forkliftHalfW,
+        halfD: forkliftHalfD,
+        reservedZones: [
+          { x: 0, z: 10, r: 9 },
+          ...deliveryZones.map((zone) => ({ x: zone.x, z: zone.z, r: 10 })),
+          ...interactableBoxes.map((box) => ({ x: box.position.x, z: box.position.z, r: 4 })),
+        ],
+      });
+      sceneRef.current.rover = rover;
+      rover.setStealth(isStealth(), false);
+      offStealth = onStealthChange((on) => rover.setStealth(on));
+      offScore = roverBus.on('score', (points) => {
+        gameRef.current.score += points;
+        setScore(gameRef.current.score);
+      });
+
+      const validControlKeys = ['w', 'a', 's', 'd', 'e', 'f', 'c', 'v', 'h', ' ', 'shift', 'escape', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
 
       onKeyDown = (e) => {
         const key = e.key.toLowerCase();
@@ -5220,7 +5264,7 @@ export default function Warehouse() {
           if (wrongKeyCountRef.current >= 3) {
             wrongKeyCountRef.current = 0;
             revealControlsBriefly(6000);
-            showMessage('💡 Controls revealed! W/A/S/D to drive, E to pick/drop, C for camera!');
+            showMessage('💡 W/A/S/D drive • Shift boost • Space drift • F web-tether • E pick/drop');
           }
         }
       };
@@ -5933,39 +5977,8 @@ export default function Warehouse() {
           }
         }
 
-        // Accelerate / Decelerate (Joystick & Keyboard)
-        const joy = joystickStateRef.current;
-        const joyActive = joy && joy.active;
-        const joyY = joyActive ? joy.y : 0;
-        const joyX = joyActive ? joy.x : 0;
-
-        if (joyActive && Math.abs(joyY) > 0.05) {
-          if (joyY > 0) {
-            forkliftState.speed = Math.min(forkliftState.maxSpeed, forkliftState.speed + (0.95 * delta * Math.min(1, joyY * 1.35)));
-          } else {
-            forkliftState.speed = Math.max(-forkliftState.maxSpeed * 0.7, forkliftState.speed + (0.95 * delta * Math.max(-1, joyY * 1.35)));
-          }
-        } else
-        if (keys['w'] || keys['arrowup']) {
-          forkliftState.speed = Math.min(forkliftState.maxSpeed, forkliftState.speed + 0.9 * delta);
-        } else if (keys['s'] || keys['arrowdown']) {
-          forkliftState.speed = Math.max(-forkliftState.maxSpeed * 0.7, forkliftState.speed - 0.9 * delta);
-        } else {
-          forkliftState.speed *= 0.90;
-        }
-
-        const turnRate = 2.4 * delta;
-        if (joyActive && Math.abs(joyX) > 0.05) {
-          const steerAmount = Math.max(-1, Math.min(1, joyX * 1.25));
-          forkliftState.rotSpeed = -steerAmount * (2.4 * delta);
-        } else if (keys['a'] || keys['arrowleft']) {
-          forkliftState.rotSpeed = turnRate;
-        } else if (keys['d'] || keys['arrowright']) {
-          forkliftState.rotSpeed = -turnRate;
-        } else {
-          forkliftState.rotSpeed = 0;
-        }
-
+        // Drive, grapple, missions & FX (momentum / drift / boost live in ./rover)
+        rover.update(delta, elapsed, keys, joystickStateRef.current);
 
         // Interacting with box or Mezzanine Portal (E key)
         interactCooldown -= delta;
@@ -6006,7 +6019,7 @@ export default function Warehouse() {
               nearest.remove(boxMesh);
               boxMesh.position.set(0, 0.4, 3.2);
               boxMesh.rotation.set(0, 0, 0);
-              forklift.add(boxMesh);
+              chassis.add(boxMesh); // rides on the suspension with the forks
               game.carried = boxMesh;
               game.carriedGroup = nearest;
               setCarried(true);
@@ -6161,37 +6174,6 @@ export default function Warehouse() {
               showMessage(`📦 Unloaded container on floor. Drive to matching ${boxColor.subIcon || boxColor.icon} ${boxColor.zoneName} for Resume reveal!`);
             }
           }
-        }
-
-        // Movement & Collision (Zero Vector3 allocations)
-        const prevX = forklift.position.x;
-        const prevZ = forklift.position.z;
-
-        if (Math.abs(forkliftState.speed) > 0.001) {
-          const moveDir = Math.sign(forkliftState.speed);
-          forklift.rotation.y += forkliftState.rotSpeed * moveDir;
-        } else if (forkliftState.rotSpeed !== 0) {
-          forklift.rotation.y += forkliftState.rotSpeed * 0.75;
-        }
-
-        forklift.position.x += Math.sin(forklift.rotation.y) * forkliftState.speed;
-        forklift.position.z += Math.cos(forklift.rotation.y) * forkliftState.speed;
-
-        forklift.position.x = Math.max(-104, Math.min(104, forklift.position.x));
-        forklift.position.z = Math.max(-68, Math.min(68, forklift.position.z));
-
-        const fAABB = makeAABB(forklift.position.x, forklift.position.z, forkliftHalfW, forkliftHalfD);
-        let collided = false;
-        for (let i = 0; i < colliders.length; i++) {
-          if (testAABB(fAABB, colliders[i])) {
-            collided = true;
-            break;
-          }
-        }
-        if (collided) {
-          forklift.position.x = prevX;
-          forklift.position.z = prevZ;
-          forkliftState.speed *= -0.3;
         }
 
         // Speed gauge
@@ -6533,6 +6515,8 @@ export default function Warehouse() {
               }
             });
 
+            rover.drawRadar(rCtx, toRadarX, toRadarY, elapsed);
+
             const rx = toRadarX(forklift.position.x);
             const ry = toRadarY(forklift.position.z);
             rCtx.save();
@@ -6810,8 +6794,9 @@ export default function Warehouse() {
           _lookTarget.copy(forklift.position).add(_lookDir);
           camera.lookAt(_lookTarget);
         }
-        if (mode !== 'command' && Math.abs(camera.fov - 60) > 0.2) {
-          camera.fov = THREE.MathUtils.lerp(camera.fov, 60, 0.08);
+        const roverFov = rover.fovTarget();
+        if (mode !== 'command' && Math.abs(camera.fov - roverFov) > 0.2) {
+          camera.fov = THREE.MathUtils.lerp(camera.fov, roverFov, 0.08);
           camera.updateProjectionMatrix();
         }
         camera.updateMatrixWorld();
@@ -6883,13 +6868,14 @@ export default function Warehouse() {
           gpsDistEl = null;
         }
 
+        rover.preRender(); // screen shake
         renderer.render(scene, camera);
+        rover.postRender();
 
         if (isFirstFrame) {
           isFirstFrame = false;
           const elapsedLoad = Date.now() - startTime;
-          const minDisplayTime = 5000;
-          const remaining = Math.max(0, minDisplayTime - elapsedLoad);
+          const remaining = Math.max(0, LOADER_MIN_MS - elapsedLoad);
 
           setTimeout(() => {
             if (progressTimer) clearInterval(progressTimer);
@@ -6926,6 +6912,9 @@ export default function Warehouse() {
       if (onKeyDown) window.removeEventListener('keydown', onKeyDown);
       if (onKeyUp) window.removeEventListener('keyup', onKeyUp);
       if (onResize) window.removeEventListener('resize', onResize);
+      if (offStealth) offStealth();
+      if (offScore) offScore();
+      if (sceneRef.current?.rover) sceneRef.current.rover.dispose();
 
       // Full scene traversal cleanup to prevent VRAM memory leaks
       if (sceneRef.current?.scene) {
@@ -6952,7 +6941,7 @@ export default function Warehouse() {
         }
       }
     };
-  }, [showMessage, revealControlsBriefly, handleCompleteShiftOrder]);
+  }, [showMessage, revealControlsBriefly, handleCompleteShiftOrder, roverBus]);
 
   const toggleCamera = () => setCameraMode((p) => (p === 'third' ? 'first' : p === 'first' ? 'command' : 'third'));
   const toggleDayNight = () => setIsNight((p) => !p);
@@ -6972,16 +6961,24 @@ export default function Warehouse() {
     toggleCamera();
   }, []);
 
+  const handleSecretTap = useCallback(() => {
+    const taps = secretTapsRef.current;
+    const now = Date.now();
+    taps.count = now - taps.at < 600 ? taps.count + 1 : 1;
+    taps.at = now;
+    if (taps.count >= 5) {
+      taps.count = 0;
+      toggleStealth();
+    }
+  }, []);
+
   const resetGame = () => {
-    const { forklift, forkliftState, scene } = sceneRef.current;
+    const { forklift, rover, scene } = sceneRef.current;
     if (forklift) {
       forklift.position.set(0, 0, 10);
       forklift.rotation.set(0, 0, 0);
     }
-    if (forkliftState) {
-      forkliftState.speed = 0;
-      forkliftState.rotSpeed = 0;
-    }
+    if (rover) rover.reset();
     const game = gameRef.current;
     if (game.carried && forklift && scene) {
       forklift.remove(game.carried);
@@ -7011,6 +7008,18 @@ export default function Warehouse() {
   return (
     <div className={`warehouse-page ${cameraMode === 'command' ? 'warehouse-page--command' : ''} ${showTouchControls ? 'warehouse-page--touch' : ''} ${isPortrait ? 'warehouse-page--portrait' : ''}`}>
       <div className="warehouse-canvas" ref={mountRef} />
+
+      {/* Comic pop-up words ("THWIP!", "ZAP!") projected from the 3D scene */}
+      <div className="rover-pop-layer" ref={popLayerRef} />
+
+      {/* Rover missions HUD: towers, caches, modules, boost, pizza timer, cards */}
+      <RoverHud
+        bus={roverBus}
+        hidden={cameraMode === 'command' || isLoaderMounted}
+        showTouch={showTouchControls}
+        stealth={stealth}
+        resumeUrl={RESUME_URL}
+      />
 
       {/* ── Portrait Screen Orientation Lock Overlay (Shown only after loading completes) ── */}
       {!isLoading && !isLoaderMounted && (
@@ -7100,6 +7109,12 @@ export default function Warehouse() {
                   <span>•</span>
                   <span><kbd>E</kbd> Pick / Deliver</span>
                   <span>•</span>
+                  <span><kbd>Shift</kbd> Boost</span>
+                  <span>•</span>
+                  <span><kbd>Space</kbd> Drift</span>
+                  <span>•</span>
+                  <span><kbd>F</kbd> Web-Tether</span>
+                  <span>•</span>
                   <span><kbd>H</kbd> Horn</span>
                   <span>•</span>
                   <span><kbd>C</kbd> Camera</span>
@@ -7119,7 +7134,8 @@ export default function Warehouse() {
       {cameraMode !== 'command' && (
         <header className="warehouse-topbar">
           <div className="warehouse-topbar__left">
-            <span className="warehouse-topbar__icon">🏭</span>
+            {/* Secret: tap the factory icon 5× to toggle Stealth Mode (same as the Konami code) */}
+            <span className="warehouse-topbar__icon" onClick={handleSecretTap}>🏭</span>
             <h1 className="warehouse-topbar__title">
               <span className="warehouse-topbar__title-full">Warehouse Simulator</span>
               <span className="warehouse-topbar__title-short">ROVER</span>
@@ -7236,6 +7252,18 @@ export default function Warehouse() {
             <div className="warehouse-hud__key-group">
               <span className="warehouse-hud__label">Interact</span>
               <kbd>E</kbd>
+            </div>
+            <div className="warehouse-hud__key-group">
+              <span className="warehouse-hud__label">Boost</span>
+              <kbd>Shift</kbd>
+            </div>
+            <div className="warehouse-hud__key-group">
+              <span className="warehouse-hud__label">Drift</span>
+              <kbd>Space</kbd>
+            </div>
+            <div className="warehouse-hud__key-group">
+              <span className="warehouse-hud__label">Web</span>
+              <kbd>F</kbd>
             </div>
             <div className="warehouse-hud__key-group">
               <span className="warehouse-hud__label">Camera</span>

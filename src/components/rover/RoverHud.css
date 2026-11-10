@@ -1,0 +1,414 @@
+/* ══════════════════════════════════════════
+   ROVER HUD — comic-panel styling
+   (crimson / cobalt, ink outlines, halftone)
+   ══════════════════════════════════════════ */
+.rover-hud {
+  --ink: #000;
+  --crimson: #dc143c;
+  --cobalt: #2f6fe0;
+  --cyan: #00d4ff;
+  --gold: #ffd700;
+  --panel: #1a1a2e;
+  --halftone: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1.4px) 0 0 / 7px 7px;
+  font-family: 'Space Grotesk', sans-serif;
+  color: #f1f5f9;
+}
+
+/* ── Comic pop-up words (world-anchored) ── */
+.rover-pop-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.rover-pop {
+  position: absolute;
+  font-family: 'Bebas Neue', 'Arial Narrow', sans-serif;
+  font-size: clamp(1.6rem, 3.2vw, 2.8rem);
+  line-height: 1;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  color: #fff;
+  -webkit-text-stroke: 2px #05070c;
+  paint-order: stroke fill;
+  text-shadow: 3px 3px 0 #05070c;
+  padding: 0.1em 0.35em;
+  transform: translate(-50%, -50%) rotate(var(--tilt, -6deg)) scale(0.2);
+  animation: rover-pop 0.95s cubic-bezier(0.2, 1.6, 0.4, 1) forwards;
+}
+
+.rover-pop--crimson { color: #ff3b5c; }
+.rover-pop--cyan { color: #5eeaff; }
+.rover-pop--gold { color: #ffd84a; }
+.rover-pop--green { color: #a3ff5a; }
+.rover-pop--white { color: #fff; }
+
+@keyframes rover-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--tilt)) scale(0.2); }
+  18% { opacity: 1; transform: translate(-50%, -70%) rotate(var(--tilt)) scale(1.25); }
+  35% { transform: translate(-50%, -80%) rotate(var(--tilt)) scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -150%) rotate(var(--tilt)) scale(0.9); }
+}
+
+/* ── Mission tracker ── */
+/* Desktop: docked under the radar. Touch: top-left (see .rover-hud--touch). */
+.rover-tracker {
+  position: fixed;
+  top: calc(5.8rem + 232px);
+  right: 2rem;
+  z-index: 89;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+  max-width: min(340px, 60vw);
+}
+
+.rover-tracker__bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0.8rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #f1f5f9;
+  background: var(--halftone), var(--panel);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: -3px 3px 0 var(--ink), inset 0 4px 0 var(--crimson);
+  cursor: pointer;
+}
+
+.rover-tracker__bar:hover { box-shadow: -3px 3px 0 var(--ink), inset 0 4px 0 var(--cyan); }
+.rover-tracker__stat { white-space: nowrap; }
+.rover-tracker__stat--dim { opacity: 0.35; filter: grayscale(1); }
+.rover-tracker__caret { font-size: 0.6rem; opacity: 0.7; }
+
+.rover-log {
+  width: 100%;
+  max-height: 46vh;
+  overflow-y: auto;
+  padding: 0.7rem 0.85rem;
+  background: var(--halftone), var(--panel);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: -3px 3px 0 var(--ink), inset 0 4px 0 var(--cobalt);
+}
+
+.rover-log h4 {
+  margin: 0.55rem 0 0.3rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: var(--gold);
+}
+
+.rover-log h4:first-child { margin-top: 0; }
+.rover-log h4 small { font-family: 'Space Grotesk', sans-serif; font-size: 0.62rem; color: #94a3b8; letter-spacing: 0; }
+
+.rover-log__row,
+.rover-log__empty {
+  display: block;
+  width: 100%;
+  margin: 0 0 0.2rem;
+  padding: 0.15rem 0;
+  font: inherit;
+  font-size: 0.76rem;
+  text-align: left;
+  color: #e2e8f0;
+  background: none;
+  border: none;
+}
+
+button.rover-log__row:not(:disabled) { cursor: pointer; text-decoration: underline dotted; }
+button.rover-log__row:disabled { color: #f87171; }
+.rover-log__empty { color: #64748b; font-style: italic; }
+
+.rover-skills { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.25rem; }
+
+.rover-skills__chip {
+  padding: 0.12rem 0.45rem;
+  font-family: 'Kode Mono', monospace;
+  font-size: 0.62rem;
+  color: #dbeafe;
+  background: rgba(47, 111, 224, 0.28);
+  border: 1px solid rgba(96, 165, 250, 0.6);
+  border-radius: 0;
+  animation: rover-chip-in 0.4s ease-out;
+}
+
+.rover-skills__chip--more { background: rgba(220, 20, 60, 0.3); border-color: rgba(251, 113, 133, 0.6); }
+
+@keyframes rover-chip-in {
+  from { opacity: 0; transform: translateX(-8px) scale(0.8); }
+}
+
+/* ── Boost meter ── */
+.rover-boost {
+  position: fixed;
+  right: 2rem;
+  bottom: 5.4rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
+.rover-boost__label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  color: var(--cyan);
+}
+
+.rover-boost__bar {
+  width: 120px;
+  height: 8px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1.5px solid var(--ink);
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.rover-boost__fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--cobalt), var(--cyan));
+}
+
+.rover-boost--active .rover-boost__fill { background: linear-gradient(90deg, var(--gold), #fff); }
+.rover-boost--active .rover-boost__label { color: var(--gold); }
+
+/* ── Repair bar ── */
+.rover-repair {
+  position: fixed;
+  left: 50%;
+  bottom: 6.2rem;
+  transform: translateX(-50%);
+  z-index: 12;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.9rem;
+  background: var(--halftone), var(--panel);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: -3px 3px 0 var(--ink), inset 0 4px 0 var(--cyan);
+}
+
+.rover-repair__label { font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 1.5px; color: var(--cyan); white-space: nowrap; }
+.rover-repair__bar { width: 240px; max-width: 60vw; height: 10px; background: #0f172a; border: 1.5px solid var(--ink); border-radius: 0; overflow: hidden; }
+.rover-repair__fill { width: 100%; height: 100%; transform: scaleX(0); transform-origin: left center; background: linear-gradient(90deg, #22c55e, #a3e635); }
+
+/* ── Pizza timer ── */
+.rover-pizza {
+  position: fixed;
+  top: 7rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 92;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.35rem 0.9rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  color: #fff;
+  background: var(--halftone), #c2410c;
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  box-shadow: -4px 4px 0 var(--ink);
+}
+
+.rover-pizza__time { min-width: 3.6ch; }
+.rover-pizza__arrow { fill: #fde68a; transition: transform 0.08s linear; }
+.rover-pizza__dist { font-size: 1.05rem; color: #fde68a; }
+
+/* ── Toasts ── */
+.rover-toasts {
+  position: fixed;
+  left: 1.4rem;
+  bottom: 5.2rem;
+  z-index: 93;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(330px, 78vw);
+  pointer-events: none;
+}
+
+.rover-toast {
+  padding: 0.6rem 0.8rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  background: var(--halftone), var(--panel);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: -4px 4px 0 var(--ink), inset 0 4px 0 var(--gold);
+  animation: rover-toast-in 0.35s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+
+.rover-toast--module { box-shadow: -4px 4px 0 var(--ink), inset 0 4px 0 var(--cyan); }
+
+.rover-toast--quote {
+  color: #0b1020;
+  background: #fffdf5;
+  border-radius: 0;
+  box-shadow: -4px 4px 0 var(--ink), inset 0 4px 0 var(--crimson);
+}
+
+.rover-toast__tag { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 1.5px; color: var(--gold); }
+.rover-toast strong { display: block; font-size: 0.9rem; }
+.rover-toast p { margin: 0.15rem 0 0; color: #cbd5e1; }
+.rover-toast small { color: #94a3b8; }
+.rover-toast p.rover-toast__quote { margin: 0; color: #0b1020; font-weight: 600; }
+
+@keyframes rover-toast-in {
+  from { opacity: 0; transform: translateX(-24px) rotate(-2deg); }
+}
+
+/* ── Cards ── */
+.rover-card-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem;
+  background: rgba(5, 8, 18, 0.72);
+}
+
+.rover-card {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 86vh;
+  overflow-y: auto;
+  padding: 1.5rem 1.5rem 1.2rem;
+  background: var(--halftone), #0f1528;
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  box-shadow: -4px 4px 0 var(--ink), inset 0 4px 0 var(--crimson);
+  animation: rover-card-in 0.35s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.rover-card--vip, .rover-card--pizza { box-shadow: -4px 4px 0 var(--ink), inset 0 4px 0 var(--gold); }
+
+@keyframes rover-card-in {
+  from { opacity: 0; transform: scale(0.85) rotate(-1.5deg); }
+}
+
+.rover-card__tag {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 1.5px;
+  color: #fff;
+  background: var(--crimson);
+  border: 2px solid var(--ink);
+  transform: rotate(-1.5deg);
+}
+
+.rover-card__tag--gold { color: var(--ink); background: var(--gold); }
+
+.rover-card__title {
+  margin: 0.7rem 0 0.2rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  line-height: 1.05;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.rover-card__sub { margin: 0 0 0.8rem; font-size: 0.85rem; color: #93c5fd; }
+.rover-card__list { margin: 0 0 0.9rem; padding-left: 1.1rem; font-size: 0.82rem; line-height: 1.45; color: #dbe4f0; }
+.rover-card__list li { margin-bottom: 0.3rem; }
+.rover-card__list li::marker { color: var(--crimson); }
+
+.rover-card__chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 1rem; }
+.rover-card__chips span { padding: 0.15rem 0.5rem; font-family: 'Kode Mono', monospace; font-size: 0.68rem; color: #dbeafe; background: rgba(47, 111, 224, 0.25); border: 1px solid rgba(96, 165, 250, 0.55); border-radius: 0; }
+
+.rover-card__actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1rem; }
+
+.rover-card__btn,
+.rover-card__close {
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+  text-decoration: none;
+  background: #1e293b;
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  box-shadow: -3px 3px 0 var(--ink);
+  cursor: pointer;
+}
+
+.rover-card__btn--primary { color: var(--ink); background: var(--gold); }
+.rover-card__close { display: block; margin-left: auto; background: var(--cobalt); }
+.rover-card__btn:hover, .rover-card__close:hover { transform: translate(1px, 1px); box-shadow: -2px 2px 0 var(--ink); }
+
+/* ── Touch action buttons ── */
+.rover-touch {
+  position: fixed;
+  right: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rover-touch__btn {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: var(--halftone), var(--panel);
+  border: 2.5px solid var(--ink);
+  box-shadow: -3px 3px 0 var(--ink);
+  border-radius: 50%;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.rover-touch__btn:active { background: var(--cobalt); transform: scale(0.94); }
+.rover-touch__btn--boost { color: var(--gold); }
+.rover-touch__btn--grapple { color: var(--cyan); }
+.rover-touch__icon { font-size: 1.2rem; line-height: 1; }
+.rover-touch__label { font-family: 'Bebas Neue', sans-serif; font-size: 0.62rem; letter-spacing: 1px; }
+
+/* ── Touch layout: keep clear of the joystick (bottom-left) and action cluster (bottom-right) ── */
+.rover-hud--touch .rover-tracker { top: 4.4rem; right: auto; left: 1.4rem; align-items: flex-start; z-index: 91; }
+.rover-hud--touch .rover-skills { justify-content: flex-start; }
+.rover-hud--touch .rover-toasts { left: 50%; bottom: 3rem; transform: translateX(-50%); width: min(330px, 44vw); }
+.rover-hud--touch .rover-boost { right: auto; left: 50%; bottom: 0.8rem; transform: translateX(-50%); align-items: center; }
+.rover-hud--touch .rover-repair { bottom: auto; top: 6.2rem; }
+
+/* ── Small / landscape-phone screens ── */
+@media (max-width: 900px), (max-height: 520px) {
+  .rover-hud--touch .rover-tracker { top: 3.2rem; left: 0.6rem; }
+  .rover-tracker__bar { gap: 0.45rem; padding: 0.25rem 0.5rem; font-size: 0.7rem; }
+  .rover-skills { display: none; }
+  .rover-log { max-height: 55vh; }
+  .rover-toasts, .rover-hud--touch .rover-toasts { left: 50%; bottom: 2.2rem; transform: translateX(-50%); width: min(300px, 42vw); }
+  .rover-toast { padding: 0.4rem 0.6rem; font-size: 0.68rem; }
+  .rover-boost { right: auto; left: 50%; bottom: 0.5rem; transform: translateX(-50%); align-items: center; }
+  .rover-repair, .rover-hud--touch .rover-repair { bottom: auto; top: 3.2rem; }
+  .rover-pizza { top: 3rem; font-size: 1.15rem; }
+  .rover-touch__btn { width: 50px; height: 50px; }
+}

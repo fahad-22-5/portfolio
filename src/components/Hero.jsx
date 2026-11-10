@@ -109,23 +109,39 @@ function Hero() {
           </div>
         </div>
 
-        {/* Right side: Split Face Interactive Image */}
+        {/* Right side: interactive name-tag card (left half → work, right half → about) */}
         <div className="hero__split-face-wrapper" ref={cardRef}>
           <div className="hero__split-face">
-            {/* Split Image */}
-            <img src="/split-face.jpg" alt="Spider-Man and Peter Parker" className="hero__split-img" />
+            {/* "Hello my name is" sticker */}
+            <svg className="hero__nametag-squiggles" viewBox="0 0 320 400" aria-hidden="true">
+              {[[38, 70, -18], [250, 58, 14], [270, 96, 20], [30, 318, 12], [262, 322, -16], [150, 350, 4], [60, 110, -8]].map(([x, y, r], i) => (
+                <path
+                  key={i}
+                  d="M0,0 q6,-8 12,0 t12,0 t12,0"
+                  transform={'translate(' + x + ' ' + y + ') rotate(' + r + ')'}
+                  className={i % 2 ? 'hero__squiggle hero__squiggle--cyan' : 'hero__squiggle'}
+                />
+              ))}
+            </svg>
+            <div className="hero__nametag" role="img" aria-label="Hello, my name is Fahad">
+              <div className="hero__nametag-top">
+                <span className="hero__nametag-hello">HELLO</span>
+                <span className="hero__nametag-sub">my name is</span>
+              </div>
+              <div className="hero__nametag-name"><span>Fahad</span></div>
+            </div>
 
             {/* Clickable halves */}
             <div
               className="hero__split-half hero__split-half--left"
-              onClick={() => document.getElementById('spider-man-section').scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => document.getElementById('web-weaver-section').scrollIntoView({ behavior: 'smooth' })}
               title="View My Work"
             >
               <span className="hero__split-label">WORK</span>
             </div>
             <div
               className="hero__split-half hero__split-half--right"
-              onClick={() => document.getElementById('peter-parker-section').scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => document.getElementById('alter-ego-section').scrollIntoView({ behavior: 'smooth' })}
               title="View About Me"
             >
               <span className="hero__split-label">ME</span>

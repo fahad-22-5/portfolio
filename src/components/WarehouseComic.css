@@ -1,0 +1,337 @@
+/* ══════════════════════════════════════════════════════════════
+   WAREHOUSE — COMIC PANEL THEME LAYER
+   Loaded after Warehouse.css. Restyles every HUD surface (top bar,
+   radar, cards, popups, loader, control center, touch buttons) with
+   the same recipe the portfolio sections and RoverHud use:
+   ink border · hard offset shadow · halftone · colour strip on top.
+   Visual properties only — layout stays in Warehouse.css.
+   ══════════════════════════════════════════════════════════════ */
+.warehouse-page {
+  --wc-ink: #000;
+  --wc-panel: #1a1a2e;
+  --wc-panel-deep: #12121a;
+  --wc-halftone: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1.4px) 0 0 / 7px 7px;
+  --wc-crimson: #dc143c;
+  --wc-cobalt: #2f6fe0;
+  --wc-cyan: #00d4ff;
+  --wc-gold: #ffd700;
+  --wc-green: #4ade80;
+  --wc-accent: var(--wc-crimson);
+}
+
+/* ── Panels ── */
+.warehouse-page :is(
+  .warehouse-score,
+  .warehouse-minimap-container,
+  .warehouse-hud__controls,
+  .warehouse-shift-card,
+  .warehouse-objective,
+  .warehouse-toast,
+  .warehouse-gps-pill,
+  .warehouse-mezzanine-prompt,
+  .warehouse-drop-prompt,
+  .warehouse-milestone-card,
+  .warehouse-loader__card,
+  .warehouse-rotate-prompt__card,
+  .warehouse-command-terminal__header,
+  .warehouse-command-actions
+) {
+  background: var(--wc-halftone), var(--wc-panel) !important;
+  border: 3px solid var(--wc-ink) !important;
+  border-radius: 0 !important;
+  box-shadow: -4px 4px 0 var(--wc-ink), inset 0 4px 0 var(--wc-accent) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Accent strip colour per surface */
+.warehouse-page .warehouse-score,
+.warehouse-page .warehouse-shift-card,
+.warehouse-page .warehouse-loader__card,
+.warehouse-page .warehouse-milestone-card { --wc-accent: var(--wc-gold); }
+.warehouse-page .warehouse-minimap-container,
+.warehouse-page .warehouse-toast,
+.warehouse-page .warehouse-mezzanine-prompt,
+.warehouse-page .warehouse-command-terminal__header,
+.warehouse-page .warehouse-command-actions { --wc-accent: var(--wc-cyan); }
+.warehouse-page .warehouse-objective--deliver { --wc-accent: var(--wc-cyan); }
+.warehouse-page .warehouse-objective--ready,
+.warehouse-page .warehouse-milestone-card--complete { --wc-accent: var(--wc-green); }
+.warehouse-page .warehouse-objective--mismatch { --wc-accent: var(--wc-crimson); }
+
+/* Small pills keep a thinner frame */
+.warehouse-page :is(.warehouse-score, .warehouse-gps-pill, .warehouse-toast, .warehouse-objective, .warehouse-mezzanine-prompt, .warehouse-drop-prompt) {
+  border-width: 2px !important;
+  box-shadow: -3px 3px 0 var(--wc-ink), inset 0 3px 0 var(--wc-accent) !important;
+}
+
+/* ── Headings & labels ── */
+.warehouse-page :is(
+  .warehouse-topbar__title,
+  .warehouse-milestone-card__title,
+  .warehouse-loader__title,
+  .warehouse-rotate-prompt__title,
+  .warehouse-shift-card__title
+) {
+  font-family: 'Bebas Neue', 'Arial Narrow', sans-serif !important;
+  letter-spacing: 1.5px;
+  color: #f5f5f5 !important;
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: 2px 2px 0 var(--wc-ink) !important;
+}
+
+.warehouse-page .warehouse-topbar__title { text-shadow: 3px 3px 0 var(--wc-crimson), 4px 4px 0 var(--wc-ink) !important; }
+
+/* Tilted comic tags */
+.warehouse-page :is(
+  .warehouse-milestone-card__badge,
+  .warehouse-loader__badge,
+  .warehouse-rotate-prompt__badge,
+  .warehouse-shift-card__badge,
+  .warehouse-command-terminal__badge
+) {
+  display: inline-block;
+  padding: 0.12rem 0.55rem !important;
+  font-family: 'Bebas Neue', 'Arial Narrow', sans-serif !important;
+  font-size: 0.9rem !important;
+  font-weight: 400 !important;
+  letter-spacing: 1.5px !important;
+  color: var(--wc-ink) !important;
+  background: var(--wc-gold) !important;
+  border: 2px solid var(--wc-ink) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transform: rotate(-1.5deg);
+}
+
+.warehouse-page .warehouse-command-terminal__badge { color: #fff !important; background: var(--wc-crimson) !important; }
+
+/* ── Buttons ── */
+.warehouse-page :is(
+  .warehouse-back-btn,
+  .warehouse-hud__help-btn,
+  .warehouse-hud__cam-btn,
+  .warehouse-hud__light-btn,
+  .warehouse-hud__reset-btn,
+  .warehouse-milestone-card__btn,
+  .warehouse-rotate-prompt__btn,
+  .warehouse-command-terminal__view-btn,
+  .warehouse-command-terminal__close-btn,
+  .warehouse-command-btn
+) {
+  color: #fff !important;
+  background: var(--wc-panel-deep) !important;
+  border: 2px solid var(--wc-ink) !important;
+  border-radius: 0 !important;
+  box-shadow: -3px 3px 0 var(--wc-ink) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-shadow: none !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+
+.warehouse-page :is(
+  .warehouse-back-btn,
+  .warehouse-hud__help-btn,
+  .warehouse-hud__cam-btn,
+  .warehouse-hud__light-btn,
+  .warehouse-hud__reset-btn,
+  .warehouse-milestone-card__btn,
+  .warehouse-rotate-prompt__btn,
+  .warehouse-command-terminal__view-btn,
+  .warehouse-command-terminal__close-btn,
+  .warehouse-command-btn
+):hover {
+  transform: translate(-2px, 2px) !important;
+  box-shadow: -1px 1px 0 var(--wc-ink) !important;
+}
+
+.warehouse-page .warehouse-milestone-card__btn,
+.warehouse-page .warehouse-command-btn--return { background: var(--wc-cobalt) !important; }
+.warehouse-page .warehouse-milestone-card__btn--portfolio,
+.warehouse-page .warehouse-command-btn--resume { color: var(--wc-ink) !important; background: var(--wc-gold) !important; }
+.warehouse-page .warehouse-command-btn--resume :is(strong, small) { color: var(--wc-ink) !important; }
+.warehouse-page .warehouse-command-terminal__close-btn,
+.warehouse-page .warehouse-hud__reset-btn { background: var(--wc-crimson) !important; }
+.warehouse-page .warehouse-back-btn { background: var(--wc-crimson) !important; font-family: 'Bebas Neue', sans-serif !important; letter-spacing: 1.5px; }
+.warehouse-page .warehouse-hud__help-btn { color: var(--wc-gold) !important; }
+
+/* ── Keys, chips, tags ── */
+.warehouse-page kbd {
+  color: var(--wc-ink) !important;
+  background: #f5f5f5 !important;
+  border: 2px solid var(--wc-ink) !important;
+  border-radius: 0 !important;
+  box-shadow: -2px 2px 0 var(--wc-ink) !important;
+  font-family: 'Kode Mono', monospace !important;
+}
+
+.warehouse-page :is(.warehouse-milestone-card__tag, .warehouse-command-terminal__stat-pill) {
+  font-family: 'Kode Mono', monospace !important;
+  color: #dbeafe !important;
+  background: rgba(47, 111, 224, 0.28) !important;
+  border: 2px solid var(--wc-ink) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ── Milestone card internals ── */
+.warehouse-page .warehouse-milestone-overlay {
+  background: rgba(5, 8, 18, 0.72) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.warehouse-page :is(.warehouse-milestone-card__stat, .warehouse-milestone-card__reveal-box) {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 2px solid var(--wc-ink) !important;
+  border-left: 5px solid var(--wc-gold) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.warehouse-page .warehouse-milestone-card__reveal-box { border-left-color: var(--wc-crimson) !important; }
+.warehouse-page .warehouse-milestone-card__reveal-label { font-family: 'Bebas Neue', sans-serif !important; letter-spacing: 1.5px; color: var(--wc-gold) !important; }
+.warehouse-page .warehouse-milestone-card__points { font-family: 'Bebas Neue', sans-serif !important; font-size: 1.05rem !important; letter-spacing: 1.5px; color: var(--wc-green) !important; }
+.warehouse-page .warehouse-milestone-card__icon { filter: drop-shadow(2px 2px 0 var(--wc-ink)); }
+.warehouse-page .warehouse-milestone-card { animation: wc-card-in 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) !important; }
+
+@keyframes wc-card-in {
+  from { opacity: 0; transform: scale(0.85) rotate(-1.5deg); }
+}
+
+/* ── Radar ── */
+.warehouse-page .warehouse-radar-canvas { border: 2px solid var(--wc-ink) !important; border-radius: 0 !important; box-shadow: none !important; }
+.warehouse-page .warehouse-minimap-header { font-family: 'Bebas Neue', sans-serif !important; letter-spacing: 1.5px; }
+
+/* ── Shift card ── */
+.warehouse-page .warehouse-shift-card__target { background: rgba(0, 0, 0, 0.3) !important; border: 2px solid var(--wc-ink) !important; border-radius: 0 !important; }
+.warehouse-page .warehouse-shift-card__progress-seg { border-radius: 0 !important; border: 1px solid var(--wc-ink); }
+
+/* ── Speed gauge ── */
+.warehouse-page .warehouse-speed__bar { background: #0f172a !important; border: 1.5px solid var(--wc-ink) !important; border-radius: 0 !important; box-shadow: none !important; }
+.warehouse-page .warehouse-speed__fill { border-radius: 0 !important; box-shadow: none !important; }
+
+/* ── Loader ── */
+.warehouse-page .warehouse-loader {
+  background-color: #0a0a0f !important;
+  background-image:
+    radial-gradient(circle, rgba(220, 20, 60, 0.22) 1.2px, transparent 1.6px),
+    linear-gradient(115deg, rgba(220, 20, 60, 0.16) 0 38%, transparent 38% 62%, rgba(47, 111, 224, 0.2) 62%) !important;
+  background-size: 9px 9px, 100% 100% !important;
+}
+
+.warehouse-page .warehouse-loader__radar-ring { border: 3px dashed var(--wc-ink) !important; box-shadow: none !important; background: var(--wc-gold) !important; }
+.warehouse-page .warehouse-loader__emblem-icon { filter: drop-shadow(3px 3px 0 var(--wc-ink)); }
+.warehouse-page .warehouse-loader__title { font-size: clamp(2rem, 6vw, 2.8rem) !important; text-shadow: 3px 3px 0 var(--wc-crimson), 5px 5px 0 var(--wc-ink) !important; }
+.warehouse-page .warehouse-loader__device-tips { background: rgba(0, 0, 0, 0.3) !important; border: 2px solid var(--wc-ink) !important; border-radius: 0 !important; }
+
+.warehouse-page .warehouse-loader__progress-bar {
+  height: 14px !important;
+  background: #0f172a !important;
+  border: 2px solid var(--wc-ink) !important;
+  border-radius: 0 !important;
+  box-shadow: -2px 2px 0 var(--wc-ink) !important;
+}
+
+.warehouse-page .warehouse-loader__progress-fill {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: repeating-linear-gradient(-45deg, var(--wc-crimson) 0 10px, var(--wc-gold) 10px 20px) !important;
+  background-size: 28.28px 100% !important;
+  animation: wc-stripes 0.6s linear infinite;
+}
+
+.warehouse-page .warehouse-loader__progress-glow { display: none !important; }
+.warehouse-page .warehouse-loader__percent { font-family: 'Bebas Neue', sans-serif !important; font-size: 1.2rem !important; color: var(--wc-gold) !important; }
+.warehouse-page .warehouse-loader__status-text { font-family: 'Kode Mono', monospace !important; }
+
+@keyframes wc-stripes {
+  to { background-position: 28.28px 0; }
+}
+
+/* ── Control center ── */
+.warehouse-page .warehouse-command-terminal__sub { font-family: 'Bebas Neue', sans-serif !important; font-size: 1.15rem !important; letter-spacing: 2px; color: #f5f5f5 !important; }
+.warehouse-page .warehouse-command-btn__subtext { color: #cbd5e1 !important; }
+
+/* ── Touch controls: round buttons, inked ── */
+.warehouse-page :is(.warehouse-touch-btn, .warehouse-joystick-base) {
+  background: var(--wc-halftone), var(--wc-panel) !important;
+  border: 2.5px solid var(--wc-ink) !important;
+  box-shadow: -3px 3px 0 var(--wc-ink) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.warehouse-page .warehouse-touch-btn:active { transform: translate(-2px, 2px); box-shadow: -1px 1px 0 var(--wc-ink) !important; }
+.warehouse-page .warehouse-touch-btn--action { border-radius: 0 !important; background: var(--wc-gold) !important; color: var(--wc-ink) !important; }
+.warehouse-page .warehouse-touch-btn--action :is(.warehouse-touch-btn__action-text, .warehouse-touch-btn__action-sub) { color: var(--wc-ink) !important; text-shadow: none !important; }
+.warehouse-page .warehouse-touch-btn--action .warehouse-touch-btn__action-text { font-family: 'Bebas Neue', sans-serif !important; letter-spacing: 1px; }
+.warehouse-page .warehouse-touch-btn--action-drop { background: var(--wc-green) !important; }
+.warehouse-page .warehouse-touch-btn--action-mez { background: var(--wc-cyan) !important; }
+.warehouse-page .warehouse-touch-btn--active { background: var(--wc-cobalt) !important; }
+.warehouse-page .warehouse-joystick-knob { border: 2.5px solid var(--wc-ink) !important; box-shadow: -2px 2px 0 var(--wc-ink) !important; background: var(--wc-crimson) !important; }
+.warehouse-page .warehouse-joystick-knob-core { background: #fff !important; box-shadow: none !important; }
+
+/* ── Polish ── */
+.warehouse-page .warehouse-command-btn--return :is(strong, small) { color: #fff !important; }
+.warehouse-page .warehouse-loader__quick-hint {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 2px solid var(--wc-ink) !important;
+  border-radius: 0 !important;
+}
+
+/* ── Loader: controls hint wraps as a tidy key legend instead of overflowing ── */
+.warehouse-page .warehouse-loader__title { line-height: 1 !important; }
+.warehouse-page .warehouse-loader__quick-hint {
+  flex-wrap: wrap;
+  gap: 0.45rem 0.9rem !important;
+  padding: 0.6rem 0.75rem !important;
+  font-size: 0.72rem !important;
+}
+.warehouse-page .warehouse-loader__quick-hint > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+/* Drop the "•" separators (every even child) now that items wrap */
+.warehouse-page .warehouse-loader__quick-hint > span:nth-child(even) { display: none; }
+.warehouse-page .warehouse-loader__quick-hint kbd {
+  min-width: 20px !important;
+  height: 20px !important;
+  padding: 0 4px !important;
+  margin: 0 !important;
+  font-size: 0.62rem !important;
+  box-shadow: -1px 1px 0 var(--wc-ink) !important;
+}
+
+/* ── Desktop HUD column: sits below the top bar; controls legend wraps ── */
+@media (min-width: 1025px) {
+  .warehouse-page:not(.warehouse-page--touch) .warehouse-hud { padding-top: 5.4rem; }
+  .warehouse-page .warehouse-hud__controls {
+    flex-wrap: wrap;
+    gap: 0.8rem 1.1rem !important;
+    max-width: min(520px, calc(100vw - 4rem)) !important;
+    padding: 1rem 1rem 0.8rem !important;
+  }
+  .warehouse-page .warehouse-hud__controls kbd { min-width: 28px !important; height: 28px !important; }
+}
+/* Hidden legend gives its space back so the shift card moves up */
+.warehouse-page .warehouse-hud__controls--hidden { position: absolute; }
+.warehouse-page .warehouse-hud__label { color: var(--wc-gold) !important; letter-spacing: 2px !important; }
+
+/* Loader status line: wrap instead of truncating the rotating tip */
+.warehouse-page .warehouse-loader__status-row { align-items: flex-start; gap: 0.75rem; min-height: 2.6em; }
+.warehouse-page .warehouse-loader__status-text {
+  flex: 1;
+  max-width: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  align-items: flex-start !important;
+  font-size: 0.72rem !important;
+  line-height: 1.3;
+}
+.warehouse-page .warehouse-loader__status-pulse { flex-shrink: 0; margin-top: 0.3em; }

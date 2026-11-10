@@ -98,7 +98,7 @@ function Contact() {
                 id="contact-name"
                 className="contact__input"
                 type="text"
-                placeholder="Peter Parker"
+                placeholder="Your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -111,7 +111,7 @@ function Contact() {
                 id="contact-email"
                 className="contact__input"
                 type="email"
-                placeholder="spider@verse.com"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

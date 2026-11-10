@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import './Experience.css';
 
-const experiences = [
+export const experiences = [
   {
     role: 'Software Engineer',
-    company: 'Warehouse Automation & Robotics',
+    company: 'Falcon Autotech Pvt Ltd',
     period: 'July 2024 – Present',
     location: 'Noida, India',
     color: 'red',

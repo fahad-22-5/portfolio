@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import './Skills.css';
 
-const skillCategories = [
+export const skillCategories = [
   {
     title: 'Backend Core',
     color: 'red',

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import './Publications.css';
 
-const publications = [
+export const publications = [
   {
     title: 'A Pilot Study of a Gamified CBT-Based Digital Approach for Body Image Distress and Appearance-Related Concerns',
     journal: 'Human Behavior and Emerging Technologies',
