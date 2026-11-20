@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { profile } from '../data';
+import { trackEvent } from '../../../utils/analytics';
 
 const links = [
   { id: 'work', label: 'Work' },
@@ -89,7 +90,7 @@ export default function Nav() {
         </ul>
 
         <div className="nav__tools">
-          <a href="/warehouse" className="nav__play" aria-label="Play the warehouse game">
+          <a href="/warehouse" className="nav__play" aria-label="Play the warehouse game" onClick={() => trackEvent('warehouse_nav_clicked', { source: 'home' })}>
             <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor" /></svg>
             <span className="nav__play-label">Play the warehouse</span>
             <span className="nav__play-short">Play</span>

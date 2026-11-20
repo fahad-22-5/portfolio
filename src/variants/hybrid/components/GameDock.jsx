@@ -1,5 +1,6 @@
 import React from 'react';
 import useReveal from '../useReveal';
+import { trackEvent } from '../../../utils/analytics';
 
 const GAME_URL = '/warehouse';
 
@@ -28,7 +29,7 @@ export default function GameDock() {
               <li><span>03</span>Data caches · achievements</li>
             </ul>
             <div className="game__actions">
-              <a href={GAME_URL} className="btn btn--primary game__start">
+              <a href={GAME_URL} className="btn btn--primary game__start" onClick={() => trackEvent('warehouse_bonus_clicked', { target: 'button' })}>
                 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor" /></svg>
                 Start the shift
               </a>
@@ -36,7 +37,7 @@ export default function GameDock() {
             </div>
           </div>
 
-          <a href={GAME_URL} className="game__screen" aria-label="Open the warehouse game">
+          <a href={GAME_URL} className="game__screen" aria-label="Open the warehouse game" onClick={() => trackEvent('warehouse_bonus_clicked', { target: 'screen' })}>
             <div className="game__hud">
               <span><span className="game__rec" aria-hidden="true" /> Mission 1 / 3</span>
               <span>Reach the signal tower</span>

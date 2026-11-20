@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { initGA, trackPageView } from '../../utils/analytics';
 import './index.css';
 import loadFonts from '../loadFonts';
 import Nav from './components/Nav';
@@ -17,6 +18,11 @@ import TrackingRail from './components/TrackingRail';
 loadFonts('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
 export default function App() {
+  useEffect(() => {
+    initGA();
+    trackPageView(window.location.pathname + window.location.search);
+  }, []);
+
   return (
     <>
       <Intro />

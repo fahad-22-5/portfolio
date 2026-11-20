@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import useReveal from '../useReveal';
 import { profile } from '../data';
+import { trackEvent } from '../../../utils/analytics';
 
 // Web3Forms access keys are public by design (they can only deliver to the owner's inbox).
 const WEB3FORMS_ACCESS_KEY = '7362192a-fc0a-4a07-b6ee-0d3c3feefc64';
@@ -28,6 +29,7 @@ export default function Contact() {
       const result = await res.json();
       if (result.success) {
         setStatus('sent');
+        trackEvent('contact_form_submitted', { form_name: 'contact_form', source: 'home' });
         setForm({ name: '', email: '', message: '' });
       } else {
         setStatus('error');
