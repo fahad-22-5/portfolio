@@ -648,6 +648,90 @@ html[data-intro='playing'] .label-wrap > .label { animation-play-state: paused; 
 .footer__replay { color: var(--muted); transition: color 200ms ease; }
 .footer__replay:hover { color: var(--accent-text); }
 
+
+/* ==========================================================================
+   Hero floor — live top-down sortation floor behind the hero.
+   Constant motion is linear; robots move between stops on --ease-in-out.
+   Faint by design and masked away from the copy so the text stays first.
+   ========================================================================== */
+.hero { position: relative; isolation: isolate; }
+.hero-floor {
+  position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.25) 30%, #000 62%), linear-gradient(180deg, transparent 0%, #000 18%, #000 88%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.25) 30%, #000 62%), linear-gradient(180deg, transparent 0%, #000 18%, #000 88%, transparent 100%);
+  mask-composite: intersect;
+  animation: floor-in 1400ms var(--ease) backwards 200ms;
+}
+html[data-intro='playing'] .hero-floor { animation-play-state: paused; }
+@keyframes floor-in { from { opacity: 0; } }
+.hero-floor svg { display: block; width: 100%; height: 100%; }
+
+.hf-line rect,
+.hf-line polygon,
+.hf-line line { fill: none; stroke: var(--line-strong); stroke-opacity: 0.16; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.hf-line .hf-aisle { stroke-dasharray: 4 8; stroke-opacity: 0.12; }
+.hf-line .hf-chute { fill: var(--accent); fill-opacity: 0.06; }
+.hf-tick { stroke: var(--line-strong); stroke-opacity: 0.12; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.hf-text text { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; fill: var(--muted); fill-opacity: 0.7; }
+
+/* Belt surfaces run */
+.hf-ticks { animation: hf-belt 0.9s linear infinite; }
+.hf-ticks--rev { animation-name: hf-belt-rev; }
+@keyframes hf-belt { to { transform: translateX(24px); } }
+@keyframes hf-belt-rev { to { transform: translateX(-24px); } }
+
+/* Scanner beam flashes as the line runs */
+.hf-beam { fill: var(--accent); opacity: 0; animation: hf-beam 1.6s linear infinite; }
+@keyframes hf-beam { 0%, 70%, 100% { opacity: 0; } 76% { opacity: 0.35; } 82% { opacity: 0.08; } 88% { opacity: 0.3; } }
+
+/* Parcels */
+.hf-pk__box { fill: #c99a62; fill-opacity: 0.85; stroke: #241a0e; stroke-opacity: 0.6; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.hf-pk__tape { stroke: #fff; stroke-opacity: 0.3; stroke-width: 3; }
+.hf-pk__label { fill: #fffdf6; fill-opacity: 0.85; }
+.hf-pk { transform: translate(-40px, 560px); }
+.hf-pk--main { animation: hf-main 11s linear infinite; }
+.hf-pk--divert { animation: hf-divert 9s linear infinite; }
+.hf-pk--merge { animation: hf-merge 12.6s linear infinite; }
+@keyframes hf-main { from { transform: translate(-40px, 560px); } to { transform: translate(1240px, 560px); } }
+@keyframes hf-divert {
+  0% { transform: translate(-40px, 560px); opacity: 1; }
+  84.5% { transform: translate(840px, 560px) rotate(0deg); }
+  94% { opacity: 1; }
+  100% { transform: translate(928px, 700px) rotate(14deg); opacity: 0; }
+}
+@keyframes hf-merge {
+  0% { transform: translate(1240px, 340px); }
+  42.5% { transform: translate(620px, 340px); }
+  57.5% { transform: translate(620px, 560px); }
+  100% { transform: translate(1240px, 560px); }
+}
+
+/* AMRs patrol the aisles, pausing at each end */
+.hf-amr__body { fill: var(--surface-2); stroke: var(--line-strong); stroke-opacity: 0.45; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.hf-amr__led { fill: var(--accent); animation: hf-led 1.2s steps(2, start) infinite; }
+@keyframes hf-led { 50% { opacity: 0.25; } }
+.hf-amr { transform: translate(660px, 147px); animation: hf-amr 14s infinite; animation-timing-function: var(--ease-in-out); }
+.hf-amr--b { animation-direction: reverse; }
+@keyframes hf-amr {
+  0%, 8% { transform: translate(660px, 147px); }
+  44%, 52% { transform: translate(1160px, 147px); }
+  58% { transform: translate(1160px, 245px); }
+  92%, 96% { transform: translate(660px, 245px); }
+  100% { transform: translate(660px, 147px); }
+}
+
+/* Off-screen: stop spending frames */
+.hero-floor.is-paused * { animation-play-state: paused !important; }
+
+@media (max-width: 900px) {
+  .hero-floor {
+    opacity: 0.7;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 85%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 85%, transparent 100%);
+  }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1080px) {
   .tally { grid-template-columns: repeat(2, 1fr); }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Barcode from './Barcode';
+import HeroFloor from './HeroFloor';
 import { profile, stats } from '../data';
 
 // Simulated: where a 100K/day sorter's running count would be since midnight IST.
@@ -20,6 +21,7 @@ export default function Hero() {
 
   return (
     <section className="hero" id="top">
+      <HeroFloor />
       <div className="container hero__grid">
         <div className="hero__copy">
           <p className="eyebrow">
