@@ -16,9 +16,9 @@ export default function About() {
             <div className="idcard__card">
               <div className="idcard__top">
                 <span>Staff badge</span>
-                <span>Falcon Autotech</span>
+                <span>Noida · IN</span>
               </div>
-              <div className="idcard__mono" aria-hidden="true">FEH</div>
+              <img className="idcard__photo" src="/images/fahad-badge.jpg" alt="Fahad Eqbal Hashmi on a rooftop above Madrid at night" width="960" height="720" loading="lazy" decoding="async" />
               <p className="idcard__name">Fahad Eqbal Hashmi</p>
               <p className="idcard__role">Software Engineer · Noida, India</p>
               <div className="idcard__code"><Barcode value="FAHAD-EQBAL-HASHMI" height={40} /></div>

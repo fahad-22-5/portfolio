@@ -4,14 +4,14 @@
    ══════════════════════════════════════════ */
 .rover-hud {
   --ink: #000;
-  --crimson: #dc143c;
-  --cobalt: #2f6fe0;
-  --cyan: #00d4ff;
-  --gold: #ffd700;
-  --panel: #1a1a2e;
-  --halftone: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1.4px) 0 0 / 7px 7px;
-  font-family: 'Space Grotesk', sans-serif;
-  color: #f1f5f9;
+  --crimson: #e5372b;
+  --cobalt: #2c2b25;
+  --cyan: #eeebe2;
+  --gold: #e5372b;
+  --panel: #1a1a16;
+  --halftone: radial-gradient(rgba(238, 235, 226, 0.06) 1.2px, transparent 1.5px) 0 0 / 14px 14px;
+  font-family: 'Archivo', system-ui, sans-serif;
+  color: #eeebe2;
 }
 
 /* ── Comic pop-up words (world-anchored) ── */
@@ -25,7 +25,7 @@
 
 .rover-pop {
   position: absolute;
-  font-family: 'Bebas Neue', 'Arial Narrow', sans-serif;
+  font-family: 'Archivo', system-ui, sans-serif; font-weight: 800; font-stretch: 112%;
   font-size: clamp(1.6rem, 3.2vw, 2.8rem);
   line-height: 1;
   letter-spacing: 2px;
@@ -39,9 +39,9 @@
   animation: rover-pop 0.95s cubic-bezier(0.2, 1.6, 0.4, 1) forwards;
 }
 
-.rover-pop--crimson { color: #ff3b5c; }
+.rover-pop--crimson { color: #e5372b; }
 .rover-pop--cyan { color: #5eeaff; }
-.rover-pop--gold { color: #ffd84a; }
+.rover-pop--gold { color: #ff5b4f; }
 .rover-pop--green { color: #a3ff5a; }
 .rover-pop--white { color: #fff; }
 
@@ -79,11 +79,11 @@
   background: var(--halftone), var(--panel);
   border: 2px solid var(--ink);
   border-radius: 0;
-  box-shadow: -3px 3px 0 var(--ink), inset 0 4px 0 var(--crimson);
+  box-shadow: 3px 3px 0 var(--ink), inset 0 4px 0 var(--crimson);
   cursor: pointer;
 }
 
-.rover-tracker__bar:hover { box-shadow: -3px 3px 0 var(--ink), inset 0 4px 0 var(--cyan); }
+.rover-tracker__bar:hover { box-shadow: 3px 3px 0 var(--ink), inset 0 4px 0 var(--cyan); }
 .rover-tracker__stat { white-space: nowrap; }
 .rover-tracker__stat--dim { opacity: 0.35; filter: grayscale(1); }
 .rover-tracker__caret { font-size: 0.6rem; opacity: 0.7; }
@@ -96,19 +96,19 @@
   background: var(--halftone), var(--panel);
   border: 2px solid var(--ink);
   border-radius: 0;
-  box-shadow: -3px 3px 0 var(--ink), inset 0 4px 0 var(--cobalt);
+  box-shadow: 3px 3px 0 var(--ink), inset 0 4px 0 var(--cobalt);
 }
 
 .rover-log h4 {
   margin: 0.55rem 0 0.3rem;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Archivo', system-ui, sans-serif; font-weight: 800; font-stretch: 112%;
   font-size: 1rem;
   letter-spacing: 1px;
   color: var(--gold);
 }
 
 .rover-log h4:first-child { margin-top: 0; }
-.rover-log h4 small { font-family: 'Space Grotesk', sans-serif; font-size: 0.62rem; color: #94a3b8; letter-spacing: 0; }
+.rover-log h4 small { font-family: 'Archivo', system-ui, sans-serif; font-size: 0.62rem; color: #94a3b8; letter-spacing: 0; }
 
 .rover-log__row,
 .rover-log__empty {
@@ -132,9 +132,9 @@ button.rover-log__row:disabled { color: #f87171; }
 
 .rover-skills__chip {
   padding: 0.12rem 0.45rem;
-  font-family: 'Kode Mono', monospace;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 0.62rem;
-  color: #dbeafe;
+  color: #c4c0b4;
   background: rgba(47, 111, 224, 0.28);
   border: 1px solid rgba(96, 165, 250, 0.6);
   border-radius: 0;
@@ -160,7 +160,7 @@ button.rover-log__row:disabled { color: #f87171; }
 }
 
 .rover-boost__label {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Archivo', system-ui, sans-serif; font-weight: 800; font-stretch: 112%;
   font-size: 0.8rem;
   letter-spacing: 2px;
   color: var(--cyan);
@@ -199,10 +199,10 @@ button.rover-log__row:disabled { color: #f87171; }
   background: var(--halftone), var(--panel);
   border: 2px solid var(--ink);
   border-radius: 0;
-  box-shadow: -3px 3px 0 var(--ink), inset 0 4px 0 var(--cyan);
+  box-shadow: 3px 3px 0 var(--ink), inset 0 4px 0 var(--cyan);
 }
 
-.rover-repair__label { font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 1.5px; color: var(--cyan); white-space: nowrap; }
+.rover-repair__label { font-family: 'Archivo', system-ui, sans-serif; font-weight: 800; font-stretch: 112%; font-size: 0.95rem; letter-spacing: 1.5px; color: var(--cyan); white-space: nowrap; }
 .rover-repair__bar { width: 240px; max-width: 60vw; height: 10px; background: #0f172a; border: 1.5px solid var(--ink); border-radius: 0; overflow: hidden; }
 .rover-repair__fill { width: 100%; height: 100%; transform: scaleX(0); transform-origin: left center; background: linear-gradient(90deg, #22c55e, #a3e635); }
 
@@ -217,19 +217,19 @@ button.rover-log__row:disabled { color: #f87171; }
   align-items: center;
   gap: 0.55rem;
   padding: 0.35rem 0.9rem;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Archivo', system-ui, sans-serif; font-weight: 800; font-stretch: 112%;
   font-size: 1.5rem;
   letter-spacing: 1px;
   color: #fff;
   background: var(--halftone), #c2410c;
   border: 3px solid var(--ink);
   border-radius: 0;
-  box-shadow: -4px 4px 0 var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
 }
 
 .rover-pizza__time { min-width: 3.6ch; }
-.rover-pizza__arrow { fill: #fde68a; transition: transform 0.08s linear; }
-.rover-pizza__dist { font-size: 1.05rem; color: #fde68a; }
+.rover-pizza__arrow { fill: #eeebe2; transition: transform 0.08s linear; }
+.rover-pizza__dist { font-size: 1.05rem; color: #eeebe2; }
 
 /* ── Toasts ── */
 .rover-toasts {
@@ -251,20 +251,20 @@ button.rover-log__row:disabled { color: #f87171; }
   background: var(--halftone), var(--panel);
   border: 2px solid var(--ink);
   border-radius: 0;
-  box-shadow: -4px 4px 0 var(--ink), inset 0 4px 0 var(--gold);
+  box-shadow: 4px 4px 0 var(--ink), inset 0 4px 0 var(--gold);
   animation: rover-toast-in 0.35s cubic-bezier(0.2, 1.5, 0.4, 1);
 }
 
-.rover-toast--module { box-shadow: -4px 4px 0 var(--ink), inset 0 4px 0 var(--cyan); }
+.rover-toast--module { box-shadow: 4px 4px 0 var(--ink), inset 0 4px 0 var(--cyan); }
 
 .rover-toast--quote {
   color: #0b1020;
   background: #fffdf5;
   border-radius: 0;
-  box-shadow: -4px 4px 0 var(--ink), inset 0 4px 0 var(--crimson);
+  box-shadow: 4px 4px 0 var(--ink), inset 0 4px 0 var(--crimson);
 }
 
-.rover-toast__tag { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 1.5px; color: var(--gold); }
+.rover-toast__tag { display: block; font-family: 'Archivo', system-ui, sans-serif; font-weight: 800; font-stretch: 112%; font-size: 0.85rem; letter-spacing: 1.5px; color: var(--gold); }
 .rover-toast strong { display: block; font-size: 0.9rem; }
 .rover-toast p { margin: 0.15rem 0 0; color: #cbd5e1; }
 .rover-toast small { color: #94a3b8; }
@@ -295,11 +295,11 @@ button.rover-log__row:disabled { color: #f87171; }
   background: var(--halftone), #0f1528;
   border: 3px solid var(--ink);
   border-radius: 0;
-  box-shadow: -4px 4px 0 var(--ink), inset 0 4px 0 var(--crimson);
+  box-shadow: 4px 4px 0 var(--ink), inset 0 4px 0 var(--crimson);
   animation: rover-card-in 0.35s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
 
-.rover-card--vip, .rover-card--pizza { box-shadow: -4px 4px 0 var(--ink), inset 0 4px 0 var(--gold); }
+.rover-card--vip, .rover-card--pizza { box-shadow: 4px 4px 0 var(--ink), inset 0 4px 0 var(--gold); }
 
 @keyframes rover-card-in {
   from { opacity: 0; transform: scale(0.85) rotate(-1.5deg); }
@@ -308,7 +308,7 @@ button.rover-log__row:disabled { color: #f87171; }
 .rover-card__tag {
   display: inline-block;
   padding: 0.15rem 0.6rem;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Archivo', system-ui, sans-serif; font-weight: 800; font-stretch: 112%;
   font-size: 0.95rem;
   letter-spacing: 1.5px;
   color: #fff;
@@ -321,7 +321,7 @@ button.rover-log__row:disabled { color: #f87171; }
 
 .rover-card__title {
   margin: 0.7rem 0 0.2rem;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Archivo', system-ui, sans-serif; font-weight: 800; font-stretch: 112%;
   font-size: clamp(1.6rem, 4vw, 2.2rem);
   line-height: 1.05;
   letter-spacing: 1px;
@@ -334,7 +334,7 @@ button.rover-log__row:disabled { color: #f87171; }
 .rover-card__list li::marker { color: var(--crimson); }
 
 .rover-card__chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 1rem; }
-.rover-card__chips span { padding: 0.15rem 0.5rem; font-family: 'Kode Mono', monospace; font-size: 0.68rem; color: #dbeafe; background: rgba(47, 111, 224, 0.25); border: 1px solid rgba(96, 165, 250, 0.55); border-radius: 0; }
+.rover-card__chips span { padding: 0.15rem 0.5rem; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.68rem; color: #c4c0b4; background: rgba(47, 111, 224, 0.25); border: 1px solid rgba(96, 165, 250, 0.55); border-radius: 0; }
 
 .rover-card__actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1rem; }
 
@@ -349,13 +349,13 @@ button.rover-log__row:disabled { color: #f87171; }
   background: #1e293b;
   border: 2px solid var(--ink);
   border-radius: 0;
-  box-shadow: -3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
   cursor: pointer;
 }
 
 .rover-card__btn--primary { color: var(--ink); background: var(--gold); }
 .rover-card__close { display: block; margin-left: auto; background: var(--cobalt); }
-.rover-card__btn:hover, .rover-card__close:hover { transform: translate(1px, 1px); box-shadow: -2px 2px 0 var(--ink); }
+.rover-card__btn:hover, .rover-card__close:hover { transform: translate(1px, 1px); box-shadow: 2px 2px 0 var(--ink); }
 
 /* ── Touch action buttons ── */
 .rover-touch {
@@ -379,7 +379,7 @@ button.rover-log__row:disabled { color: #f87171; }
   color: #fff;
   background: var(--halftone), var(--panel);
   border: 2.5px solid var(--ink);
-  box-shadow: -3px 3px 0 var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
   border-radius: 50%;
   touch-action: none;
   user-select: none;
@@ -390,7 +390,7 @@ button.rover-log__row:disabled { color: #f87171; }
 .rover-touch__btn--boost { color: var(--gold); }
 .rover-touch__btn--grapple { color: var(--cyan); }
 .rover-touch__icon { font-size: 1.2rem; line-height: 1; }
-.rover-touch__label { font-family: 'Bebas Neue', sans-serif; font-size: 0.62rem; letter-spacing: 1px; }
+.rover-touch__label { font-family: 'Archivo', system-ui, sans-serif; font-weight: 800; font-stretch: 112%; font-size: 0.62rem; letter-spacing: 1px; }
 
 /* ── Touch layout: keep clear of the joystick (bottom-left) and action cluster (bottom-right) ── */
 .rover-hud--touch .rover-tracker { top: 4.4rem; right: auto; left: 1.4rem; align-items: flex-start; z-index: 91; }

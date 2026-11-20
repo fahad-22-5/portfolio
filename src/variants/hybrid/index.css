@@ -398,6 +398,11 @@ strong { font-weight: 650; color: var(--ink); }
   color: var(--accent); -webkit-text-stroke: 0; text-shadow: 6px 6px 0 #3a3932;
 }
 .idcard__mono::before { content: ''; position: absolute; inset: 0; z-index: -1; background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(229, 55, 43, 0.14) 0deg 10deg, transparent 10deg 20deg); }
+.idcard__photo {
+  display: block; width: calc(100% - 36px); height: auto; margin: 18px; aspect-ratio: 4 / 3;
+  object-fit: cover; object-position: 50% 30%;
+  background: #121212; border: 3px solid #121212; border-radius: 10px;
+}
 .idcard__name { padding: 0 18px; font-size: 26px; font-weight: 800; font-stretch: 112%; letter-spacing: -0.02em; line-height: 1.1; }
 .idcard__role { padding: 2px 18px 0; color: #5a5548; font-weight: 650; font-size: 15px; }
 .idcard__code { margin: 16px 18px 18px; padding: 8px 10px 6px; border: 2px solid #121212; border-radius: 8px; color: #121212; }
@@ -537,7 +542,7 @@ strong { font-weight: 650; color: var(--ink); }
     .nav::after {
       content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
       background: var(--accent); transform-origin: left center; transform: scaleX(0);
-      animation: progress-x linear both; animation-timeline: scroll(root block);
+      animation-name: progress-x; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: scroll(root block);
     }
 
     /* Route line fills as the viewport's centre travels down the timeline */
@@ -545,13 +550,13 @@ strong { font-weight: 650; color: var(--ink); }
     .route::after {
       content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px;
       background: var(--accent); transform-origin: top center; transform: scaleY(0);
-      animation: progress-y linear both; animation-timeline: --route;
+      animation-name: progress-y; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --route;
       animation-range: cover 50vh cover calc(100% - 50vh);
     }
 
     /* Each checkpoint lights up when the fill reaches it */
     .route__marker {
-      animation: marker-on linear both; animation-timeline: view();
+      animation-name: marker-on; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: view();
       animation-range: cover 46% cover 50%;
     }
   }
@@ -612,7 +617,7 @@ strong { font-weight: 650; color: var(--ink); }
 /* Scroll-linked depth (where supported) */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .conveyor__shift { animation: conveyor-shift linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+    .conveyor__shift { animation-name: conveyor-shift; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
   }
 }
 @keyframes conveyor-shift { from { transform: translateX(3%); } to { transform: translateX(-6%); } }
@@ -850,7 +855,7 @@ html[data-intro='playing'] .tally__cell { animation-play-state: paused; }
 /* As you scroll past, the label lifts off the floor */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .biglabel-wrap { animation: label-lift linear both; animation-timeline: scroll(root block); animation-range: 0px 700px; }
+    .biglabel-wrap { animation-name: label-lift; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: scroll(root block); animation-range: 0px 700px; }
   }
 }
 @keyframes label-lift { to { transform: translateY(-48px) scale(0.97); } }
@@ -908,8 +913,8 @@ html[data-intro='playing'] .tally__cell { animation-play-state: paused; }
 @keyframes status-in { from { opacity: 0; transform: translateX(6px); } }
 @media (max-width: 1499px) { .rail__tag-status { display: none; } }
 @supports (animation-timeline: scroll()) {
-  .rail__fill { animation: progress-y linear both; animation-timeline: scroll(root block); }
-  .rail__tag { animation: rail-tag linear both; animation-timeline: scroll(root block); }
+  .rail__fill { animation-name: progress-y; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: scroll(root block); }
+  .rail__tag { animation-name: rail-tag; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: scroll(root block); }
 }
 @keyframes rail-tag { to { transform: translateY(calc(100vh - 220px)); } }
 

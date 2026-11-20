@@ -5,7 +5,6 @@ export const profile = {
   name: 'Fahad Eqbal Hashmi',
   short: 'FEH',
   role: 'Software Engineer',
-  company: 'Falcon Autotech',
   location: 'Noida, India',
   email: 'eqbalfahad@gmail.com',
   linkedin: 'https://www.linkedin.com/in/fahadeqbalhashmi',

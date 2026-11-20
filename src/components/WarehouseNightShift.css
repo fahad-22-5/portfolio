@@ -1,0 +1,266 @@
+/* ══════════════════════════════════════════════════════════════
+   WAREHOUSE — NIGHT SHIFT THEME LAYER
+   Loaded after WarehouseComic.css. Brings every HUD surface, popup,
+   loader and control in line with the homepage: warm black, cream
+   ink, one signal red, Archivo + IBM Plex Mono, thin borders with
+   rounded corners and hard offset shadows on the statement pieces.
+   Visual properties only — layout stays in Warehouse.css.
+   ══════════════════════════════════════════════════════════════ */
+.warehouse-page {
+  --ns-bg: #0d0d0a;
+  --ns-surface: #1a1a16;
+  --ns-inset: #141411;
+  --ns-line: #3a3932;
+  --ns-cream: #eeebe2;
+  --ns-cream-2: #c4c0b4;
+  --ns-muted: #8e8a7c;
+  --ns-red: #e5372b;
+  --ns-red-text: #ff5b4f;
+  --ns-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* re-point the comic layer's tokens */
+  --wc-ink: #000;
+  --wc-panel: var(--ns-surface);
+  --wc-panel-deep: #121210;
+  --wc-halftone: radial-gradient(rgba(238, 235, 226, 0.06) 1.2px, transparent 1.5px) 0 0 / 14px 14px;
+  --wc-crimson: var(--ns-red);
+  --wc-cobalt: #2c2b25;
+  --wc-cyan: var(--ns-cream);
+  --wc-gold: var(--ns-red);
+  --wc-green: var(--ns-cream);
+  --wc-accent: var(--ns-red);
+
+  font-family: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--ns-cream);
+}
+
+/* ── Surfaces: quiet panels ── */
+.warehouse-page :is(
+  .warehouse-score,
+  .warehouse-minimap-container,
+  .warehouse-hud__controls,
+  .warehouse-shift-card,
+  .warehouse-objective,
+  .warehouse-toast,
+  .warehouse-gps-pill,
+  .warehouse-mezzanine-prompt,
+  .warehouse-drop-prompt,
+  .warehouse-command-terminal__header,
+  .warehouse-command-actions,
+  .warehouse-touch-btn,
+  .warehouse-joystick-base
+) {
+  border: 1px solid var(--ns-line) !important;
+  border-radius: 10px !important;
+  box-shadow: 6px 6px 0 #000, inset 0 3px 0 var(--wc-accent) !important;
+}
+.warehouse-page :is(.warehouse-score, .warehouse-gps-pill, .warehouse-toast, .warehouse-objective, .warehouse-mezzanine-prompt, .warehouse-drop-prompt) {
+  border-radius: 8px !important;
+  box-shadow: 4px 4px 0 #000, inset 0 2px 0 var(--wc-accent) !important;
+}
+
+/* ── Statement pieces: popups get the sticker treatment ── */
+.warehouse-page :is(.warehouse-milestone-card, .warehouse-loader__card, .warehouse-rotate-prompt__card) {
+  background: var(--wc-halftone), var(--ns-surface) !important;
+  border: 1.5px solid var(--ns-cream) !important;
+  border-radius: 12px !important;
+  box-shadow: 10px 10px 0 var(--ns-red) !important;
+}
+.warehouse-page .warehouse-milestone-card { animation: ns-card-in 0.35s var(--ns-ease) !important; }
+@keyframes ns-card-in { from { opacity: 0; transform: translateY(16px) scale(0.97); } }
+.warehouse-page .warehouse-milestone-overlay { background: rgba(0, 0, 0, 0.7) !important; }
+
+/* ── Type ── */
+.warehouse-page :is(
+  .warehouse-topbar__title,
+  .warehouse-milestone-card__title,
+  .warehouse-loader__title,
+  .warehouse-rotate-prompt__title,
+  .warehouse-shift-card__title,
+  .warehouse-command-terminal__sub,
+  .warehouse-minimap-header,
+  .warehouse-milestone-card__reveal-label,
+  .warehouse-loader__percent,
+  .warehouse-touch-btn__action-text
+) {
+  font-family: 'Archivo', system-ui, sans-serif !important;
+  font-weight: 800 !important;
+  font-stretch: 112%;
+  letter-spacing: -0.02em !important;
+  text-shadow: none !important;
+}
+.warehouse-page :is(.warehouse-topbar__title, .warehouse-milestone-card__title, .warehouse-loader__title, .warehouse-rotate-prompt__title, .warehouse-shift-card__title) { color: var(--ns-cream) !important; }
+.warehouse-page :is(.warehouse-minimap-header, .warehouse-command-terminal__sub) { letter-spacing: 0.02em !important; }
+.warehouse-page :is(
+  kbd,
+  .warehouse-milestone-card__tag,
+  .warehouse-command-terminal__stat-pill,
+  .warehouse-loader__status-text,
+  .warehouse-hud__label,
+  .warehouse-milestone-card__points
+) { font-family: 'IBM Plex Mono', ui-monospace, monospace !important; }
+.warehouse-page .warehouse-hud__label { color: var(--ns-red-text) !important; letter-spacing: 0.1em !important; text-transform: uppercase; }
+.warehouse-page .warehouse-milestone-card__reveal-label { color: var(--ns-red-text) !important; }
+.warehouse-page .warehouse-milestone-card__points { color: var(--ns-cream) !important; font-size: 0.85rem !important; letter-spacing: 0.06em; text-transform: uppercase; }
+.warehouse-page .warehouse-loader__percent { color: var(--ns-red-text) !important; }
+
+/* ── Tags & badges: flat red labels, no tilt ── */
+.warehouse-page :is(
+  .warehouse-milestone-card__badge,
+  .warehouse-loader__badge,
+  .warehouse-rotate-prompt__badge,
+  .warehouse-shift-card__badge,
+  .warehouse-command-terminal__badge
+) {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
+  font-size: 0.68rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+  color: var(--ns-cream) !important;
+  background: var(--ns-red) !important;
+  border: 0 !important;
+  border-radius: 3px !important;
+  transform: none !important;
+}
+.warehouse-page :is(.warehouse-milestone-card__tag, .warehouse-command-terminal__stat-pill) {
+  color: var(--ns-cream-2) !important;
+  background: var(--ns-inset) !important;
+  border: 1px solid var(--ns-line) !important;
+  border-radius: 4px !important;
+}
+.warehouse-page kbd {
+  color: #121212 !important;
+  background: var(--ns-cream) !important;
+  border: 1px solid #000 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 0 #000 !important;
+}
+
+/* ── Buttons ── */
+.warehouse-page :is(
+  .warehouse-back-btn,
+  .warehouse-hud__help-btn,
+  .warehouse-hud__cam-btn,
+  .warehouse-hud__light-btn,
+  .warehouse-hud__reset-btn,
+  .warehouse-milestone-card__btn,
+  .warehouse-rotate-prompt__btn,
+  .warehouse-command-terminal__view-btn,
+  .warehouse-command-terminal__close-btn,
+  .warehouse-command-btn
+) {
+  font-family: 'Archivo', system-ui, sans-serif !important;
+  font-weight: 650 !important;
+  letter-spacing: 0 !important;
+  color: var(--ns-cream) !important;
+  background: #121210 !important;
+  border: 1.5px solid var(--ns-cream) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  transition: transform 0.18s var(--ns-ease), box-shadow 0.18s var(--ns-ease), background-color 0.2s ease !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .warehouse-page :is(
+    .warehouse-back-btn,
+    .warehouse-hud__help-btn,
+    .warehouse-hud__cam-btn,
+    .warehouse-hud__light-btn,
+    .warehouse-hud__reset-btn,
+    .warehouse-milestone-card__btn,
+    .warehouse-rotate-prompt__btn,
+    .warehouse-command-terminal__view-btn,
+    .warehouse-command-terminal__close-btn,
+    .warehouse-command-btn
+  ):hover {
+    transform: translate(-2px, -2px) !important;
+    box-shadow: 3px 3px 0 var(--ns-cream) !important;
+  }
+}
+.warehouse-page :is(.warehouse-milestone-card__btn, .warehouse-command-btn--return, .warehouse-back-btn, .warehouse-hud__reset-btn, .warehouse-command-terminal__close-btn, .warehouse-rotate-prompt__btn) {
+  background: var(--ns-red) !important;
+  border-color: var(--ns-red) !important;
+}
+.warehouse-page :is(.warehouse-milestone-card__btn--portfolio, .warehouse-command-btn--resume) {
+  color: #121212 !important;
+  background: var(--ns-cream) !important;
+  border-color: var(--ns-cream) !important;
+}
+.warehouse-page .warehouse-command-btn--resume :is(strong, small) { color: #121212 !important; }
+.warehouse-page .warehouse-command-btn--return :is(strong, small) { color: var(--ns-cream) !important; }
+.warehouse-page .warehouse-hud__help-btn { color: var(--ns-red-text) !important; }
+.warehouse-page .warehouse-command-btn__subtext { color: var(--ns-cream-2) !important; }
+
+/* ── Milestone internals ── */
+.warehouse-page :is(.warehouse-milestone-card__stat, .warehouse-milestone-card__reveal-box) {
+  background: var(--ns-inset) !important;
+  border: 1px solid var(--ns-line) !important;
+  border-left: 4px solid var(--ns-red) !important;
+  border-radius: 8px !important;
+}
+.warehouse-page .warehouse-milestone-card__icon { filter: none; }
+
+/* ── Control-center stat cards: one accent, cream values ── */
+.warehouse-page .warehouse-command-card {
+  background: var(--ns-surface) !important;
+  border: 1px solid var(--ns-line) !important;
+  border-radius: 10px !important;
+}
+.warehouse-page .warehouse-command-card::before { background: var(--ns-red) !important; box-shadow: none !important; }
+.warehouse-page .warehouse-command-card .warehouse-command-card__val { color: var(--ns-cream) !important; text-shadow: none !important; font-family: 'Archivo', system-ui, sans-serif !important; font-weight: 800; font-stretch: 112%; }
+.warehouse-page .warehouse-command-card--cyan .warehouse-command-card__val { color: var(--ns-red-text) !important; }
+.warehouse-page .warehouse-command-card__live { color: var(--ns-cream) !important; background: var(--ns-red) !important; border-color: var(--ns-red) !important; }
+
+/* ── Radar, gauges, progress ── */
+.warehouse-page .warehouse-radar-canvas { border: 1px solid var(--ns-line) !important; border-radius: 6px !important; }
+.warehouse-page .warehouse-speed__bar { background: var(--ns-inset) !important; border: 1px solid var(--ns-line) !important; border-radius: 3px !important; }
+.warehouse-page .warehouse-shift-card__target { background: var(--ns-inset) !important; border: 1px solid var(--ns-line) !important; border-radius: 8px !important; }
+.warehouse-page .warehouse-shift-card__progress-seg { border-radius: 2px !important; border: 1px solid #000; }
+
+/* ── Loader ── */
+.warehouse-page .warehouse-loader {
+  background-color: var(--ns-bg) !important;
+  background-image: radial-gradient(rgba(238, 235, 226, 0.07) 1.4px, transparent 1.6px) !important;
+  background-size: 16px 16px !important;
+}
+.warehouse-page .warehouse-loader__radar-ring { background: var(--ns-red) !important; border: 2px dashed #000 !important; }
+.warehouse-page .warehouse-loader__emblem-icon { filter: none; }
+.warehouse-page :is(.warehouse-loader__device-tips, .warehouse-loader__quick-hint) {
+  background: var(--ns-inset) !important;
+  border: 1px solid var(--ns-line) !important;
+  border-radius: 8px !important;
+}
+.warehouse-page .warehouse-loader__progress-bar {
+  background: var(--ns-inset) !important;
+  border: 1px solid var(--ns-line) !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+}
+.warehouse-page .warehouse-loader__progress-fill {
+  background: repeating-linear-gradient(-45deg, var(--ns-red) 0 10px, #7a1d17 10px 20px) !important;
+  background-size: 28.28px 100% !important;
+}
+
+/* ── Touch controls ── */
+.warehouse-page .warehouse-touch-btn { border-radius: 50% !important; }
+.warehouse-page .warehouse-touch-btn--action { border-radius: 10px !important; background: var(--ns-red) !important; color: var(--ns-cream) !important; }
+.warehouse-page .warehouse-touch-btn--action :is(.warehouse-touch-btn__action-text, .warehouse-touch-btn__action-sub) { color: var(--ns-cream) !important; }
+.warehouse-page .warehouse-touch-btn--action-drop { background: var(--ns-cream) !important; }
+.warehouse-page .warehouse-touch-btn--action-drop :is(.warehouse-touch-btn__action-text, .warehouse-touch-btn__action-sub) { color: #121212 !important; }
+.warehouse-page .warehouse-touch-btn--action-mez { background: #2c2b25 !important; }
+.warehouse-page .warehouse-touch-btn--active { background: var(--ns-red) !important; }
+.warehouse-page .warehouse-touch-btn:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0 #000 !important; }
+.warehouse-page .warehouse-joystick-knob { background: var(--ns-red) !important; border: 1.5px solid #000 !important; box-shadow: 3px 3px 0 #000 !important; }
+.warehouse-page .warehouse-joystick-knob-core { background: var(--ns-cream) !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .warehouse-page .warehouse-milestone-card { animation: none !important; }
+}
+
+/* ── Leftover gradients/colours on titles and counters ── */
+.warehouse-page :is(.warehouse-topbar__title, .warehouse-topbar__title-full, .warehouse-topbar__title-short) {
+  background: none !important; -webkit-text-fill-color: currentColor !important; color: var(--ns-cream) !important;
+}
+.warehouse-page .warehouse-score__value { color: var(--ns-red-text) !important; text-shadow: none !important; font-family: 'Archivo', system-ui, sans-serif !important; font-weight: 800; }
+.warehouse-page .warehouse-score__label { color: var(--ns-muted) !important; font-family: 'IBM Plex Mono', ui-monospace, monospace !important; }
+.warehouse-page .warehouse-minimap-header { color: var(--ns-cream) !important; }

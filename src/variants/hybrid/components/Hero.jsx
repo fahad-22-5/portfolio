@@ -41,7 +41,7 @@ export default function Hero() {
       <div className="container hero__inner" style={{ '--dock': `${dock}px` }}>
         <p className="eyebrow hero__eyebrow">
           <span className="dot dot--live" aria-hidden="true" />
-          {profile.role} · {profile.company} · {profile.location}
+          {profile.role} · {profile.location}
         </p>
 
         <div className="biglabel-wrap" ref={wrapRef}>
@@ -78,7 +78,7 @@ export default function Hero() {
                 <p className="biglabel__tiny">From</p>
                 <p className="biglabel__value">
                   {profile.name}
-                  <span>{profile.company} · {profile.location}</span>
+                  <span>Backend &amp; warehouse automation · {profile.location}</span>
                 </p>
               </div>
               <div>
