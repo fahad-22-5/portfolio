@@ -637,3 +637,41 @@ strong { font-weight: 700; color: var(--text); }
   font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--text-2);
 }
+
+/* ---------- Hero stat strip (manifest structure, comic ink) ---------- */
+.tally {
+  display: grid; grid-template-columns: 1.4fr repeat(4, 1fr);
+  margin-top: clamp(56px, 8vw, 96px);
+  border-top: var(--border); border-bottom: var(--border);
+}
+.tally__cell { padding: 22px 20px 24px; }
+.tally__cell:first-child { padding-left: 0; }
+.tally__cell + .tally__cell { border-left: 2px solid var(--line); }
+.tally__head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted);
+}
+.tally dd { display: flex; flex-direction: column; gap: 6px; }
+.tally__value {
+  font-family: var(--font-display); font-weight: 800; font-stretch: 112%;
+  font-size: clamp(32px, 3.4vw, 46px); line-height: 1; letter-spacing: -0.03em;
+  color: var(--text);
+}
+.tally__cell--live .tally__value {
+  color: var(--red); -webkit-text-stroke: 1.5px #121212; paint-order: stroke fill; text-shadow: 3px 3px 0 #121212;
+}
+.tally__label { font-size: 14px; color: var(--text-2); line-height: 1.4; max-width: 26ch; }
+
+@media (max-width: 1080px) {
+  .tally { grid-template-columns: repeat(2, 1fr); }
+  .tally__cell--live { grid-column: 1 / -1; border-bottom: 2px solid var(--line); padding-left: 0; }
+  .tally__cell { padding-left: 20px; }
+  .tally__cell:nth-child(2n) { padding-left: 0; border-left: 0 !important; }
+  .tally__cell:nth-child(n + 4) { border-top: 2px solid var(--line); }
+}
+@media (max-width: 560px) {
+  .tally { grid-template-columns: 1fr; }
+  .tally__cell { padding-left: 0 !important; border-left: 0 !important; }
+  .tally__cell + .tally__cell { border-top: 2px solid var(--line); }
+}

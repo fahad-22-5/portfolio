@@ -11,8 +11,6 @@ function parcelsSinceMidnight() {
   return Math.floor(secs * (100000 / 86400));
 }
 
-const statColors = ['amber', 'cyan', 'green', 'purple'];
-
 export default function Hero() {
   const [count, setCount] = useState(parcelsSinceMidnight);
 
@@ -82,24 +80,23 @@ export default function Hero() {
       </div>
 
       <div className="container">
-        {/* Command-card row from the warehouse game HUD */}
-        <dl className="stats">
-          <div className="cmd cmd--red stats__cell--live">
-            <dt className="cmd__label">
-              <span>Parcels today</span>
-              <span className="cmd__live">Live · sim</span>
+        {/* Open stat strip (same structure as the manifest design) */}
+        <dl className="tally">
+          <div className="tally__cell tally__cell--live">
+            <dt className="tally__head">
+              <span className="dot dot--live" aria-hidden="true" /> Live · simulated
             </dt>
             <dd>
-              <span className="cmd__val tabular">{count.toLocaleString('en-IN')}</span>
-              <span className="cmd__sub">through a 100K/day sorter since midnight IST</span>
+              <span className="tally__value tabular">{count.toLocaleString('en-IN')}</span>
+              <span className="tally__label">parcels through a 100K/day sorter since midnight IST</span>
             </dd>
           </div>
-          {stats.map((s, i) => (
-            <div className={`cmd cmd--${statColors[i]}`} key={s.value}>
+          {stats.map((s) => (
+            <div className="tally__cell" key={s.value}>
               <dt className="sr-only">{s.label}</dt>
               <dd>
-                <span className="cmd__val">{s.value}</span>
-                <span className="cmd__sub">{s.label}</span>
+                <span className="tally__value">{s.value}</span>
+                <span className="tally__label">{s.label}</span>
               </dd>
             </div>
           ))}
