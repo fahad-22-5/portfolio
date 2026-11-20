@@ -61,10 +61,10 @@
 
 .cx-sfx {
   position: absolute; z-index: 5; pointer-events: none;
-  font-family: var(--font-display); font-size: clamp(34px, 4.4vw, 60px); line-height: 1; letter-spacing: -0.035em;
+  font-family: var(--font-sfx); font-size: clamp(34px, 4.4vw, 60px); line-height: 1; letter-spacing: 0.04em;
   color: var(--yellow); -webkit-text-stroke: 2.5px #121212; paint-order: stroke fill;
   text-shadow: 4px 4px 0 var(--red), 7px 7px 0 #121212;
-  opacity: 0; font-weight: 800; font-stretch: 112%; }
+  opacity: 0; font-weight: 400; font-stretch: normal; }
 @keyframes cx-pop {
   0% { opacity: 0; transform: rotate(var(--r, -10deg)) scale(0.3); }
   25% { opacity: 1; transform: rotate(var(--r, -10deg)) scale(1.15); }
