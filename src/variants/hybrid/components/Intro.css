@@ -80,13 +80,13 @@
 }
 @keyframes boot-laser { to { transform: translateY(58px); } }
 .boot__pct { margin-top: 14px; font-size: clamp(64px, 14vw, 96px); font-weight: 800; font-stretch: 115%; letter-spacing: -0.05em; line-height: 0.9; }
-.boot__pct span { font-size: 0.4em; color: var(--accent); margin-left: 4px; }
+.boot__pct span { font-size: 0.4em; color: var(--accent-text); margin-left: 4px; }
 .boot__bar { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; margin: 16px 0 20px; }
 .boot__bar span { height: 12px; background: var(--bg-alt); border: 1px solid var(--line); }
 .boot__bar span.is-on { background: var(--accent); border-color: var(--accent); }
 .boot__lines { display: grid; gap: 6px; font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.02em; }
 .boot__lines li { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); opacity: 0.35; transition: opacity 0.2s, color 0.2s; }
-.boot__lines li::before { content: '›'; margin-right: -4px; color: var(--accent); }
+.boot__lines li::before { content: '›'; margin-right: -4px; color: var(--accent-text); }
 .boot__lines li > span:first-of-type { flex: 1; }
 .boot__lines li.is-on { opacity: 1; color: var(--ink); }
 .boot__ok { color: var(--ok); font-weight: 600; }
@@ -104,10 +104,10 @@
 .hud--log { left: var(--gutter); max-width: min(440px, 60vw); display: grid; gap: 4px; }
 .hud--log p { animation: log-in 0.25s ease both; }
 @keyframes log-in { from { opacity: 0; transform: translateX(-6px); } }
-.hud__k { display: inline-block; min-width: 82px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+.hud__k { display: inline-block; min-width: 82px; color: var(--accent-text); text-transform: uppercase; letter-spacing: 0.06em; }
 .hud--count { right: var(--gutter); text-align: right; }
 .hud__label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.hud__num { font-family: var(--font-sans); font-size: clamp(30px, 4.6vw, 56px); font-weight: 800; font-stretch: 112%; letter-spacing: -0.03em; line-height: 1; color: var(--accent); }
+.hud__num { font-family: var(--font-sans); font-size: clamp(30px, 4.6vw, 56px); font-weight: 800; font-stretch: 112%; letter-spacing: -0.03em; line-height: 1; color: var(--accent-text); }
 
 .stage { position: absolute; inset: 0; z-index: 1; }
 
@@ -196,7 +196,7 @@
 .scanner__ok {
   position: absolute; bottom: calc(100% + 28px); left: 50%; transform: translateX(-50%);
   padding: 3px 9px; white-space: nowrap;
-  background: var(--ok); color: #fff;
+  background: var(--accent); color: #121212;
   font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
   opacity: 0;
   animation: ok-pop 1s ease 4.3s both;
@@ -242,7 +242,7 @@
   display: flex; align-items: baseline; gap: 14px;
   animation: step-in 0.45s var(--ease) both;
 }
-.step__n { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--accent); }
+.step__n { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--accent-text); }
 .step__name { font-size: clamp(40px, 7vw, 96px); font-weight: 800; font-stretch: 115%; letter-spacing: -0.04em; line-height: 0.9; }
 @keyframes step-in { from { opacity: 0; transform: translateY(24px); } }
 
@@ -256,7 +256,7 @@
 .finale__eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .finale__title { margin-top: 10px; font-size: clamp(40px, 7vw, 100px); font-weight: 800; font-stretch: 115%; letter-spacing: -0.04em; line-height: 0.95; }
 .finale__sub { margin-top: 12px; font-size: clamp(16px, 1.8vw, 22px); color: var(--ink-2); }
-.finale__sub::first-letter { color: var(--accent); }
+.finale__sub::first-letter { color: var(--accent-text); }
 
 /* ---------- Dock door ---------- */
 .door {
