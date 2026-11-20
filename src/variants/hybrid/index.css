@@ -565,31 +565,6 @@ strong { font-weight: 650; color: var(--ink); }
    Everything fires once; transform / opacity / clip-path only.
    ========================================================================== */
 
-/* Hero builds in as the dock door rolls up */
-.hero .eyebrow,
-.hero__title,
-.hero__lede,
-.hero__cta,
-.tally__cell { animation: rise-in 700ms var(--ease) backwards; }
-.hero__title { animation-name: title-in; }
-.label-wrap > .label { animation: label-drop 950ms var(--ease) backwards; }
-.hero .eyebrow { animation-delay: 300ms; }
-.hero__title { animation-delay: 370ms; }
-.label-wrap > .label { animation-delay: 440ms; }
-.hero__lede { animation-delay: 460ms; }
-.hero__cta { animation-delay: 530ms; }
-.tally__cell:nth-child(1) { animation-delay: 620ms; }
-.tally__cell:nth-child(2) { animation-delay: 670ms; }
-.tally__cell:nth-child(3) { animation-delay: 710ms; }
-.tally__cell:nth-child(4) { animation-delay: 740ms; }
-.tally__cell:nth-child(5) { animation-delay: 760ms; }
-html[data-intro='playing'] .hero .eyebrow,
-html[data-intro='playing'] .hero__title,
-html[data-intro='playing'] .hero__lede,
-html[data-intro='playing'] .hero__cta,
-html[data-intro='playing'] .tally__cell,
-html[data-intro='playing'] .label-wrap > .label { animation-play-state: paused; }
-
 @keyframes rise-in { from { opacity: 0; transform: translateY(16px); } }
 @keyframes rise-in-sm { from { opacity: 0; transform: translateY(8px); } }
 @keyframes slide-in { from { opacity: 0; transform: translateX(-20px); } }
@@ -637,7 +612,6 @@ html[data-intro='playing'] .label-wrap > .label { animation-play-state: paused; 
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .conveyor__shift { animation: conveyor-shift linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
-    .label-wrap { animation: label-drift linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
   }
 }
 @keyframes conveyor-shift { from { transform: translateX(3%); } to { transform: translateX(-6%); } }
@@ -730,6 +704,184 @@ html[data-intro='playing'] .hero-floor { animation-play-state: paused; }
     -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 85%, transparent 100%);
     mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 85%, transparent 100%);
   }
+}
+
+
+/* ==========================================================================
+   Hero = one big shipping label, printed after the intro
+   ========================================================================== */
+.hero { padding: clamp(28px, 4.5vw, 56px) 0 0; }
+.hero__inner { display: flex; flex-direction: column; align-items: center; }
+.hero__eyebrow { margin-bottom: 22px; animation: rise-in 600ms var(--ease) backwards 200ms; }
+
+.biglabel-wrap { position: relative; width: min(1000px, 100%); padding-top: 16px; }
+.biglabel-printer {
+  position: absolute; top: 0; left: -2.5%; right: -2.5%; height: 16px; z-index: 2;
+  background: var(--surface-2); border: 1.5px solid var(--line-strong); border-radius: 8px;
+  box-shadow: inset 0 -5px 0 #000;
+  opacity: 0;
+  animation: printer-slot 2300ms var(--ease) 250ms forwards;
+}
+@keyframes printer-slot {
+  0% { opacity: 0; transform: translateY(-8px); }
+  12%, 78% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+
+.biglabel {
+  position: relative;
+  background: var(--label-bg); color: var(--ink);
+  border: 1.5px solid var(--line-strong); border-radius: 8px;
+  box-shadow: 12px 12px 0 var(--line-strong);
+  transform: rotate(-1.2deg); transform-origin: 50% 0;
+  animation: label-print 1800ms backwards 350ms;
+}
+@keyframes label-print {
+  0% { transform: translateY(-28px) rotate(0deg); clip-path: inset(0 0 100% 0); animation-timing-function: var(--ease-in-out); }
+  68% { transform: translateY(0) rotate(0deg); clip-path: inset(-28px -28px -28px -28px); animation-timing-function: var(--ease); }
+  84% { transform: translateY(3px) rotate(-2.2deg); clip-path: inset(-28px -28px -28px -28px); }
+  100% { transform: rotate(-1.2deg); clip-path: inset(-28px -28px -28px -28px); }
+}
+.biglabel__main,
+.biglabel__split,
+.biglabel__note,
+.biglabel__code,
+.biglabel__foot { border-top: 1.5px solid var(--line-strong); }
+
+.biglabel__tiny { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.biglabel__head { display: flex; align-items: center; gap: 16px; padding: 16px 22px; }
+.biglabel__priority { display: grid; place-items: center; width: 56px; height: 56px; flex: none; background: var(--ink); color: var(--bg); font-weight: 800; font-size: 26px; font-stretch: 125%; }
+.biglabel__service { font-weight: 700; font-size: 18px; }
+.biglabel__ref { margin-left: auto; align-self: flex-start; }
+.biglabel__main { position: relative; padding: clamp(22px, 3vw, 34px) 22px clamp(24px, 3.2vw, 38px); }
+.biglabel .hero__title { font-size: clamp(38px, 5.4vw, 80px); }
+.biglabel__split { display: grid; grid-template-columns: 1fr 1fr; }
+.biglabel__split > div { padding: 14px 22px; }
+.biglabel__split > div + div { border-left: 1.5px solid var(--line-strong); }
+.biglabel__value { font-size: 17px; font-weight: 650; line-height: 1.3; }
+.biglabel__value span { display: block; margin-top: 2px; font-size: 14px; font-weight: 400; color: var(--muted); }
+.biglabel__value--sm { font-size: 15px; }
+.biglabel__note { padding: 16px 22px 18px; }
+.biglabel .hero__lede { margin: 0; padding: 0; border: 0; max-width: 74ch; font-size: clamp(15px, 1.3vw, 17px); }
+.biglabel__code { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 28px; padding: 18px 22px; }
+.biglabel__barcode { position: relative; overflow: hidden; color: var(--ink); }
+.biglabel__barcode .barcode { height: 66px; }
+.biglabel__center { margin: 6px 0 0; text-align: center; letter-spacing: 0.3em; }
+.biglabel__laser {
+  position: absolute; left: 0; top: 0; bottom: 22px; width: 100%;
+  border-left: 3px solid var(--accent); box-shadow: -10px 0 16px -6px var(--accent);
+  opacity: 0;
+  animation: laser-pass 650ms var(--ease-in-out) 1600ms;
+}
+@keyframes laser-pass {
+  0% { opacity: 1; transform: translateX(0); }
+  88% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(100%); }
+}
+.biglabel .hero__cta { margin: 0; justify-content: flex-end; }
+.biglabel__foot {
+  padding: 11px 22px; background: var(--accent); color: var(--accent-ink); text-align: center; border-radius: 0 0 6px 6px;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.biglabel__stamp {
+  position: absolute; z-index: 3; right: 24%; top: -20px;
+  padding: 6px 14px; border: 3px solid var(--accent); border-radius: 6px;
+  background: var(--label-bg);
+  color: var(--accent-text);
+  font-family: var(--font-display); font-weight: 800; font-stretch: 112%; font-size: clamp(16px, 1.8vw, 24px); letter-spacing: 0.06em; text-transform: uppercase;
+  transform: rotate(-8deg); opacity: 0;
+  animation: stamp-hit 320ms var(--ease) 2150ms forwards;
+}
+@keyframes stamp-hit {
+  from { opacity: 0; transform: rotate(-14deg) scale(1.6); }
+  to { opacity: 1; transform: rotate(-8deg) scale(1); }
+}
+
+/* Numbers strip follows the label */
+.hero .tally { width: 100%; }
+.tally__cell { animation: rise-in 600ms var(--ease) backwards; }
+.tally__cell:nth-child(1) { animation-delay: 2250ms; }
+.tally__cell:nth-child(2) { animation-delay: 2300ms; }
+.tally__cell:nth-child(3) { animation-delay: 2340ms; }
+.tally__cell:nth-child(4) { animation-delay: 2370ms; }
+.tally__cell:nth-child(5) { animation-delay: 2390ms; }
+
+/* Hold the whole print until the dock door starts rolling */
+html[data-intro='playing'] .hero__eyebrow,
+html[data-intro='playing'] .biglabel-printer,
+html[data-intro='playing'] .biglabel,
+html[data-intro='playing'] .biglabel__laser,
+html[data-intro='playing'] .biglabel__stamp,
+html[data-intro='playing'] .tally__cell { animation-play-state: paused; }
+
+/* As you scroll past, the label lifts off the floor */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .biglabel-wrap { animation: label-lift linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
+  }
+}
+@keyframes label-lift { to { transform: translateY(-56px) scale(0.96); opacity: 0.35; } }
+
+/* Floor behind a centred label: fade top and bottom only */
+.hero-floor {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 82%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 82%, transparent 100%);
+}
+
+@media (max-width: 760px) {
+  .biglabel__split,
+  .biglabel__code { grid-template-columns: minmax(0, 1fr); }
+  .biglabel__split > div + div { border-left: 0; border-top: 1.5px solid var(--line-strong); }
+  .biglabel .hero__cta { justify-content: stretch; }
+  .biglabel .hero__cta .btn { width: 100%; }
+  .biglabel__ref { display: none; }
+  .biglabel__stamp { right: 12px; top: -30px; padding: 4px 10px; font-size: 14px; }
+}
+
+/* ==========================================================================
+   One motion language: every block is pressed on like a sticker
+   ========================================================================== */
+.reveal { transform: translateY(14px) rotate(-1.2deg) scale(0.985); }
+.reveal.is-visible { transform: none; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(14px) rotate(-1.2deg) scale(0.985); } }
+@keyframes rise-in-sm { from { opacity: 0; transform: translateY(8px) rotate(-0.6deg); } }
+
+/* ==========================================================================
+   Tracking rail — a parcel tag rides down the page edge
+   ========================================================================== */
+.rail { position: fixed; z-index: 40; right: 22px; top: 110px; bottom: 90px; width: 12px; pointer-events: none; display: none; }
+@media (min-width: 1360px) { .rail { display: block; } .nav::after { display: none; } }
+.rail__track { position: relative; height: 100%; width: 2px; margin-left: 5px; background: repeating-linear-gradient(180deg, var(--line-2) 0 6px, transparent 6px 12px); }
+.rail__fill { position: absolute; inset: 0; background: var(--accent); transform-origin: top center; transform: scaleY(0); }
+.rail__stop {
+  position: absolute; left: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--line-2); pointer-events: auto;
+  transition: background-color 200ms ease, border-color 200ms ease, transform 200ms var(--ease);
+}
+.rail__stop.is-passed { background: var(--accent); border-color: var(--accent); }
+.rail__stop.is-active { transform: scale(1.35); }
+.rail__tag { position: absolute; top: 0; right: -5px; margin-top: -10px; display: flex; flex-direction: row-reverse; align-items: center; gap: 8px; }
+.rail__tag-id {
+  padding: 3px 6px; border-radius: 3px; background: var(--accent); color: var(--accent-ink);
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+  box-shadow: 2px 2px 0 var(--line-strong);
+}
+.rail__tag-status {
+  padding: 3px 8px; border-radius: 3px; white-space: nowrap;
+  background: var(--surface); border: 1px solid var(--line-2); color: var(--ink-2);
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+  animation: status-in 300ms var(--ease);
+}
+@keyframes status-in { from { opacity: 0; transform: translateX(6px); } }
+@media (max-width: 1499px) { .rail__tag-status { display: none; } }
+@supports (animation-timeline: scroll()) {
+  .rail__fill { animation: progress-y linear both; animation-timeline: scroll(root block); }
+  .rail__tag { animation: rail-tag linear both; animation-timeline: scroll(root block); }
+}
+@keyframes rail-tag { to { transform: translateY(calc(100vh - 220px)); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .biglabel__stamp { opacity: 1 !important; }
 }
 
 /* ---------- Responsive ---------- */

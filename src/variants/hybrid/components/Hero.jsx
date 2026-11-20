@@ -11,6 +11,8 @@ function parcelsSinceMidnight() {
   return Math.floor(secs * (100000 / 86400));
 }
 
+// The hero is a single shipping label. After the intro it prints out of a
+// slot, gets its barcode scanned, is stamped "In transit" and slapped down.
 export default function Hero() {
   const [count, setCount] = useState(parcelsSinceMidnight);
 
@@ -22,76 +24,90 @@ export default function Hero() {
   return (
     <section className="hero" id="top">
       <HeroFloor />
-      <div className="container hero__grid">
-        <div className="hero__copy">
-          <p className="eyebrow">
-            <span className="dot dot--live" aria-hidden="true" />
-            {profile.role} · {profile.company} · {profile.location}
-          </p>
-          <h1 className="hero__title">
-            I build the software that sorts <span className="accent-text">100,000 parcels</span> a day.
-          </h1>
-          <p className="hero__lede">
-            I'm <strong>{profile.name}</strong>, a backend software engineer building high-throughput
-            warehouse management and control systems — from PLC handshakes on the warehouse floor to
-            the RabbitMQ queues and APIs that keep the supply chain moving. I write the code, then go
-            on-site and take it live with the people who run it.
-          </p>
-          <div className="hero__cta">
-            <a href="#contact" className="btn btn--primary">
-              Start a conversation
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-                <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.5" />
-              </svg>
-            </a>
-            <a href="#work" className="btn btn--ghost">See the route history</a>
-          </div>
+      <div className="container hero__inner">
+        <p className="eyebrow hero__eyebrow">
+          <span className="dot dot--live" aria-hidden="true" />
+          {profile.role} · {profile.company} · {profile.location}
+        </p>
+
+        <div className="biglabel-wrap">
+          <span className="biglabel-printer" aria-hidden="true" />
+          <article className="biglabel">
+            <span className="biglabel__stamp" aria-hidden="true">In transit</span>
+            <header className="biglabel__head">
+              <span className="biglabel__priority">P1</span>
+              <div>
+                <p className="biglabel__tiny">Priority dispatch</p>
+                <p className="biglabel__service">Engineer · Express</p>
+              </div>
+              <span className="biglabel__tiny biglabel__ref">FEH-2024-SD · 1 of 1</span>
+            </header>
+
+            <div className="biglabel__main">
+              <h1 className="hero__title">
+                I build the software that sorts <span className="accent-text">100,000 parcels</span> a day.
+              </h1>
+            </div>
+
+            <div className="biglabel__split">
+              <div>
+                <p className="biglabel__tiny">From</p>
+                <p className="biglabel__value">
+                  {profile.name}
+                  <span>{profile.company} · {profile.location}</span>
+                </p>
+              </div>
+              <div>
+                <p className="biglabel__tiny">Deliver to</p>
+                <p className="biglabel__value">
+                  Your next engineering team
+                  <span>Signature on go-live</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="biglabel__note">
+              <p className="biglabel__tiny">Manifest note</p>
+              <p className="hero__lede">
+                I'm a backend software engineer building high-throughput warehouse management and control
+                systems — from PLC handshakes on the warehouse floor to the RabbitMQ queues and APIs that
+                keep the supply chain moving. I write the code, then go on-site and take it live with the
+                people who run it.
+              </p>
+            </div>
+
+            <div className="biglabel__split biglabel__split--meta">
+              <div>
+                <p className="biglabel__tiny">Contents</p>
+                <p className="biglabel__value biglabel__value--sm">.NET · C# · SQL · RabbitMQ · PLC</p>
+              </div>
+              <div>
+                <p className="biglabel__tiny">Service</p>
+                <p className="biglabel__value biglabel__value--sm">Build · ship · go-live</p>
+              </div>
+            </div>
+
+            <div className="biglabel__code">
+              <div className="biglabel__barcode">
+                <Barcode value="FAHAD-EQBAL-HASHMI" />
+                <span className="biglabel__laser" aria-hidden="true" />
+                <p className="biglabel__tiny biglabel__center">FEH · 2024 · SD · 100K</p>
+              </div>
+              <div className="hero__cta">
+                <a href="#contact" className="btn btn--primary">
+                  Start a conversation
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.5" />
+                  </svg>
+                </a>
+                <a href="#work" className="btn btn--ghost">See the route history</a>
+              </div>
+            </div>
+
+            <p className="biglabel__foot">Handle with curiosity ↑</p>
+          </article>
         </div>
 
-        {/* Shipping-label sticker from the manifest design */}
-        <div className="label-wrap">
-        <aside className="label" aria-label="Shipping label summary">
-          <div className="label__head">
-            <span className="label__priority">P1</span>
-            <div>
-              <p className="label__tiny">Priority dispatch</p>
-              <p className="label__service">Engineer · Express</p>
-            </div>
-            <span className="label__tiny label__ref">FEH-2024-SD</span>
-          </div>
-          <div className="label__row">
-            <p className="label__tiny">From</p>
-            <p className="label__value">
-              {profile.name}
-              <br />
-              <span>{profile.company} · {profile.location}</span>
-            </p>
-          </div>
-          <div className="label__row">
-            <p className="label__tiny">Deliver to</p>
-            <p className="label__value">Your next engineering team</p>
-          </div>
-          <div className="label__split">
-            <div>
-              <p className="label__tiny">Contents</p>
-              <p className="label__value label__value--sm">.NET · C# · SQL · RabbitMQ · PLC</p>
-            </div>
-            <div>
-              <p className="label__tiny">Service</p>
-              <p className="label__value label__value--sm">Build · ship · go-live</p>
-            </div>
-          </div>
-          <div className="label__code">
-            <Barcode value="FAHAD-EQBAL-HASHMI" />
-            <p className="label__tiny label__center">FEH · 2024 · SD · 100K</p>
-          </div>
-          <p className="label__foot">Handle with curiosity ↑</p>
-        </aside>
-        </div>
-      </div>
-
-      <div className="container">
-        {/* Open stat strip (same structure as the manifest design) */}
         <dl className="tally">
           <div className="tally__cell tally__cell--live">
             <dt className="tally__head">
