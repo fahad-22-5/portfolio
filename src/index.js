@@ -9,6 +9,7 @@ import reportWebVitals from './reportWebVitals';
 const PREVIEWS = {
   '/preview/manifest-730665': lazy(() => import('./variants/manifest/App')),
   '/preview/comic-2e53ab': lazy(() => import('./variants/comic/App')),
+  '/preview/hybrid-f84e5b': lazy(() => import('./variants/hybrid/App')),
 };
 
 const path = window.location.pathname.replace(/\/+$/, '');
