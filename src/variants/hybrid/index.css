@@ -28,6 +28,7 @@
   --bg-shadow: #000;
 
   --badge-ink: #121212;
+  --signal-red: #d9312a;      /* dispatch panel only */
 
   --font-display: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -263,7 +264,7 @@ strong { font-weight: 650; color: var(--ink); }
   content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px; background: var(--line-strong);
   transform-origin: left center; transform: scaleX(0); transition: transform 800ms var(--ease-in-out);
 }
-.contact__rule::after { background: #121212; }
+.contact__rule::after { background: #fffdf6; }
 .sh.is-visible .sh__rule::after,
 .contact__intro.is-visible .contact__rule::after { transform: scaleX(1); }
 .sh__idx { color: var(--accent-text); }
@@ -431,7 +432,7 @@ strong { font-weight: 650; color: var(--ink); }
 .offshift__card p { font-size: 15px; color: var(--ink-2); }
 
 /* ---------- Contact: red halftone dispatch panel (from the comic design) ---------- */
-.contact { position: relative; isolation: isolate; padding: clamp(84px, 11vw, 140px) 0; background: #ffd23f; color: #121212; border-top: 3px solid #121212; }
+.contact { position: relative; isolation: isolate; padding: clamp(84px, 11vw, 140px) 0; background: var(--signal-red); color: #fffdf6; border-top: 3px solid #121212; }
 .contact::before {
   content: ''; position: absolute; inset: 0; z-index: -1;
   background-image: radial-gradient(rgba(0, 0, 0, 0.16) 2px, transparent 2.2px); background-size: 14px 14px;
@@ -444,12 +445,12 @@ strong { font-weight: 650; color: var(--ink); }
 .contact__rule span:first-child { font-weight: 700; }
 .contact__title {
   margin-top: 26px;
-  font-family: var(--font-display); font-weight: 800; font-stretch: 112%;
-  font-size: clamp(50px, 6.6vw, 96px); line-height: 0.95; letter-spacing: -0.035em;
-  color: #fffdf6; -webkit-text-stroke: 2.5px #121212; paint-order: stroke fill; text-shadow: 6px 6px 0 #121212;
-  text-wrap: balance;
+  font-family: var(--font-display); font-weight: 800; font-stretch: 108%;
+  font-size: clamp(44px, 5.4vw, 80px); line-height: 0.98; letter-spacing: -0.04em;
+  color: #fffdf6;
 }
-.contact__lede { margin-top: 24px; max-width: 40ch; font-size: 19px; font-weight: 500; }
+.contact__title-em { display: block; color: #121212; }
+.contact__lede { margin-top: 24px; max-width: 40ch; font-size: 19px; font-weight: 500; color: #fffdf6; }
 .contact__links { margin-top: 36px; display: grid; gap: 12px; }
 .contact__links a {
   display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center;
@@ -485,7 +486,7 @@ strong { font-weight: 650; color: var(--ink); }
 .field input:focus,
 .field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, 0.25); }
 .field ::placeholder { color: #6f6b5f; }
-.form .btn--primary { background: #ffd23f; border-color: #ffd23f; color: #121212; }
+.form .btn--primary { background: var(--signal-red); border-color: var(--signal-red); color: #fffdf6; }
 .form .btn--primary:hover { box-shadow: 4px 4px 0 #eeebe2; }
 .form__status { min-height: 20px; margin-top: 14px; font-size: 14px; color: #c4c0b4; }
 
@@ -514,7 +515,7 @@ strong { font-weight: 650; color: var(--ink); }
 .sh__title,
 .contact__title { clip-path: inset(0 0 100% 0); transition: clip-path 700ms var(--ease-in-out) 220ms; }
 .sh.is-visible .sh__title,
-.contact__intro.is-visible .contact__title { clip-path: inset(-0.1em -0.2em -0.25em -0.2em); }
+.contact__intro.is-visible .contact__title { clip-path: inset(-0.2em -0.6em -0.3em -0.2em); }
 
 /* Grid groups stagger in once (animation, not transition, so hover stays instant) */
 .modules > .reveal.is-visible,
@@ -712,20 +713,58 @@ html[data-intro='playing'] .hero-floor { animation-play-state: paused; }
    ========================================================================== */
 .hero { padding: clamp(28px, 4.5vw, 56px) 0 0; }
 .hero__inner { display: flex; flex-direction: column; align-items: center; }
-.hero__eyebrow { margin-bottom: 22px; animation: rise-in 600ms var(--ease) backwards 200ms; }
+.hero__eyebrow { margin-bottom: 6px; animation: rise-in 600ms var(--ease) backwards 200ms; }
 
-.biglabel-wrap { position: relative; width: min(1000px, 100%); padding-top: 16px; }
-.biglabel-printer {
-  position: absolute; top: 0; left: -2.5%; right: -2.5%; height: 16px; z-index: 2;
-  background: var(--surface-2); border: 1.5px solid var(--line-strong); border-radius: 8px;
-  box-shadow: inset 0 -5px 0 #000;
+.biglabel-wrap { position: relative; width: min(1000px, 100%); padding-top: 52px; }
+
+/* Thermal printer: drops in, prints, cuts, lifts away (times from the door roll-up) */
+.printer {
+  position: absolute; z-index: 3; top: 0; left: -3%; right: -3%; height: 52px;
+  display: flex; align-items: center; gap: 12px; padding: 0 20px 10px;
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  border: 1.5px solid var(--line-strong); border-radius: 12px 12px 6px 6px;
+  box-shadow: 6px 6px 0 var(--line-strong);
   opacity: 0;
-  animation: printer-slot 2300ms var(--ease) 250ms forwards;
+  animation: printer-cycle 2700ms var(--ease) 200ms forwards;
 }
-@keyframes printer-slot {
-  0% { opacity: 0; transform: translateY(-8px); }
-  12%, 78% { opacity: 1; transform: none; }
-  100% { opacity: 0; transform: translateY(-8px); }
+@keyframes printer-cycle {
+  0% { opacity: 0; transform: translateY(-16px); }
+  9%, 85% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-20px); }
+}
+.printer__led { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: printer-led 500ms steps(2, start) 6; animation-delay: 300ms; }
+@keyframes printer-led { 50% { opacity: 0.2; } }
+.printer__brand { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.printer__status { position: relative; margin-left: auto; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); }
+.printer__status-done { position: absolute; right: 0; top: 0; white-space: nowrap; color: var(--accent-text); opacity: 0; animation: status-swap-in 200ms var(--ease) 2050ms forwards; }
+.printer__status-run { display: inline-block; animation: status-swap-out 200ms var(--ease) 2050ms forwards; }
+@keyframes status-swap-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes status-swap-out { to { opacity: 0; transform: translateY(-4px); } }
+.printer__slot { position: absolute; left: 16px; right: 16px; bottom: 4px; height: 5px; border-radius: 3px; background: #000; }
+.printer__head {
+  position: absolute; left: 16px; right: 16px; bottom: 5px; height: 2px;
+  background: var(--accent); box-shadow: 0 0 10px var(--accent);
+  opacity: 0; animation: head-on 1500ms linear 500ms;
+}
+@keyframes head-on { 0%, 100% { opacity: 0; } 4%, 96% { opacity: 1; } 30% { opacity: 0.6; } 55% { opacity: 1; } 78% { opacity: 0.7; } }
+.printer__cut {
+  position: absolute; left: 16px; right: 16px; bottom: 5px; height: 2px;
+  background: #fffdf6; transform-origin: left center; opacity: 0;
+  animation: cut-swipe 240ms var(--ease) 2000ms;
+}
+@keyframes cut-swipe { 0% { opacity: 1; transform: scaleX(0); } 70% { opacity: 1; transform: scaleX(1); } 100% { opacity: 0; transform: scaleX(1); } }
+
+/* The label feeds out of the slot leading edge first (constant speed), gets
+   a tug when it's cut, then is slapped down at its tilt. The clip keeps
+   everything above the slot hidden while it feeds. */
+.biglabel { animation: label-print 2300ms backwards 500ms; }
+@keyframes label-print {
+  0% { transform: translateY(-100%) rotate(0deg); clip-path: inset(100% -32px -32px -32px); animation-timing-function: linear; }
+  65% { transform: translateY(0) rotate(0deg); clip-path: inset(0 -32px -32px -32px); animation-timing-function: var(--ease); }
+  70% { transform: translateY(6px) rotate(0deg); clip-path: inset(-32px -32px -32px -32px); animation-timing-function: var(--ease); }
+  76% { transform: translateY(0) rotate(0deg); clip-path: inset(-32px -32px -32px -32px); animation-timing-function: var(--ease); }
+  90% { transform: translateY(3px) rotate(-2.4deg); clip-path: inset(-32px -32px -32px -32px); }
+  100% { transform: rotate(-1.2deg); clip-path: inset(-32px -32px -32px -32px); }
 }
 
 .biglabel {
@@ -734,13 +773,6 @@ html[data-intro='playing'] .hero-floor { animation-play-state: paused; }
   border: 1.5px solid var(--line-strong); border-radius: 8px;
   box-shadow: 12px 12px 0 var(--line-strong);
   transform: rotate(-1.2deg); transform-origin: 50% 0;
-  animation: label-print 1800ms backwards 350ms;
-}
-@keyframes label-print {
-  0% { transform: translateY(-28px) rotate(0deg); clip-path: inset(0 0 100% 0); animation-timing-function: var(--ease-in-out); }
-  68% { transform: translateY(0) rotate(0deg); clip-path: inset(-28px -28px -28px -28px); animation-timing-function: var(--ease); }
-  84% { transform: translateY(3px) rotate(-2.2deg); clip-path: inset(-28px -28px -28px -28px); }
-  100% { transform: rotate(-1.2deg); clip-path: inset(-28px -28px -28px -28px); }
 }
 .biglabel__main,
 .biglabel__split,
@@ -771,7 +803,7 @@ html[data-intro='playing'] .hero-floor { animation-play-state: paused; }
   position: absolute; left: 0; top: 0; bottom: 22px; width: 100%;
   border-left: 3px solid var(--accent); box-shadow: -10px 0 16px -6px var(--accent);
   opacity: 0;
-  animation: laser-pass 650ms var(--ease-in-out) 1600ms;
+  animation: laser-pass 650ms var(--ease-in-out) 2850ms;
 }
 @keyframes laser-pass {
   0% { opacity: 1; transform: translateX(0); }
@@ -790,7 +822,7 @@ html[data-intro='playing'] .hero-floor { animation-play-state: paused; }
   color: var(--accent-text);
   font-family: var(--font-display); font-weight: 800; font-stretch: 112%; font-size: clamp(16px, 1.8vw, 24px); letter-spacing: 0.06em; text-transform: uppercase;
   transform: rotate(-8deg); opacity: 0;
-  animation: stamp-hit 320ms var(--ease) 2150ms forwards;
+  animation: stamp-hit 320ms var(--ease) 3350ms forwards;
 }
 @keyframes stamp-hit {
   from { opacity: 0; transform: rotate(-14deg) scale(1.6); }
@@ -800,15 +832,16 @@ html[data-intro='playing'] .hero-floor { animation-play-state: paused; }
 /* Numbers strip follows the label */
 .hero .tally { width: 100%; }
 .tally__cell { animation: rise-in 600ms var(--ease) backwards; }
-.tally__cell:nth-child(1) { animation-delay: 2250ms; }
-.tally__cell:nth-child(2) { animation-delay: 2300ms; }
-.tally__cell:nth-child(3) { animation-delay: 2340ms; }
-.tally__cell:nth-child(4) { animation-delay: 2370ms; }
-.tally__cell:nth-child(5) { animation-delay: 2390ms; }
+.tally__cell:nth-child(1) { animation-delay: 3450ms; }
+.tally__cell:nth-child(2) { animation-delay: 3500ms; }
+.tally__cell:nth-child(3) { animation-delay: 3540ms; }
+.tally__cell:nth-child(4) { animation-delay: 3570ms; }
+.tally__cell:nth-child(5) { animation-delay: 3590ms; }
 
 /* Hold the whole print until the dock door starts rolling */
 html[data-intro='playing'] .hero__eyebrow,
-html[data-intro='playing'] .biglabel-printer,
+html[data-intro='playing'] .printer,
+html[data-intro='playing'] .printer *,
 html[data-intro='playing'] .biglabel,
 html[data-intro='playing'] .biglabel__laser,
 html[data-intro='playing'] .biglabel__stamp,

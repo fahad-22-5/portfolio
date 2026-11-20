@@ -31,7 +31,17 @@ export default function Hero() {
         </p>
 
         <div className="biglabel-wrap">
-          <span className="biglabel-printer" aria-hidden="true" />
+          <div className="printer" aria-hidden="true">
+            <span className="printer__led" />
+            <span className="printer__brand">FEH · Thermal 4×6</span>
+            <span className="printer__status">
+              <span className="printer__status-run">Printing…</span>
+              <span className="printer__status-done">Done ✓</span>
+            </span>
+            <span className="printer__slot" />
+            <span className="printer__head" />
+            <span className="printer__cut" />
+          </div>
           <article className="biglabel">
             <span className="biglabel__stamp" aria-hidden="true">In transit</span>
             <header className="biglabel__head">

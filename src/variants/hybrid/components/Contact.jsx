@@ -42,7 +42,7 @@ export default function Contact() {
       <div className="container contact__grid">
         <div className="contact__intro reveal">
           <p className="contact__rule"><span>05</span><span>Dispatch</span></p>
-          <h2 className="contact__title">Let's ship something.</h2>
+          <h2 className="contact__title">Let's ship <span className="contact__title-em">something.</span></h2>
           <p className="contact__lede">
             Got a system to build, a rollout that has to land, or a gnarly throughput problem? Send it over.
           </p>
