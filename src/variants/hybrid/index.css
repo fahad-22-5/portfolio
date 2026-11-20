@@ -19,16 +19,16 @@
   --muted: #8e8a7c;
   --dots: rgba(238, 235, 226, 0.065);
 
-  --accent: #ffd23f;          /* caution yellow: the only colour on the page */
-  --accent-ink: #121212;
-  --accent-text: #ffd23f;     /* accent used as text */
-  --accent-soft: rgba(255, 210, 63, 0.14);
-  --ok: #ffd23f;
+  --accent: #e5372b;          /* signal red: the only colour on the page */
+  --accent-ink: #fffdf6;
+  --accent-text: #ff5b4f;     /* accent used as text (lifted for contrast on dark) */
+  --accent-soft: rgba(229, 55, 43, 0.16);
+  --ok: #ff5b4f;
   --label-bg: #1a1a16;
   --bg-shadow: #000;
 
   --badge-ink: #121212;
-  --signal-red: #d9312a;      /* dispatch panel only */
+  --signal-red: #d9312a;      /* dispatch panel (deeper than the accent so red-on-red reads) */
 
   --font-display: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -56,11 +56,11 @@
   --ink-2: #3b3a33;
   --muted: #6d695d;
   --dots: rgba(23, 22, 15, 0.08);
-  --accent: #f5c518;
-  --accent-ink: #121212;
-  --accent-text: #7a5a00;
-  --accent-soft: rgba(245, 197, 24, 0.2);
-  --ok: #7a5a00;
+  --accent: #d62f24;
+  --accent-ink: #fffdf6;
+  --accent-text: #b3261c;
+  --accent-soft: rgba(214, 47, 36, 0.14);
+  --ok: #b3261c;
   --label-bg: #fffdf7;
   --bg-shadow: #17160f;
   color-scheme: light;
@@ -381,13 +381,13 @@ strong { font-weight: 650; color: var(--ink); }
   position: relative; overflow: hidden;
   background: #fffdf6; color: #121212;
   border: 3px solid #121212; border-radius: 16px;
-  box-shadow: 10px 10px 0 #ffd23f, 10px 10px 0 3px #121212;
+  box-shadow: 10px 10px 0 var(--accent), 10px 10px 0 3px #121212;
   transform: rotate(-1.5deg); transition: transform 0.5s var(--ease);
 }
 .idcard__card::before { content: ''; position: absolute; top: 14px; left: 50%; width: 60px; height: 12px; transform: translateX(-50%); border: 3px solid #121212; border-radius: 8px; background: var(--bg); }
 .idcard__top {
   display: flex; justify-content: space-between; gap: 12px; padding: 40px 18px 12px;
-  background: #ffd23f; border-bottom: 3px solid #121212;
+  background: var(--accent); color: #fffdf6; border-bottom: 3px solid #121212;
   font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
 }
 .idcard__mono {
@@ -395,9 +395,9 @@ strong { font-weight: 650; color: var(--ink); }
   display: grid; place-items: center; aspect-ratio: 16 / 9; margin: 18px;
   background: var(--badge-ink); border: 3px solid #121212; border-radius: 10px;
   font-family: var(--font-display); font-weight: 800; font-stretch: 112%; font-size: clamp(72px, 9vw, 124px); line-height: 1; letter-spacing: -0.04em;
-  color: #ffd23f; -webkit-text-stroke: 0; text-shadow: 6px 6px 0 #3a3932;
+  color: var(--accent); -webkit-text-stroke: 0; text-shadow: 6px 6px 0 #3a3932;
 }
-.idcard__mono::before { content: ''; position: absolute; inset: 0; z-index: -1; background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255, 210, 63, 0.12) 0deg 10deg, transparent 10deg 20deg); }
+.idcard__mono::before { content: ''; position: absolute; inset: 0; z-index: -1; background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(229, 55, 43, 0.14) 0deg 10deg, transparent 10deg 20deg); }
 .idcard__name { padding: 0 18px; font-size: 26px; font-weight: 800; font-stretch: 112%; letter-spacing: -0.02em; line-height: 1.1; }
 .idcard__role { padding: 2px 18px 0; color: #5a5548; font-weight: 650; font-size: 15px; }
 .idcard__code { margin: 16px 18px 18px; padding: 8px 10px 6px; border: 2px solid #121212; border-radius: 8px; color: #121212; }
@@ -484,7 +484,7 @@ strong { font-weight: 650; color: var(--ink); }
 }
 .field textarea { resize: vertical; min-height: 130px; }
 .field input:focus,
-.field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, 0.25); }
+.field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(229, 55, 43, 0.3); }
 .field ::placeholder { color: #6f6b5f; }
 .form .btn--primary { background: var(--signal-red); border-color: var(--signal-red); color: #fffdf6; }
 .form .btn--primary:hover { box-shadow: 4px 4px 0 #eeebe2; }

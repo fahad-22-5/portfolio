@@ -23,10 +23,16 @@ if (Preview) {
   document.head.appendChild(robots);
 }
 
+// Previews have their own intro, so they get a plain dark hold screen instead
+// of the live site's "Loading portfolio" splash.
+const fallback = Preview
+  ? <div style={{ position: 'fixed', inset: 0, background: '#0d0d0a' }} aria-hidden="true" />
+  : <PageLoader label="Loading portfolio" />;
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Suspense fallback={<PageLoader label="Loading portfolio" />}>
+    <Suspense fallback={fallback}>
       {Preview ? (
         <Preview />
       ) : (

@@ -196,7 +196,7 @@
 .scanner__ok {
   position: absolute; bottom: calc(100% + 28px); left: 50%; transform: translateX(-50%);
   padding: 3px 9px; white-space: nowrap;
-  background: var(--accent); color: #121212;
+  background: var(--accent); color: var(--accent-ink);
   font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
   opacity: 0;
   animation: ok-pop 1s ease 4.3s both;
@@ -273,7 +273,7 @@
 .door__panel { flex: 1; display: grid; place-content: center; text-align: center; gap: 10px; padding: 0 var(--gutter); }
 .door__code {
   justify-self: center; padding: 3px 10px;
-  background: var(--accent); color: #17160f;
+  background: var(--accent); color: var(--accent-ink);
   font-family: var(--font-mono); font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
 }
 .door__name { font-size: clamp(40px, 7.5vw, 110px); font-weight: 800; font-stretch: 118%; letter-spacing: -0.04em; line-height: 0.95; text-wrap: balance; }
