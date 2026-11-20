@@ -713,7 +713,7 @@ html[data-intro='playing'] .hero-floor { animation-play-state: paused; }
    ========================================================================== */
 .hero { padding: clamp(28px, 4.5vw, 56px) 0 0; }
 .hero__inner { display: flex; flex-direction: column; align-items: center; }
-.hero__eyebrow { margin-bottom: 6px; animation: rise-in 600ms var(--ease) backwards 200ms; }
+.hero__eyebrow { margin-bottom: 6px; animation: rise-in 600ms var(--ease) backwards 3300ms; }
 
 .biglabel-wrap { position: relative; width: min(1000px, 100%); padding-top: 52px; }
 
@@ -822,7 +822,7 @@ html[data-intro='playing'] .hero-floor { animation-play-state: paused; }
   color: var(--accent-text);
   font-family: var(--font-display); font-weight: 800; font-stretch: 112%; font-size: clamp(16px, 1.8vw, 24px); letter-spacing: 0.06em; text-transform: uppercase;
   transform: rotate(-8deg); opacity: 0;
-  animation: stamp-hit 320ms var(--ease) 3350ms forwards;
+  animation: stamp-hit 320ms var(--ease) 3550ms forwards;
 }
 @keyframes stamp-hit {
   from { opacity: 0; transform: rotate(-14deg) scale(1.6); }
@@ -832,11 +832,11 @@ html[data-intro='playing'] .hero-floor { animation-play-state: paused; }
 /* Numbers strip follows the label */
 .hero .tally { width: 100%; }
 .tally__cell { animation: rise-in 600ms var(--ease) backwards; }
-.tally__cell:nth-child(1) { animation-delay: 3450ms; }
-.tally__cell:nth-child(2) { animation-delay: 3500ms; }
-.tally__cell:nth-child(3) { animation-delay: 3540ms; }
-.tally__cell:nth-child(4) { animation-delay: 3570ms; }
-.tally__cell:nth-child(5) { animation-delay: 3590ms; }
+.tally__cell:nth-child(1) { animation-delay: 3650ms; }
+.tally__cell:nth-child(2) { animation-delay: 3700ms; }
+.tally__cell:nth-child(3) { animation-delay: 3740ms; }
+.tally__cell:nth-child(4) { animation-delay: 3770ms; }
+.tally__cell:nth-child(5) { animation-delay: 3790ms; }
 
 /* Hold the whole print until the dock door starts rolling */
 html[data-intro='playing'] .hero__eyebrow,
@@ -850,10 +850,10 @@ html[data-intro='playing'] .tally__cell { animation-play-state: paused; }
 /* As you scroll past, the label lifts off the floor */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .biglabel-wrap { animation: label-lift linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
+    .biglabel-wrap { animation: label-lift linear both; animation-timeline: scroll(root block); animation-range: 0px 700px; }
   }
 }
-@keyframes label-lift { to { transform: translateY(-56px) scale(0.96); opacity: 0.35; } }
+@keyframes label-lift { to { transform: translateY(-48px) scale(0.97); } }
 
 /* Floor behind a centred label: fade top and bottom only */
 .hero-floor {
@@ -1027,6 +1027,34 @@ html[data-intro='playing'] .nav__play::after { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .game__screen-cta { opacity: 1; }
 }
+
+
+/* ==========================================================================
+   Print stage: while the label prints, only the background floor and the
+   printer are on screen. The printer docks at the top of the viewport; when
+   the print is done the label settles into place and the site assembles.
+   Times are from the dock door starting to roll up (data-intro="reveal").
+   ========================================================================== */
+
+/* Dock: lift the hero content so the printer sits at the top edge, then settle */
+.hero__inner { animation: hero-dock 3400ms backwards; }
+@keyframes hero-dock {
+  0%, 85% { transform: translateY(var(--dock, 0px)); animation-timing-function: var(--ease-in-out); }
+  100% { transform: none; }
+}
+
+/* Site assembles after the print */
+.nav { animation: nav-in 450ms var(--ease) backwards 3200ms; }
+@keyframes nav-in { from { opacity: 0; transform: translateY(-100%); } }
+.rail { animation: fade-up 450ms ease backwards 3450ms; }
+main > :not(.hero),
+.footer { animation: fade-up 500ms ease backwards 3300ms; }
+
+html[data-intro='playing'] .hero__inner,
+html[data-intro='playing'] .nav,
+html[data-intro='playing'] .rail,
+html[data-intro='playing'] main > :not(.hero),
+html[data-intro='playing'] .footer { animation-play-state: paused; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1080px) {

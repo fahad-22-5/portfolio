@@ -80,8 +80,9 @@ export default function Intro() {
   // Lock scrolling and keep the page at the top while the intro plays.
   useEffect(() => {
     if (phase === 'done') {
-      document.documentElement.style.overflow = '';
-      return undefined;
+      // The hero keeps printing for ~2s after the door is up; release scroll after it.
+      const id = setTimeout(() => { document.documentElement.style.overflow = ''; }, prefersReducedMotion() ? 0 : 2300);
+      return () => clearTimeout(id);
     }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     document.documentElement.style.overflow = 'hidden';

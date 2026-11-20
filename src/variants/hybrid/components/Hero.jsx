@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Barcode from './Barcode';
 import HeroFloor from './HeroFloor';
 import { profile, stats } from '../data';
@@ -15,6 +15,20 @@ function parcelsSinceMidnight() {
 // slot, gets its barcode scanned, is stamped "In transit" and slapped down.
 export default function Hero() {
   const [count, setCount] = useState(parcelsSinceMidnight);
+  const wrapRef = useRef(null);
+  const [dock, setDock] = useState(0);
+
+  // Distance from the top of the page to the printer, so the print can run
+  // docked at the top edge before the label settles into its place.
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = wrapRef.current;
+      if (el) setDock(-Math.max(0, el.getBoundingClientRect().top + window.scrollY - 12));
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
 
   useEffect(() => {
     const t = setInterval(() => setCount(parcelsSinceMidnight()), 400);
@@ -24,13 +38,13 @@ export default function Hero() {
   return (
     <section className="hero" id="top">
       <HeroFloor />
-      <div className="container hero__inner">
+      <div className="container hero__inner" style={{ '--dock': `${dock}px` }}>
         <p className="eyebrow hero__eyebrow">
           <span className="dot dot--live" aria-hidden="true" />
           {profile.role} · {profile.company} · {profile.location}
         </p>
 
-        <div className="biglabel-wrap">
+        <div className="biglabel-wrap" ref={wrapRef}>
           <div className="printer" aria-hidden="true">
             <span className="printer__led" />
             <span className="printer__brand">FEH · Thermal 4×6</span>
