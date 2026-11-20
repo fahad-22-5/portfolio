@@ -59,12 +59,6 @@ export default function Contact() {
                 {profile.linkedinHandle} ↗
               </a>
             </li>
-            <li>
-              <a href={profile.phoneHref}>
-                <span className="mono">Phone</span>
-                {profile.phone}
-              </a>
-            </li>
           </ul>
         </div>
 

@@ -171,17 +171,6 @@ function Contact() {
                   <p className="contact__social-value">fahadeqbalhashmi</p>
                 </div>
               </a>
-
-              <a
-                href="tel:+917250864992"
-                className="contact__social-card"
-              >
-                <span className="contact__social-icon">☎</span>
-                <div>
-                  <p className="contact__social-label">Phone</p>
-                  <p className="contact__social-value">+91 7250864992</p>
-                </div>
-              </a>
             </div>
           </div>
         </div>

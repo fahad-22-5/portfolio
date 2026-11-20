@@ -8,8 +8,6 @@ export const profile = {
   company: 'Falcon Autotech',
   location: 'Noida, India',
   email: 'eqbalfahad@gmail.com',
-  phone: '+91 7250864992',
-  phoneHref: 'tel:+917250864992',
   linkedin: 'https://www.linkedin.com/in/fahadeqbalhashmi',
   linkedinHandle: 'fahadeqbalhashmi',
 };
