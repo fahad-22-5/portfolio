@@ -2853,6 +2853,60 @@ export default function Warehouse() {
     };
   }, [updateJoystickPosition, resetJoystick]);
 
+  // ─── Auto full screen once a touch device is in landscape ───
+  // Browsers only grant full screen inside a user gesture, so we try right
+  // away (works where the rotation still counts as activation) and otherwise
+  // enter on the player's first tap. Orientation is then locked to landscape
+  // where supported (Android, in full screen). iPhone Safari has no element
+  // full screen API, so this is a no-op there.
+  useEffect(() => {
+    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (!isTouch || isPortrait) return undefined;
+    const root = document.documentElement;
+    const request = root.requestFullscreen || root.webkitRequestFullscreen;
+    if (!request) return undefined;
+
+    const inFullscreen = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+    const lockLandscape = () => {
+      try {
+        const p = window.screen && window.screen.orientation && window.screen.orientation.lock && window.screen.orientation.lock('landscape');
+        if (p && p.catch) p.catch(() => {});
+      } catch (e) { /* not supported */ }
+    };
+    const enter = () => {
+      if (inFullscreen()) return Promise.resolve(true);
+      try {
+        return Promise.resolve(request.call(root, { navigationUI: 'hide' }))
+          .then(() => { lockLandscape(); return inFullscreen() || true; }, () => false);
+      } catch (e) {
+        return Promise.resolve(false);
+      }
+    };
+
+    let armed = false;
+    const onFirstTap = () => { enter().then((ok) => { if (ok) disarm(); }); };
+    const arm = () => {
+      if (armed) return;
+      armed = true;
+      window.addEventListener('touchend', onFirstTap, true);
+      window.addEventListener('click', onFirstTap, true);
+    };
+    function disarm() {
+      if (!armed) return;
+      armed = false;
+      window.removeEventListener('touchend', onFirstTap, true);
+      window.removeEventListener('click', onFirstTap, true);
+    }
+
+    enter().then((ok) => { if (!ok) arm(); });
+    return disarm;
+  }, [isPortrait]);
+
+  // Leave full screen when the game unmounts (e.g. in-app navigation away).
+  useEffect(() => () => {
+    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+  }, []);
+
   const handleTouchInteract = useCallback(() => {
     if (navigator.vibrate) {
       try { navigator.vibrate(25); } catch (e) {}
