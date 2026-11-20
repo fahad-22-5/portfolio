@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 // scroll, stopping at a checkpoint per section with a tracking status.
 const STOPS = [
   { id: 'top', label: 'Label printed' },
+  { id: 'play', label: 'Detour · Bonus level' },
   { id: 'work', label: 'In transit · Route' },
   { id: 'skills', label: 'At hub · Inventory' },
   { id: 'research', label: 'Scanned · Research' },

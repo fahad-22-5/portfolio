@@ -5,6 +5,7 @@ import Nav from './components/Nav';
 import Hero from './components/Hero';
 import Conveyor from './components/Conveyor';
 import Experience from './components/Experience';
+import GameDock from './components/GameDock';
 import Skills from './components/Skills';
 import Research from './components/Research';
 import About from './components/About';
@@ -25,6 +26,7 @@ export default function App() {
       <main>
         <Hero />
         <Conveyor />
+        <GameDock />
         <Experience />
         <Skills />
         <Research />

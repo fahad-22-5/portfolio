@@ -89,6 +89,11 @@ export default function Nav() {
         </ul>
 
         <div className="nav__tools">
+          <a href="/warehouse" className="nav__play" aria-label="Play the warehouse game">
+            <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor" /></svg>
+            <span className="nav__play-label">Play the warehouse</span>
+            <span className="nav__play-short">Play</span>
+          </a>
           <span className="nav__clock mono" title="Local time in Noida">
             <span className="dot dot--live" aria-hidden="true" /> Noida {time} IST
           </span>
