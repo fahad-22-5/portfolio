@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Barcode from './Barcode';
-import Segments from './Segments';
 import { profile, stats } from '../data';
 
 // Simulated: where a 100K/day sorter's running count would be since midnight IST.
@@ -20,7 +19,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="hero halftone" id="top">
+    <section className="hero" id="top">
       <div className="container hero__grid">
         <div className="hero__copy">
           <p className="eyebrow caption">
@@ -47,35 +46,43 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Shift-card layout from the warehouse game */}
-        <aside className="shift" aria-label="Mission card summary">
-          <div className="shift__top">
-            <span className="badge badge--amber">⚡ The 100K Shift</span>
-            <span className="shift__order">Issue #01</span>
-          </div>
-          <p className="shift__title">{profile.name}</p>
-          <p className="shift__client">{profile.company} · {profile.location}</p>
-          <div className="shift__target">
-            <span>Deliver to: <strong>your next engineering team</strong></span>
-          </div>
-          <div className="shift__grid">
-            <div className="shift__target">
-              <span className="shift__k">Contents</span>
-              <span>.NET · C# · SQL · RabbitMQ · PLC</span>
+        {/* Shipping-label sticker from the manifest design */}
+        <aside className="label" aria-label="Shipping label summary">
+          <div className="label__head">
+            <span className="label__priority">P1</span>
+            <div>
+              <p className="label__tiny">Priority dispatch</p>
+              <p className="label__service">Engineer · Express</p>
             </div>
-            <div className="shift__target">
-              <span className="shift__k">Weight</span>
-              <span className="shift__reward">2.5 yrs in production</span>
+            <span className="label__tiny label__ref">FEH-2024-SD</span>
+          </div>
+          <div className="label__row">
+            <p className="label__tiny">From</p>
+            <p className="label__value">
+              {profile.name}
+              <br />
+              <span>{profile.company} · {profile.location}</span>
+            </p>
+          </div>
+          <div className="label__row">
+            <p className="label__tiny">Deliver to</p>
+            <p className="label__value">Your next engineering team</p>
+          </div>
+          <div className="label__split">
+            <div>
+              <p className="label__tiny">Contents</p>
+              <p className="label__value label__value--sm">.NET · C# · SQL · RabbitMQ · PLC</p>
+            </div>
+            <div>
+              <p className="label__tiny">Service</p>
+              <p className="label__value label__value--sm">Build · ship · go-live</p>
             </div>
           </div>
-          <div className="shift__code">
+          <div className="label__code">
             <Barcode value="FAHAD-EQBAL-HASHMI" />
+            <p className="label__tiny label__center">FEH · 2024 · SD · 100K</p>
           </div>
-          <div className="shift__progress">
-            <span className="shift__k">Shift progress</span>
-            <Segments total={5} done={4} active={4} label="Shift progress: 4 of 5" />
-          </div>
-          <p className="shift__foot">Handle with curiosity ↑</p>
+          <p className="label__foot">Handle with curiosity ↑</p>
         </aside>
       </div>
 

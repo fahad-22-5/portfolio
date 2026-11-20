@@ -56,9 +56,7 @@ export default function Nav() {
   }, [theme]);
 
   const toggleTheme = () => {
-    const isDark = theme
-      ? theme === 'dark'
-      : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = theme ? theme === 'dark' : true; // dark is the default here
     const next = isDark ? 'light' : 'dark';
     setTheme(next);
     try {

@@ -5,31 +5,37 @@ import useReveal from '../useReveal';
 import { skillBins, softSkills } from '../data';
 
 const colors = ['amber', 'cyan', 'purple', 'green'];
+const maxUnits = Math.max(...skillBins.map((b) => b.skills.length));
 
+// Each skill group is a data-centre rack; each skill is a 1U unit with a status LED.
 export default function Skills() {
   const ref = useReveal();
   return (
-    <section className="section section--alt halftone" id="skills" ref={ref}>
+    <section className="section section--alt" id="skills" ref={ref}>
       <div className="container">
         <SectionHead index="02" label="Inventory" title="What's on the shelves." />
-        <div className="bins">
+        <div className="racks">
           {skillBins.map((bin, b) => (
-            // Shift-card layout from the warehouse game
-            <article className={`shift bin shift--${colors[b]}`} key={bin.bin}>
-              <div className="shift__top">
-                <span className={`badge badge--${colors[b]}`}>Bin {bin.bin}</span>
-                <span className="shift__order">{bin.skills.length} SKUs</span>
-              </div>
-              <h3 className="shift__title">{bin.title}</h3>
-              <ul className="bin__list">
+            <article className={`rack rack--${colors[b]} reveal`} key={bin.bin}>
+              <header className="rack__head">
+                <span className="rack__id">Rack {bin.bin}</span>
+                <span className="rack__lights" aria-hidden="true"><i /><i /><i /></span>
+              </header>
+              <h3 className="rack__title">{bin.title}</h3>
+              <p className="rack__count">{bin.skills.length} units online</p>
+              <ul className="rack__units">
                 {bin.skills.map((s, i) => (
-                  <li key={s}>
-                    <span className="mono">{bin.bin}-{String(i + 1).padStart(2, '0')}</span>
-                    {s}
+                  <li className="rack__unit" key={s} style={{ '--d': `${((i * 0.37 + b * 0.21) % 1.4).toFixed(2)}s` }}>
+                    <span className="rack__led" aria-hidden="true" />
+                    <span className="rack__name">{s}</span>
+                    <span className="rack__u" aria-hidden="true">U{String(i + 1).padStart(2, '0')}</span>
                   </li>
                 ))}
               </ul>
-              <Segments total={Math.max(...skillBins.map((b) => b.skills.length))} done={bin.skills.length} label={`${bin.skills.length} items`} />
+              <footer className="rack__foot">
+                <span>Load</span>
+                <Segments total={maxUnits} done={bin.skills.length} label={`${bin.skills.length} of ${maxUnits} units`} />
+              </footer>
             </article>
           ))}
         </div>
