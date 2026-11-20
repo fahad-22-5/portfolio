@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import './index.css';
 import './App.css';
 import RenovationBanner from './components/RenovationBanner';
 import Navbar from './components/Navbar';
