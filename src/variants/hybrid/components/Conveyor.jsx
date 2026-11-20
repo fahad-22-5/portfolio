@@ -13,10 +13,12 @@ function Parcels({ hidden }) {
 export default function Conveyor() {
   return (
     <div className="conveyor" aria-label="Technologies I work with">
-      <ul className="conveyor__track">
-        <Parcels />
-        <Parcels hidden />
-      </ul>
+      <div className="conveyor__shift">
+        <ul className="conveyor__track">
+          <Parcels />
+          <Parcels hidden />
+        </ul>
+      </div>
       <div className="conveyor__belt" aria-hidden="true" />
     </div>
   );

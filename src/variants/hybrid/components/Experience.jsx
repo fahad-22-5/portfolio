@@ -29,7 +29,7 @@ export default function Experience() {
                 <p className="route__company">{exp.company}</p>
                 {exp.scope && <p className="route__scope">{exp.scope}</p>}
                 <ul className="route__bullets">
-                  {exp.bullets.map((b) => <li key={b}>{b}</li>)}
+                  {exp.bullets.map((b, j) => <li key={b} style={{ '--n': j }}>{b}</li>)}
                 </ul>
                 <ul className="chips">
                   {exp.tech.map((t) => <li className="chip" key={t}>{t}</li>)}

@@ -7,7 +7,12 @@ export default function Footer() {
       <div className="container footer__inner">
         <p>© {new Date().getFullYear()} {profile.name}</p>
         <p className="mono">Built with React, caffeine and a lot of server logs.</p>
-        <a href="#top" className="mono">Back to top ↑</a>
+        <span className="footer__links">
+          <button type="button" className="mono footer__replay" onClick={() => window.dispatchEvent(new Event('intro:replay'))}>
+            Replay intro ↺
+          </button>
+          <a href="#top" className="mono">Back to top ↑</a>
+        </span>
       </div>
     </footer>
   );

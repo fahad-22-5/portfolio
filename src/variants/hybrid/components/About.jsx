@@ -51,8 +51,8 @@ export default function About() {
             </p>
 
             <dl className="facts">
-              {highlights.map((h) => (
-                <div key={h.label}>
+              {highlights.map((h, i) => (
+                <div key={h.label} style={{ '--n': i }}>
                   <dt>{h.label}</dt>
                   <dd>{h.detail}</dd>
                 </div>
@@ -61,8 +61,8 @@ export default function About() {
 
             <h3 className="sub">Education</h3>
             <ul className="edu">
-              {education.map((e) => (
-                <li key={e.school}>
+              {education.map((e, i) => (
+                <li key={e.school} style={{ '--n': i }}>
                   <span className="edu__period">{e.period}</span>
                   <div>
                     <p className="edu__school">{e.school}</p>

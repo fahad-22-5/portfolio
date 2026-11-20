@@ -255,9 +255,17 @@ strong { font-weight: 650; color: var(--ink); }
 .sh { margin-bottom: clamp(44px, 6vw, 64px); }
 .sh__rule {
   display: flex; align-items: center; gap: 14px; padding-bottom: 14px; margin-bottom: 22px;
-  border-bottom: 1.5px solid var(--line-strong);
+  position: relative;
   font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
 }
+.sh__rule::after,
+.contact__rule::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px; background: var(--line-strong);
+  transform-origin: left center; transform: scaleX(0); transition: transform 800ms var(--ease-in-out);
+}
+.contact__rule::after { background: #121212; }
+.sh.is-visible .sh__rule::after,
+.contact__intro.is-visible .contact__rule::after { transform: scaleX(1); }
 .sh__idx { color: var(--accent-text); }
 .sh__title { font-family: var(--font-display); font-weight: 800; font-stretch: 112%; font-size: clamp(38px, 5.2vw, 68px); line-height: 1; letter-spacing: -0.03em; text-wrap: balance; }
 .sh__lede { margin-top: 18px; max-width: 46ch; color: var(--ink-2); font-size: 17px; }
@@ -432,7 +440,7 @@ strong { font-weight: 650; color: var(--ink); }
 }
 .contact strong { color: inherit; }
 .contact__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
-.contact__rule { display: flex; gap: 14px; padding-bottom: 14px; border-bottom: 1.5px solid #121212; font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
+.contact__rule { position: relative; display: flex; gap: 14px; padding-bottom: 14px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
 .contact__rule span:first-child { font-weight: 700; }
 .contact__title {
   margin-top: 26px;
@@ -504,7 +512,7 @@ strong { font-weight: 650; color: var(--ink); }
 
 /* Section titles wipe up once their header reveals */
 .sh__title,
-.contact__title { clip-path: inset(0 0 100% 0); transition: clip-path 600ms var(--ease-in-out) 80ms; }
+.contact__title { clip-path: inset(0 0 100% 0); transition: clip-path 700ms var(--ease-in-out) 220ms; }
 .sh.is-visible .sh__title,
 .contact__intro.is-visible .contact__title { clip-path: inset(-0.1em -0.2em -0.25em -0.2em); }
 
@@ -550,6 +558,95 @@ strong { font-weight: 650; color: var(--ink); }
 @keyframes progress-x { to { transform: scaleX(1); } }
 @keyframes progress-y { to { transform: scaleY(1); } }
 @keyframes marker-on { to { background-color: var(--accent); border-color: var(--accent); } }
+
+
+/* ==========================================================================
+   Choreography — hero hand-off from the intro, then section entrances.
+   Everything fires once; transform / opacity / clip-path only.
+   ========================================================================== */
+
+/* Hero builds in as the dock door rolls up */
+.hero .eyebrow,
+.hero__title,
+.hero__lede,
+.hero__cta,
+.tally__cell { animation: rise-in 700ms var(--ease) backwards; }
+.hero__title { animation-name: title-in; }
+.label-wrap > .label { animation: label-drop 950ms var(--ease) backwards; }
+.hero .eyebrow { animation-delay: 300ms; }
+.hero__title { animation-delay: 370ms; }
+.label-wrap > .label { animation-delay: 440ms; }
+.hero__lede { animation-delay: 460ms; }
+.hero__cta { animation-delay: 530ms; }
+.tally__cell:nth-child(1) { animation-delay: 620ms; }
+.tally__cell:nth-child(2) { animation-delay: 670ms; }
+.tally__cell:nth-child(3) { animation-delay: 710ms; }
+.tally__cell:nth-child(4) { animation-delay: 740ms; }
+.tally__cell:nth-child(5) { animation-delay: 760ms; }
+html[data-intro='playing'] .hero .eyebrow,
+html[data-intro='playing'] .hero__title,
+html[data-intro='playing'] .hero__lede,
+html[data-intro='playing'] .hero__cta,
+html[data-intro='playing'] .tally__cell,
+html[data-intro='playing'] .label-wrap > .label { animation-play-state: paused; }
+
+@keyframes rise-in { from { opacity: 0; transform: translateY(16px); } }
+@keyframes rise-in-sm { from { opacity: 0; transform: translateY(8px); } }
+@keyframes slide-in { from { opacity: 0; transform: translateX(-20px); } }
+@keyframes fade-up { from { opacity: 0; } }
+@keyframes title-in {
+  from { opacity: 0; transform: translateY(28px); clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(-0.1em -0.2em -0.25em -0.2em); }
+}
+@keyframes label-drop {
+  from { opacity: 0; transform: translateY(-56px) rotate(10deg); }
+  65% { opacity: 1; transform: translateY(5px) rotate(1deg); }
+}
+
+/* Route: bullets and tags follow the stop in */
+.route__stop.is-visible .route__bullets li { animation: rise-in-sm 450ms var(--ease) backwards; animation-delay: calc(160ms + var(--n, 0) * 45ms); }
+.route__stop.is-visible .chips { animation: fade-up 400ms ease backwards 560ms; }
+
+/* Skills: tiles arrive, then each status light flickers on like a module booting */
+.module.is-visible .tile { animation: rise-in-sm 380ms var(--ease) backwards; animation-delay: calc(180ms + var(--i, 0) * 35ms); }
+.module.is-visible .tile__led { animation: led-boot 700ms ease-out; animation-delay: calc(260ms + var(--i, 0) * 45ms); }
+@keyframes led-boot { 35% { background: var(--accent); box-shadow: 0 0 8px var(--accent); } }
+
+/* Research: the headline figure wipes up */
+.paper.is-visible .paper__stat { animation: stat-wipe 800ms var(--ease-in-out) backwards 200ms; }
+@keyframes stat-wipe {
+  from { clip-path: inset(0 0 100% 0); transform: translateY(18%); }
+  to { clip-path: inset(-0.1em -0.1em -0.2em -0.1em); transform: none; }
+}
+
+/* About: the staff badge drops in on its lanyard; facts and education follow */
+.idcard__card { transform-origin: 50% -24px; }
+.about__portrait.is-visible .idcard__card { animation: badge-drop 1000ms var(--ease) backwards 120ms; }
+@keyframes badge-drop {
+  from { opacity: 0; transform: translateY(-48px) rotate(-12deg); }
+  55% { opacity: 1; transform: translateY(6px) rotate(2deg); }
+  80% { transform: translateY(-2px) rotate(-2.5deg); }
+}
+.about__body.is-visible .facts > div { animation: rise-in-sm 450ms var(--ease) backwards; animation-delay: calc(260ms + var(--n, 0) * 60ms); }
+.about__body.is-visible .edu li { animation: rise-in-sm 450ms var(--ease) backwards; animation-delay: calc(420ms + var(--n, 0) * 60ms); }
+
+/* Dispatch: contact cards slide in after the title */
+.contact__intro.is-visible .contact__links li { animation: slide-in 500ms var(--ease) backwards; animation-delay: calc(380ms + var(--n, 0) * 70ms); }
+
+/* Scroll-linked depth (where supported) */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .conveyor__shift { animation: conveyor-shift linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+    .label-wrap { animation: label-drift linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
+  }
+}
+@keyframes conveyor-shift { from { transform: translateX(3%); } to { transform: translateX(-6%); } }
+@keyframes label-drift { to { transform: translateY(-48px) rotate(4deg); } }
+
+/* Footer replay */
+.footer__links { display: inline-flex; align-items: center; gap: 20px; }
+.footer__replay { color: var(--muted); transition: color 200ms ease; }
+.footer__replay:hover { color: var(--accent-text); }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1080px) {

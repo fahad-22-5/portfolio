@@ -47,19 +47,19 @@ export default function Contact() {
             Got a system to build, a rollout that has to land, or a gnarly throughput problem? Send it over.
           </p>
           <ul className="contact__links">
-            <li>
+            <li style={{ '--n': 0 }}>
               <a href={`mailto:${profile.email}`}>
                 <span className="contact__k">Email</span>
                 {profile.email}
               </a>
             </li>
-            <li>
+            <li style={{ '--n': 1 }}>
               <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
                 <span className="contact__k">LinkedIn</span>
                 {profile.linkedinHandle} ↗
               </a>
             </li>
-            <li>
+            <li style={{ '--n': 2 }}>
               <a href={profile.phoneHref}>
                 <span className="contact__k">Phone</span>
                 {profile.phone}

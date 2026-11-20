@@ -47,6 +47,7 @@ export default function Hero() {
         </div>
 
         {/* Shipping-label sticker from the manifest design */}
+        <div className="label-wrap">
         <aside className="label" aria-label="Shipping label summary">
           <div className="label__head">
             <span className="label__priority">P1</span>
@@ -84,6 +85,7 @@ export default function Hero() {
           </div>
           <p className="label__foot">Handle with curiosity ↑</p>
         </aside>
+        </div>
       </div>
 
       <div className="container">

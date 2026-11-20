@@ -64,13 +64,26 @@ export default function Intro() {
     else if (phase === 'reveal' && t >= REVEAL_MS) goTo('done');
   }, [phase, t, goTo]);
 
+  // Expose the phase on <html> so the hero can build in as the door rolls up.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.intro = phase === 'done' ? 'done' : phase === 'reveal' ? 'reveal' : 'playing';
+  }, [phase]);
+
+  // "Replay intro" (footer) restarts the whole sequence.
+  useEffect(() => {
+    const replay = () => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); goTo('loading'); };
+    window.addEventListener('intro:replay', replay);
+    return () => window.removeEventListener('intro:replay', replay);
+  }, [goTo]);
+
   // Lock scrolling and keep the page at the top while the intro plays.
   useEffect(() => {
     if (phase === 'done') {
       document.documentElement.style.overflow = '';
       return undefined;
     }
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     document.documentElement.style.overflow = 'hidden';
     const onKey = (e) => { if (e.key === 'Escape') goTo('reveal'); };
     window.addEventListener('keydown', onKey);
@@ -95,7 +108,7 @@ export default function Intro() {
       <div className="intro intro--loading" role="status" aria-label={`Loading ${pct}%`}>
         <TopBar right={`BOOT ${String(pct).padStart(3, '0')}%`} />
         {skip}
-        <div className="boot">
+        <div className={`boot ${t >= LOAD_MS - 320 ? 'boot--out' : ''}`}>
           <div className="boot__head">
             <span className="boot__mark">FEH</span>
             <div>
@@ -160,6 +173,7 @@ export default function Intro() {
         <div className="bay">
           <span className="bay__tag">Bay 07</span>
           <span className="bay__to">Your next engineering team</span>
+          <span className="bay__stamp">✓ Signed off</span>
         </div>
 
         <div className="parcel-run">
@@ -171,6 +185,20 @@ export default function Intro() {
             </span>
           </div>
         </div>
+      </div>
+
+      <div className="tracker" aria-hidden="true">
+        {STEPS.map(([at, n, name], i) => {
+          const end = i < STEPS.length - 1 ? STEPS[i + 1][0] : 8400;
+          return (
+            <div className={`tracker__seg ${t >= at ? 'is-on' : ''}`} key={n}>
+              <span className="tracker__bar">
+                <span className="tracker__fill" style={{ animationDelay: `${at}ms`, animationDuration: `${end - at}ms` }} />
+              </span>
+              <span className="tracker__name">{n} · {name}</span>
+            </div>
+          );
+        })}
       </div>
 
       {step && (
