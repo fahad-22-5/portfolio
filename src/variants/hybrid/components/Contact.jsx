@@ -41,7 +41,7 @@ export default function Contact() {
     <section className="contact" id="contact" ref={ref}>
       <div className="container contact__grid">
         <div className="contact__intro reveal">
-          <p className="caption"><span>Chapter 05</span><span>Dispatch</span></p>
+          <p className="contact__rule"><span>05</span><span>Dispatch</span></p>
           <h2 className="contact__title">Let's ship something.</h2>
           <p className="contact__lede">
             Got a system to build, a rollout that has to land, or a gnarly throughput problem? Send it over.
@@ -49,19 +49,19 @@ export default function Contact() {
           <ul className="contact__links">
             <li>
               <a href={`mailto:${profile.email}`}>
-                <span className="mono">Email</span>
+                <span className="contact__k">Email</span>
                 {profile.email}
               </a>
             </li>
             <li>
               <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
-                <span className="mono">LinkedIn</span>
+                <span className="contact__k">LinkedIn</span>
                 {profile.linkedinHandle} ↗
               </a>
             </li>
             <li>
               <a href={profile.phoneHref}>
-                <span className="mono">Phone</span>
+                <span className="contact__k">Phone</span>
                 {profile.phone}
               </a>
             </li>
@@ -70,25 +70,25 @@ export default function Contact() {
 
         <form className="form reveal" onSubmit={handleSubmit}>
           <div className="form__head">
-            <span className="badge badge--cyan">Incoming transmission</span>
-            <span className="shift__order">To: FEH</span>
+            <span><span className="dot dot--live" aria-hidden="true" /> Incoming transmission</span>
+            <span>To: FEH</span>
           </div>
           <label className="field">
-            <span className="mono">Name</span>
+            <span className="field__k">Name</span>
             <input type="text" value={form.name} onChange={update('name')} placeholder="Your name" required autoComplete="name" />
           </label>
           <label className="field">
-            <span className="mono">Email</span>
+            <span className="field__k">Email</span>
             <input type="email" value={form.email} onChange={update('email')} placeholder="you@company.com" required autoComplete="email" />
           </label>
           <label className="field">
-            <span className="mono">Message</span>
+            <span className="field__k">Message</span>
             <textarea rows="5" value={form.message} onChange={update('message')} placeholder="Hey Fahad, let's build something…" required />
           </label>
           <button type="submit" className="btn btn--primary btn--block" disabled={status === 'sending'}>
             {status === 'sending' ? 'Sending…' : 'Send message'}
           </button>
-          <p className="form__status mono" role="status" aria-live="polite">
+          <p className="form__status" role="status" aria-live="polite">
             {status === 'sent' && '✓ Delivered. Thanks, I will be in touch soon.'}
             {status === 'error' && 'Something went wrong. Try again, or email me directly.'}
           </p>

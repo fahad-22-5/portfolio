@@ -22,14 +22,14 @@ export default function Hero() {
     <section className="hero" id="top">
       <div className="container hero__grid">
         <div className="hero__copy">
-          <p className="eyebrow caption">
-            <span><span className="dot dot--live" aria-hidden="true" /> {profile.role}</span>
-            <span>{profile.company} · {profile.location}</span>
+          <p className="eyebrow">
+            <span className="dot dot--live" aria-hidden="true" />
+            {profile.role} · {profile.company} · {profile.location}
           </p>
           <h1 className="hero__title">
             I build the software that sorts <span className="accent-text">100,000 parcels</span> a day.
           </h1>
-          <p className="hero__lede bubble">
+          <p className="hero__lede">
             I'm <strong>{profile.name}</strong>, a backend software engineer building high-throughput
             warehouse management and control systems — from PLC handshakes on the warehouse floor to
             the RabbitMQ queues and APIs that keep the supply chain moving. I write the code, then go
