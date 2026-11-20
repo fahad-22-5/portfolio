@@ -23,7 +23,7 @@ export default function About() {
               <p className="idcard__role">Software Engineer · Noida, India</p>
               <div className="idcard__code"><Barcode value="FAHAD-EQBAL-HASHMI" height={40} /></div>
             </div>
-            <figcaption className="idcard__caption">Engineer by day, comic-book nerd by night.</figcaption>
+            <figcaption className="idcard__caption">Backend engineer by day, superhero nerd by night.</figcaption>
           </figure>
 
           <div className="about__body reveal">

@@ -6,7 +6,7 @@ const STOPS = [
   { id: 'top', label: 'Label printed' },
   { id: 'play', label: 'Detour · Bonus level' },
   { id: 'work', label: 'In transit · Route' },
-  { id: 'skills', label: 'At hub · Inventory' },
+  { id: 'skills', label: 'At hub · Server room' },
   { id: 'research', label: 'Scanned · Research' },
   { id: 'about', label: 'Sorting · About' },
   { id: 'contact', label: 'Out for delivery' },

@@ -3,9 +3,9 @@ import { profile } from '../data';
 import { trackEvent } from '../../../utils/analytics';
 
 const links = [
-  { id: 'work', label: 'Work' },
+  { id: 'work', label: 'Experience' },
   { id: 'skills', label: 'Skills' },
-  { id: 'research', label: 'Research' },
+  { id: 'research', label: 'Publications' },
   { id: 'about', label: 'About' },
   { id: 'contact', label: 'Contact' },
 ];

@@ -119,7 +119,7 @@ export const education = [
 
 export const offShift = [
   { title: 'Caffeine powered', desc: 'Deep down the specialty-coffee rabbit hole. Output is now measured in espresso shots and pour-over bloom times.' },
-  { title: 'Web weaver', desc: "Massive comic-book nerd. I build the web all day and I'm still let down it won't let me swing between skyscrapers." },
+  { title: 'Spider-sense, on call', desc: "Massive superhero nerd. I don't spin webs, I build the systems behind them, and my spider-sense is an alert that tingles before the warehouse floor notices anything." },
   { title: 'Globe trotter', desc: 'Have passport, will travel — getting lost in foreign cities and pretending I speak the language.' },
   { title: 'Cinema purist', desc: "If I'm watching a movie, it's in a theatre. No laptops, no small screens, no exceptions." },
 ];

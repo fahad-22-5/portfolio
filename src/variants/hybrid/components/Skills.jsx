@@ -10,7 +10,7 @@ export default function Skills() {
   return (
     <section className="section section--alt" id="skills" ref={ref}>
       <div className="container">
-        <SectionHead index="02" label="Inventory" title="What's on the shelves." />
+        <SectionHead index="02" label="Server room" title="What's running on the servers." />
         <div className="modules">
           {skillBins.map((bin) => (
             <article className="module reveal" key={bin.bin}>

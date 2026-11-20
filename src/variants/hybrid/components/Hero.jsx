@@ -95,8 +95,8 @@ export default function Hero() {
               <p className="hero__lede">
                 I'm a backend software engineer building high-throughput warehouse management and control
                 systems — from PLC handshakes on the warehouse floor to the RabbitMQ queues and APIs that
-                keep the supply chain moving. I write the code, then go on-site and take it live with the
-                people who run it.
+                keep the supply chain moving. <strong>I write the code, then go on-site and take it live with
+                the people who run it.</strong>
               </p>
             </div>
 
