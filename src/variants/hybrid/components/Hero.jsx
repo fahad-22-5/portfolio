@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Barcode from './Barcode';
 import HeroFloor from './HeroFloor';
+import AnimatedCounter, { localeGrouping } from './AnimatedCounter';
 import { profile, stats } from '../data';
 
 // Simulated: where a 100K/day sorter's running count would be since the
@@ -11,6 +12,8 @@ function parcelsSinceMidnight() {
   const secs = (now.getTime() - midnight.getTime()) / 1000;
   return Math.floor(Math.min(secs, 86400) * (100000 / 86400));
 }
+
+const LOCALE_GROUPING = localeGrouping();
 
 // The hero is a single shipping label. After the intro it prints out of a
 // slot, gets its barcode scanned, is stamped "In transit" and slapped down.
@@ -139,7 +142,7 @@ export default function Hero() {
               <span className="dot dot--live" aria-hidden="true" /> Live · simulated
             </dt>
             <dd>
-              <span className="tally__value tabular">{count.toLocaleString()}</span>
+              <AnimatedCounter className="tally__value tabular" value={count} duration={0.5} {...LOCALE_GROUPING} />
               <span className="tally__label">parcels sorted today, so far</span>
             </dd>
           </div>

@@ -1154,3 +1154,12 @@ html[data-intro='playing'] .footer { animation-play-state: paused; }
   .conveyor__track { flex-wrap: wrap; width: auto; padding: 0 var(--gutter) 4px; }
   .conveyor__track [aria-hidden='true'] { display: none; }
 }
+
+/* ---------- Animated counter (odometer wheels) ---------- */
+.ac { display: inline-flex; align-items: center; font-variant-numeric: tabular-nums; }
+.ac__row { display: inline-flex; align-items: center; user-select: none; }
+.ac__fixed { display: inline-block; }
+.ac__digit { position: relative; display: inline-grid; overflow: hidden; }
+.ac__sizer { visibility: hidden; grid-area: 1 / 1; }
+.ac__stack { position: absolute; left: 0; right: 0; top: 0; }
+.ac__face { display: flex; align-items: center; justify-content: center; }
