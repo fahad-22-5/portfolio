@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <base href="/hammersmith/">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hammersmith · a cat's-eye tour</title>
+  <meta name="description" content="An interactive 3D diorama of Hammersmith Broadway, explored as a stray cat.">
+  <style>html, body, #app { margin: 0; width: 100%; height: 100%; background: #141b2e; overflow: hidden; }</style>
+  <script type="importmap">{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/three-addons/" } }</script>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    import { createHammersmith } from './src/hammersmith.js';
+    // ?back=/some/path overrides where the "Back to portfolio" pill points.
+    const back = new URLSearchParams(location.search).get('back');
+    window.hammersmith = createHammersmith(document.getElementById('app'), {
+      portfolioUrl: back && back.startsWith('/') && !back.startsWith('//') ? back : '/',
+    });
+  </script>
+</body>
+</html>

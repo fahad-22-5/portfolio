@@ -10,6 +10,8 @@ import reportWebVitals from './reportWebVitals';
 //   /old-portfolio/*  -> the previous site, with its routes under that prefix
 //   /warehouse        -> the 3D warehouse game (served by the previous site's router)
 //   /preview/*        -> unlisted design previews (noindex)
+//   /hammersmith      -> unlisted: the Hammersmith cat's-eye tour, a static page in public/hammersmith/
+//                        (Vercel rewrites /hammersmith to it; this redirect covers the dev server)
 const Home = lazy(() => import('./variants/hybrid/App'));
 const OldSite = lazy(() => import('./App'));
 
@@ -24,6 +26,8 @@ const path = window.location.pathname.replace(/\/+$/, '');
 const Preview = PREVIEWS[path];
 const isHome = path === '';
 const isOld = path === OLD_BASE || path.startsWith(`${OLD_BASE}/`);
+const isHammersmith = path === '/hammersmith';
+if (isHammersmith) window.location.replace(`/hammersmith/${window.location.search}`);
 
 if (Preview) {
   const robots = document.createElement('meta');
@@ -33,14 +37,15 @@ if (Preview) {
 }
 
 let page;
-if (Preview) page = <Preview />;
+if (isHammersmith) page = null;
+else if (Preview) page = <Preview />;
 else if (isHome) page = <Home />;
 else if (isOld) page = <BrowserRouter basename={OLD_BASE}><OldSite /></BrowserRouter>;
 else page = <BrowserRouter><OldSite /></BrowserRouter>;
 
 // Pages with their own intro get a plain dark hold screen instead of the
 // previous site's "Loading portfolio" splash.
-const fallback = Preview || isHome
+const fallback = Preview || isHome || isHammersmith
   ? <div style={{ position: 'fixed', inset: 0, background: '#0d0d0a' }} aria-hidden="true" />
   : <PageLoader label="Loading portfolio" />;
 
