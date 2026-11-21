@@ -3,12 +3,13 @@ import Barcode from './Barcode';
 import HeroFloor from './HeroFloor';
 import { profile, stats } from '../data';
 
-// Simulated: where a 100K/day sorter's running count would be since midnight IST.
+// Simulated: where a 100K/day sorter's running count would be since the
+// visitor's own local midnight (Date uses the browser's time zone).
 function parcelsSinceMidnight() {
   const now = new Date();
-  const ist = new Date(now.getTime() + (now.getTimezoneOffset() + 330) * 60000);
-  const secs = ist.getHours() * 3600 + ist.getMinutes() * 60 + ist.getSeconds() + ist.getMilliseconds() / 1000;
-  return Math.floor(secs * (100000 / 86400));
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const secs = (now.getTime() - midnight.getTime()) / 1000;
+  return Math.floor(Math.min(secs, 86400) * (100000 / 86400));
 }
 
 // The hero is a single shipping label. After the intro it prints out of a
@@ -138,8 +139,8 @@ export default function Hero() {
               <span className="dot dot--live" aria-hidden="true" /> Live · simulated
             </dt>
             <dd>
-              <span className="tally__value tabular">{count.toLocaleString('en-IN')}</span>
-              <span className="tally__label">parcels through a 100K/day sorter since midnight IST</span>
+              <span className="tally__value tabular">{count.toLocaleString()}</span>
+              <span className="tally__label">parcels sorted today, so far</span>
             </dd>
           </div>
           {stats.map((s) => (
