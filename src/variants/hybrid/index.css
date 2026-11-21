@@ -155,12 +155,7 @@ strong { font-weight: 650; color: var(--ink); }
 .nav--scrolled { border-bottom-color: var(--line); }
 .nav__inner { display: flex; align-items: center; gap: 24px; height: 68px; }
 .nav__brand { display: flex; align-items: center; gap: 12px; font-weight: 650; }
-.nav__mark {
-  display: grid; place-items: center; width: 38px; height: 38px;
-  background: var(--accent); color: var(--accent-ink);
-  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
-  border-radius: 4px; box-shadow: 3px 3px 0 var(--line-strong);
-}
+.nav__mark { display: block; width: 38px; height: 38px; flex: none; }
 .nav__name { white-space: nowrap; }
 .nav__links { display: flex; gap: 2px; margin-left: auto; }
 .nav__links a { position: relative; display: block; padding: 8px 12px; font-size: 15px; color: var(--ink-2); transition: color 0.2s; }

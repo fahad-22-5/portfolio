@@ -71,7 +71,7 @@ export default function Nav() {
     <nav className={`nav ${scrolled ? 'nav--scrolled' : ''}`} aria-label="Primary">
       <div className="nav__inner container">
         <a href="#top" className="nav__brand" onClick={() => setOpen(false)}>
-          <span className="nav__mark" aria-hidden="true">{profile.short}</span>
+          <img className="nav__mark" src="/favicon.svg" alt="" width="38" height="38" aria-hidden="true" />
           <span className="nav__name">{profile.name}</span>
         </a>
 
